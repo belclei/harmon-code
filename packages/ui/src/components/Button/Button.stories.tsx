@@ -25,7 +25,7 @@ const meta: Meta<typeof Button> = {
   argTypes: {
     variant: {
       control: "select",
-      options: ["primary", "secondary", "tertiary", "danger"],
+      options: ["primary", "secondary", "tertiary", "danger", "link"],
     },
     size: { control: "select", options: ["sm", "md", "lg"] },
   },
@@ -42,12 +42,14 @@ const VARIANTS: ButtonVariant[] = [
   "secondary",
   "tertiary",
   "danger",
+  "link",
 ];
 const LABELS: Record<ButtonVariant, string> = {
   primary: "Primário",
   secondary: "Secundário",
   tertiary: "Terciário",
   danger: "Perigo",
+  link: "Link",
 };
 
 /**
@@ -119,4 +121,38 @@ export const Tamanhos: Story = {
       <Button size="lg">Grande</Button>
     </div>
   ),
+};
+
+const PlusIcon = (
+  <svg
+    aria-hidden="true"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth={2}
+    strokeLinecap="round"
+  >
+    <path d="M12 5v14M5 12h14" />
+  </svg>
+);
+
+/**
+ * index.html id="botao", "com ícone": ícone à esquerda do rótulo, sempre
+ * `aria-hidden` — o rótulo continua sendo o nome acessível do botão.
+ */
+export const ComIcone: Story = {
+  render: () => (
+    <Button variant="primary" leadingIcon={PlusIcon}>
+      Nova transação
+    </Button>
+  ),
+};
+
+/**
+ * `link`: a 5ª variante do botão na referência (id="botao") — sem fundo,
+ * sem padding, sublinhado, para ações de texto como "de onde vem esse
+ * número?". Aditiva sobre a lista de 4 variantes do IMPLEMENTACAO.md.
+ */
+export const Link: Story = {
+  render: () => <Button variant="link">De onde vem esse número?</Button>,
 };

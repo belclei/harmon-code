@@ -1,6 +1,21 @@
-import type { ButtonHTMLAttributes } from "react";
+import type { ButtonHTMLAttributes, ReactNode } from "react";
 
-export type ButtonVariant = "primary" | "secondary" | "tertiary" | "danger";
+// "link" is additive over IMPLEMENTACAO.md §10.1a's 4-variant list
+// (primary/secondary/tertiary/danger) — brand/design-system/index.html's
+// button section (id="botao") documents 5 variants, the 5th being a
+// text-link style action (e.g. "De onde vem esse número?") with no
+// background/padding, underlined, at --hm-blue-700. Kept alongside
+// `tertiary` rather than renamed/merged: `tertiary` already renders
+// identically to the reference's `ghost` (padded, bordered-transparent
+// button), which is a *different* affordance than an inline text link.
+// Flagged for whoever owns IMPLEMENTACAO.md: the spec's variant list is
+// now one short of the reference's.
+export type ButtonVariant =
+  | "primary"
+  | "secondary"
+  | "tertiary"
+  | "danger"
+  | "link";
 export type ButtonSize = "sm" | "md" | "lg";
 
 export interface ButtonProps
@@ -11,6 +26,14 @@ export interface ButtonProps
   size?: ButtonSize;
   /** Shows a spinner and puts the button in a busy, non-interactive state. Purely presentational — callers own the async logic. */
   loading?: boolean;
+  /**
+   * Icon rendered before the label (index.html "com ícone" example,
+   * id="botao"). Always `aria-hidden` — the label is the accessible name.
+   * There is no trailing-icon slot: the reference only ever shows a leading
+   * icon on this component (a distinct icon-only square button — see
+   * `IconButton` — covers the icon-with-no-label case).
+   */
+  leadingIcon?: ReactNode;
 }
 
 const VARIANT_CLASSES: Record<ButtonVariant, string> = {
@@ -42,12 +65,31 @@ const VARIANT_CLASSES: Record<ButtonVariant, string> = {
   danger:
     "bg-[var(--hm-clay-600)] text-white border border-transparent " +
     "hover:bg-[#9E4438] active:bg-[#8B3C31]",
+  // index.html lines ~63-67 of harmon-components.css (`.hmc-btn--link`):
+  // background none, padding 0, min-height 0, underlined, --hm-blue-700,
+  // hover → --hm-ink-900. --hm-blue-700/--hm-ink-900 are only AA-checked
+  // against a light page (harmon-tokens.css's own v1.1 comment, same caveat
+  // already noted for Alert/Badge above) — dark mode steps to the same
+  // --hm-blue-300/--hm-bone-100 pairing used elsewhere in this file.
+  link:
+    "bg-transparent text-[var(--hm-blue-700)] dark:text-[var(--hm-blue-300)] border border-transparent " +
+    "underline underline-offset-[3px] decoration-1 " +
+    "hover:text-[var(--hm-ink-900)] dark:hover:text-[var(--hm-bone-100)]",
 };
 
 const SIZE_CLASSES: Record<ButtonSize, string> = {
   sm: "text-[.8125rem] px-3.5 py-2 min-h-9 rounded-[var(--hm-r-sm)]",
   md: "text-sm px-4 py-2.5 min-h-11 rounded-[var(--hm-r-md)]",
   lg: "text-base px-7 py-4 min-h-13 rounded-[var(--hm-r-md)]",
+};
+
+// `link` ignores the sm/md/lg padding/min-height scale entirely (reference
+// has no such combination — a text link has no touch-target box to size);
+// only the font-size still tracks the requested size.
+const LINK_SIZE_CLASSES: Record<ButtonSize, string> = {
+  sm: "text-[.8125rem] p-0 min-h-0",
+  md: "text-sm p-0 min-h-0",
+  lg: "text-base p-0 min-h-0",
 };
 
 /**
@@ -61,10 +103,12 @@ export function Button({
   loading = false,
   disabled = false,
   className = "",
+  leadingIcon,
   children,
   ...rest
 }: ButtonProps) {
   const isDisabled = disabled || loading;
+  const isLink = variant === "link";
 
   return (
     <button
@@ -77,11 +121,26 @@ export function Button({
         "transition-colors duration-150 ease-out",
         "disabled:cursor-not-allowed disabled:opacity-50",
         VARIANT_CLASSES[variant],
-        SIZE_CLASSES[size],
+        isLink ? LINK_SIZE_CLASSES[size] : SIZE_CLASSES[size],
         className,
       ].join(" ")}
     >
-      <span className={loading ? "opacity-0" : "opacity-100"}>{children}</span>
+      <span
+        className={[
+          "inline-flex items-center gap-2",
+          loading ? "opacity-0" : "opacity-100",
+        ].join(" ")}
+      >
+        {leadingIcon ? (
+          <span
+            aria-hidden="true"
+            className="inline-flex h-[15px] w-[15px] flex-none [&>svg]:h-full [&>svg]:w-full"
+          >
+            {leadingIcon}
+          </span>
+        ) : null}
+        {children}
+      </span>
       {loading ? (
         <>
           <span
