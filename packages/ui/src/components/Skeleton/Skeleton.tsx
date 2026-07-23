@@ -51,7 +51,12 @@ export function Skeleton({
         className={[
           "absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent to-transparent",
           "via-white/50 dark:via-white/15",
-          "animate-[hm-skeleton-shimmer_1.6s_ease-in-out_infinite]",
+          // index.html id="carregando", `.hmc-skeleton`: 1600ms, and eased
+          // with the same --hm-ease-settle token every other "things
+          // settling into place" motion in this system uses (not a
+          // hardcoded ease-in-out) — timing already matched, this was the
+          // one real drift from the reference's shimmer.
+          "animate-[hm-skeleton-shimmer_1.6s_var(--hm-ease-settle)_infinite]",
         ].join(" ")}
       />
     </span>
