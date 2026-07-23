@@ -94,3 +94,77 @@ export const Matriz: Story = {
     </div>
   ),
 };
+
+/** Campo obrigatório — o asterisco usa o mesmo tom (--hm-clay-600) do texto de erro, então precisa do mesmo passo de contraste no tema escuro. */
+export const Obrigatorio: Story = {
+  name: "Obrigatório",
+  args: { label: "Dia do vencimento", required: true },
+};
+
+/** index.html id="campo": readonly é tracejado + fundo recuado — distinto de disabled (o valor continua selecionável, só não é editável). */
+export const ReadOnly: Story = {
+  name: "Readonly",
+  args: {
+    label: "Hash do documento",
+    defaultValue: "a1f9…c72e",
+    readOnly: true,
+  },
+};
+
+const SearchIcon = (
+  <svg
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth={2}
+    aria-hidden="true"
+  >
+    <circle cx="11" cy="11" r="7" />
+    <path d="m20 20-3.5-3.5" />
+  </svg>
+);
+
+/**
+ * index.html id="campo", "Valor monetário": mono, tabular, alinhado à
+ * direita, com prefixo estático "R$" — o sinal fica no valor, nunca digitado.
+ */
+export const Monetario: Story = {
+  name: "Monetário",
+  render: () => (
+    <div style={{ display: "flex", gap: "1.5rem", flexWrap: "wrap" }}>
+      <div style={{ width: "220px" }}>
+        <Input label="Valor" placeholder="0,00" money affix="R$" />
+      </div>
+      <div style={{ width: "220px" }}>
+        <Input label="Valor" defaultValue="1.842,90" money affix="R$" />
+      </div>
+      <div style={{ width: "220px" }}>
+        <Input
+          label="Valor"
+          defaultValue="0,00"
+          money
+          affix="R$"
+          error="Obrigatório"
+        />
+      </div>
+    </div>
+  ),
+};
+
+/** index.html id="campo", "Área de texto e busca": afixo decorativo (ícone) à esquerda do campo, dentro do mesmo `.hmc-inputgroup`. */
+export const ComIconeDeBusca: Story = {
+  name: "Com ícone de busca",
+  render: () => (
+    <div style={{ width: "18rem" }}>
+      <Input
+        label="Buscar"
+        placeholder="Transação, categoria ou valor"
+        affix={
+          <span style={{ display: "block", width: "15px", height: "15px" }}>
+            {SearchIcon}
+          </span>
+        }
+      />
+    </div>
+  ),
+};
