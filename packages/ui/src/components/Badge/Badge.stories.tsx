@@ -57,3 +57,30 @@ export const Categoria: Story = {
     </div>
   ),
 };
+
+/**
+ * index.html id="badge": "sem categoria" é estado legítimo (categoria é
+ * opcional na transação, §6.5) — nunca um erro; "sugerida pela IA" é sempre
+ * tracejada até confirmação humana; "removível" mostra o × de remoção.
+ */
+export const CategoriaEstadosEspeciais: Story = {
+  name: "Category — sem categoria, sugerida, removível",
+  render: () => (
+    <div style={{ display: "flex", gap: "0.75rem", flexWrap: "wrap" }}>
+      <Badge kind="category" color="ink" none>
+        Sem categoria
+      </Badge>
+      <Badge kind="category" color="blue" suggested>
+        Alimentação · sugerida
+      </Badge>
+      <Badge
+        kind="category"
+        color="clay"
+        onRemove={() => {}}
+        removeLabel="Remover categoria Transporte"
+      >
+        Transporte
+      </Badge>
+    </div>
+  ),
+};

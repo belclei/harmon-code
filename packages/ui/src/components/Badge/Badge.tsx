@@ -15,9 +15,26 @@ export interface BadgeStatusProps extends BadgeCommonProps {
 
 export interface BadgeCategoryProps extends BadgeCommonProps {
   kind: "category";
-  /** Category color is decided by the caller (e.g. from the category record's own `color` field) — the Badge just paints it. */
+  /** Category color is decided by the caller (e.g. from the category record's own `color` field) — the Badge just paints it. Ignored when `none` is set. */
   color: BadgeCategoryColor;
   icon?: ReactNode;
+  /**
+   * "Sem categoria" — index.html id="badge": category is optional on a
+   * transaction (§6.5), so this is a legitimate, deliberately muted state,
+   * not an error. Overrides `color`/`icon` to the neutral dashed treatment.
+   */
+  none?: boolean;
+  /**
+   * AI-suggested, not yet confirmed by a human — index.html id="badge" rule:
+   * "Sugestão da IA vem sempre tracejada até o humano confirmar." Adds a
+   * dashed border on top of the normal `color` styling; ignored when `none`
+   * is set (an unconfirmed suggestion is never simultaneously "no category").
+   */
+  suggested?: boolean;
+  /** Renders a trailing × affordance; called when the user removes this category from the record. */
+  onRemove?: () => void;
+  /** Accessible label for the remove button. Defaults to "Remover categoria". */
+  removeLabel?: string;
 }
 
 export type BadgeProps = BadgeStatusProps | BadgeCategoryProps;
@@ -118,14 +135,48 @@ export function Badge(props: BadgeProps) {
   }
 
   const c = CATEGORY_STYLES[props.color];
+  // index.html id="badge", ".hmc-chip--none": neutral, dashed, transparent —
+  // takes over from the normal per-color bg/text entirely.
+  const noneClasses =
+    "border border-dashed border-[var(--hm-border)] bg-transparent text-[var(--hm-text-2)]";
+  // index.html id="badge", "sugerida pela IA": a dashed border layered on
+  // top of the normal colored chip, in --hm-blue-500 — never combined with `none`.
+  const suggestedClasses = "border border-dashed border-[var(--hm-blue-500)]";
+
   return (
-    <span className={[base, c.bg, c.text, props.className ?? ""].join(" ")}>
-      {props.icon ? (
+    <span
+      className={[
+        base,
+        props.none ? noneClasses : [c.bg, c.text].join(" "),
+        !props.none && props.suggested ? suggestedClasses : "",
+        props.className ?? "",
+      ].join(" ")}
+    >
+      {!props.none && props.icon ? (
         <span aria-hidden="true" className="h-3.5 w-3.5 flex-none">
           {props.icon}
         </span>
       ) : null}
       {props.children}
+      {props.onRemove ? (
+        <button
+          type="button"
+          onClick={props.onRemove}
+          aria-label={props.removeLabel ?? "Remover categoria"}
+          className="-mr-1 ml-0.5 inline-flex h-3.5 w-3.5 flex-none items-center justify-center text-[var(--hm-text-2)] hover:text-[var(--hm-text)]"
+        >
+          <svg
+            aria-hidden="true"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth={2}
+            className="h-full w-full"
+          >
+            <path d="M6 6l12 12M18 6 6 18" />
+          </svg>
+        </button>
+      ) : null}
     </span>
   );
 }
