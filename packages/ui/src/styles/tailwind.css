@@ -1,0 +1,46 @@
+/* Must be the very first rule in the bundled stylesheet — CSS requires
+   @import to precede all other rules, including Tailwind's own @import.
+   This is normally the first rule inside harmon-tokens.css; moved here
+   because by the time that file is @import-ed below, it would no longer
+   be first. See the NOTE in packages/ui/src/tokens/harmon-tokens.css. */
+@import url("https://fonts.googleapis.com/css2?family=Cantarell:ital,wght@0,400;0,700;1,400&family=Red+Hat+Mono:wght@400;500;700&display=swap");
+
+@import "tailwindcss";
+
+/* Single source of truth for design tokens within this workspace.
+   Copied from the private docs/brand repo — see packages/ui/README.md. */
+@import "../tokens/harmon-tokens.css";
+
+/* Harmon toggles themes via `data-theme="dark"` on an ancestor (see
+   US-1.6), not the OS `prefers-color-scheme` media query — so Tailwind's
+   `dark:` variant is repointed at that attribute instead of its default.
+   Must come after every @import (CSS requires imports to precede all
+   other rules) — biome's noInvalidPositionAtImportRule caught this when
+   it was in between the two @import statements above. */
+@custom-variant dark (&:where([data-theme="dark"], [data-theme="dark"] *));
+
+/* Bridge a couple of Harmon tokens into Tailwind's theme namespace so the
+   `font-sans` / `font-mono` utilities resolve to the brand typefaces.
+   Colors, spacing, radii and elevation are intentionally NOT duplicated
+   here — components consume `--hm-*` custom properties directly (e.g.
+   `bg-[var(--hm-surface)]`) so there is exactly one place (harmon-tokens.css)
+   that defines a value. */
+@theme inline {
+  --font-sans: var(--hm-font-sans);
+  --font-mono: var(--hm-font-mono);
+}
+
+body {
+  background: var(--hm-bg);
+  color: var(--hm-text);
+  font-family: var(--hm-font-sans);
+}
+
+/* Sweep used by <Skeleton>'s shimmer. Reduced-motion users get the plain
+   static placeholder for free via the `@media (prefers-reduced-motion)`
+   rule already in harmon-tokens.css, which zeroes all animation durations. */
+@keyframes hm-skeleton-shimmer {
+  100% {
+    transform: translateX(100%);
+  }
+}
