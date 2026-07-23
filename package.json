@@ -1,21 +1,22 @@
 {
   "name": "harmon",
   "private": true,
-  "workspaces": [
-    "packages/*",
-    "apps/*"
-  ],
+  "workspaces": ["packages/*", "apps/*"],
   "engines": {
     "node": ">=20"
   },
   "scripts": {
     "lint": "biome check .",
-    "typecheck": "npm run typecheck --workspaces --if-present",
+    "generate": "npm run generate --workspace=@harmon/db --if-present",
+    "typecheck": "npm run generate --workspace=@harmon/db --if-present && npm run typecheck --workspaces --if-present",
     "test": "npm run test --workspaces --if-present",
-    "boundaries": "depcruise --config .dependency-cruiser.cjs packages apps"
+    "boundaries": "depcruise --config .dependency-cruiser.cjs packages $([ -d apps ] && echo apps)",
+    "storybook": "npm run storybook --workspace=@harmon/ui",
+    "build-storybook": "npm run build-storybook --workspace=@harmon/ui"
   },
   "devDependencies": {
     "@biomejs/biome": "^1.9.4",
+    "@types/node": "^20.17.9",
     "dependency-cruiser": "^16.10.0",
     "typescript": "^5.7.2"
   }
