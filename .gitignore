@@ -5,6 +5,7 @@ storybook-static/
 .next/
 out/
 coverage/
+*.tsbuildinfo
 *.log
 .env
 .env.local
