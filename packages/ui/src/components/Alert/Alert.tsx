@@ -1,11 +1,31 @@
 import type { ReactNode } from "react";
+import { Button } from "../Button/Button";
 
 export type AlertVariant = "info" | "success" | "warning" | "error";
+
+export interface AlertAction {
+  label: string;
+  onClick: () => void;
+  /**
+   * index.html id="alerta": an alert's action is always discreet — ghost or
+   * secondary — never a filled/primary button, which would compete with the
+   * screen's own primary action. Defaults to "ghost".
+   */
+  variant?: "ghost" | "secondary";
+}
 
 export interface AlertProps {
   variant?: AlertVariant;
   title: string;
   description?: ReactNode;
+  /**
+   * 1–2 buttons rendered to the right of the text, vertically centered
+   * (index.html id="alerta", `.hmc-alert__actions`). When there are two, put
+   * the more likely one last (rightmost) — matches the reference's own
+   * ordering rule. Below 560px width the actions wrap onto their own line,
+   * left-aligned under the text.
+   */
+  actions?: AlertAction[];
   /** When provided, a close button is rendered and this is called on click. Purely presentational — dismissal state lives with the caller. */
   onClose?: () => void;
   className?: string;
@@ -45,15 +65,49 @@ const VARIANT_STYLES: Record<
   },
 };
 
-const ICON_PATHS: Record<AlertVariant, string> = {
-  info: "M18 10A8 8 0 112 10a8 8 0 0116 0zM9 9a1 1 0 012 0v4a1 1 0 11-2 0V9zm1-3a1.125 1.125 0 100 2.25A1.125 1.125 0 0010 6z",
-  success:
-    "M16.704 5.29a1 1 0 010 1.415l-7.005 7a1 1 0 01-1.416 0l-3.005-3a1 1 0 111.415-1.414l2.298 2.296 6.298-6.296a1 1 0 011.415 0z",
-  warning:
-    "M8.257 3.099c.765-1.36 2.72-1.36 3.486 0l6.28 11.164c.75 1.333-.213 2.987-1.743 2.987H3.72c-1.53 0-2.493-1.654-1.743-2.987L8.257 3.1zM10 7a1 1 0 011 1v3a1 1 0 11-2 0V8a1 1 0 011-1zm0 8a1 1 0 100-2 1 1 0 000 2z",
-  error:
-    "M10 18a8 8 0 100-16 8 8 0 000 16zm-1-9a1 1 0 112 0v4a1 1 0 11-2 0V9zm1-4a1.125 1.125 0 100 2.25A1.125 1.125 0 0010 5z",
+// Reference (index.html id="alerta", lines 979/987/994/1002): stroke-based
+// line icons, viewBox 24×24, stroke-width 1.8 — not the filled 20×20
+// Heroicons-style paths this component used before. Also fixes a real
+// mismatch: the previous `info` and `error` shapes were both a
+// circle+bar+dot at nearly the same coordinates (bar y9→13, dot at y≈6 for
+// info vs y≈5 for error) — visually near-identical at a glance. The
+// reference deliberately distinguishes them: info's dot sits ABOVE its bar
+// (an "i" — M12 11v5 M12 8h.01, dot at top), error/danger's dot sits BELOW
+// its bar (a "!" — M12 8v5 M12 16h.01, dot at bottom).
+const ICON_PATHS: Record<AlertVariant, ReactNode> = {
+  info: (
+    <>
+      <circle cx="12" cy="12" r="9" />
+      <path d="M12 11v5M12 8h.01" />
+    </>
+  ),
+  success: (
+    <>
+      <circle cx="12" cy="12" r="9" />
+      <path d="m8 12 3 3 5-6" />
+    </>
+  ),
+  warning: (
+    <>
+      <path d="M12 4 3 19h18z" />
+      <path d="M12 10v4M12 17h.01" />
+    </>
+  ),
+  error: (
+    <>
+      <circle cx="12" cy="12" r="9" />
+      <path d="M12 8v5M12 16h.01" />
+    </>
+  ),
 };
+
+// index.html id="alerta": actions are always ghost/secondary, sized `sm` —
+// never a filled/primary button. `Button`'s "tertiary" variant is the
+// reference's "ghost" (see Button.tsx's own comment on that naming).
+const ACTION_VARIANT_MAP = {
+  ghost: "tertiary",
+  secondary: "secondary",
+} as const;
 
 /**
  * Harmon's inline notification. Dumb component: it renders whatever
@@ -64,6 +118,7 @@ export function Alert({
   variant = "info",
   title,
   description,
+  actions,
   onClose,
   className = "",
 }: AlertProps) {
@@ -74,17 +129,22 @@ export function Alert({
       role={styles.role}
       className={[
         "flex items-start gap-3 rounded-[var(--hm-r-md)] p-4",
+        // index.html id="alerta": below 560px, actions wrap onto their own
+        // line under the text instead of squeezing beside it.
+        "max-[560px]:flex-wrap",
         styles.bg,
         className,
       ].join(" ")}
     >
       <svg
         aria-hidden="true"
-        viewBox="0 0 20 20"
-        fill="currentColor"
-        className={["mt-0.5 h-5 w-5 flex-none", styles.icon].join(" ")}
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth={1.8}
+        className={["mt-px h-[18px] w-[18px] flex-none", styles.icon].join(" ")}
       >
-        <path fillRule="evenodd" clipRule="evenodd" d={ICON_PATHS[variant]} />
+        {ICON_PATHS[variant]}
       </svg>
       <div className="min-w-0 flex-1">
         <p className="m-0 text-[.875rem] font-bold text-[var(--hm-text)]">
@@ -104,6 +164,46 @@ export function Alert({
           </p>
         ) : null}
       </div>
+      {actions && actions.length > 0 ? (
+        <div
+          className={[
+            "flex flex-none items-center gap-2 self-center",
+            "ml-[var(--hm-s2)]",
+            // index.html id="alerta": below 560px the actions stretch to
+            // full width, drop the left margin in favor of 30px of
+            // left padding (aligns under the text, after the icon), and
+            // left-justify instead of trailing the text.
+            "max-[560px]:ml-0 max-[560px]:mt-2.5 max-[560px]:w-full",
+            "max-[560px]:justify-start max-[560px]:self-stretch max-[560px]:pl-[30px]",
+          ].join(" ")}
+        >
+          {actions.map((action) => (
+            <Button
+              key={action.label}
+              type="button"
+              size="sm"
+              variant={ACTION_VARIANT_MAP[action.variant ?? "ghost"]}
+              onClick={action.onClick}
+              // Button's "tertiary"/ghost text color (--hm-text-2) was only
+              // ever AA-checked against the plain page surface, not against
+              // Alert's own tinted backgrounds (blue-100/sage-100/etc.) —
+              // axe-core caught exactly that combination here: 4.35:1 on
+              // sage-100, short of 4.5:1. Same "text on its own tint" class
+              // of bug already flagged on Badge/Alert's own title-text
+              // comments elsewhere in this file; the fix is the same one
+              // already applied to this component's title/description:
+              // force full-strength --hm-text instead of the muted tone.
+              // The trailing `!` is Tailwind v4's important-utility syntax —
+              // needed because two different arbitrary-value utility
+              // classes targeting `color` don't otherwise have a
+              // predictable winner based on this component's own class order.
+              className="text-[var(--hm-text)]!"
+            >
+              {action.label}
+            </Button>
+          ))}
+        </div>
+      ) : null}
       {onClose ? (
         <button
           type="button"

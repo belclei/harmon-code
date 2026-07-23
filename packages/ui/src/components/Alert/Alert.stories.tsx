@@ -73,3 +73,78 @@ export const SemBotaoFechar: Story = {
   name: "Sem botão de fechar",
   args: { onClose: undefined },
 };
+
+/**
+ * index.html id="alerta", "Com ação à direita": até 2 botões `ghost`/
+ * `secondary` (nunca preenchido) à direita do texto. Com duas ações, a mais
+ * provável fica por último (mais à direita).
+ */
+export const ComAcoes: Story = {
+  name: "Com ações",
+  render: () => (
+    <div style={{ display: "grid", gap: "1rem", width: "26rem" }}>
+      <Alert
+        variant="success"
+        title="Fatura Nubank de julho importada"
+        description="34 transações confirmadas. Saldos recalculados."
+        actions={[{ label: "Ver na timeline", onClick: () => {} }]}
+      />
+      <Alert
+        variant="warning"
+        title="A conta de luz veio R$ 70 acima da referência"
+        description="R$ 220,00 contra R$ 150,00 previstos. Quer atualizar o valor de referência da recorrência?"
+        actions={[
+          { label: "Manter R$ 150", onClick: () => {} },
+          {
+            label: "Atualizar para R$ 220",
+            onClick: () => {},
+            variant: "secondary",
+          },
+        ]}
+      />
+    </div>
+  ),
+};
+
+/** index.html id="alerta", "Dispensável": ação e botão de fechar coexistem — o fechar fica no canto superior direito, as ações continuam centradas na vertical. */
+export const ComAcoesEFechar: Story = {
+  name: "Com ações e botão de fechar",
+  render: () => (
+    <div style={{ width: "26rem" }}>
+      <Alert
+        variant="info"
+        title="Você tem 3 recorrências sem confirmar este mês"
+        description="Confirme para o Disponível Hoje refletir o que já saiu."
+        actions={[
+          {
+            label: "Revisar recorrências",
+            onClick: () => {},
+            variant: "secondary",
+          },
+        ]}
+        onClose={() => {}}
+      />
+    </div>
+  ),
+};
+
+/** index.html id="alerta", "Estreito": abaixo de 560px as ações empilham sob o texto, alinhadas à esquerda (não centradas sob o ícone). */
+export const Estreito: Story = {
+  render: () => (
+    <div style={{ maxWidth: "380px" }}>
+      <Alert
+        variant="warning"
+        title="Saldo abaixo do limite"
+        description="A conta Itaú está a R$ 88 de estourar o cheque especial."
+        actions={[
+          { label: "Ignorar", onClick: () => {} },
+          {
+            label: "Ver conta",
+            onClick: () => {},
+            variant: "secondary",
+          },
+        ]}
+      />
+    </div>
+  ),
+};
