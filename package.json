@@ -1,0 +1,22 @@
+{
+  "name": "harmon",
+  "private": true,
+  "workspaces": [
+    "packages/*",
+    "apps/*"
+  ],
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "lint": "biome check .",
+    "typecheck": "npm run typecheck --workspaces --if-present",
+    "test": "npm run test --workspaces --if-present",
+    "boundaries": "depcruise --config .dependency-cruiser.cjs packages apps"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "^1.9.4",
+    "dependency-cruiser": "^16.10.0",
+    "typescript": "^5.7.2"
+  }
+}
