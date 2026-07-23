@@ -119,3 +119,72 @@ export const ComBusca: Story = {
   name: "Com busca (digite para filtrar)",
   render: () => <Select label="Categoria" options={CATEGORIES} defaultOpen />,
 };
+
+const FoodIcon = (
+  <svg
+    aria-hidden="true"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth={1.7}
+  >
+    <path d="M6 3v8a2 2 0 0 0 4 0V3M8 11v10M16 3c-1.5 2-2 4-2 6h4V3zM18 9v12" />
+  </svg>
+);
+const HomeIcon = (
+  <svg
+    aria-hidden="true"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth={1.7}
+  >
+    <path d="M3 11 12 4l9 7v9H3z" />
+  </svg>
+);
+const TransportIcon = (
+  <svg
+    aria-hidden="true"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth={1.7}
+  >
+    <path d="M4 15h16l-1.5-5H5.5z" />
+    <circle cx="7.5" cy="17.5" r="1.7" />
+    <circle cx="16.5" cy="17.5" r="1.7" />
+  </svg>
+);
+
+/**
+ * index.html id="select", "Painel aberto": ícone por item, item selecionado
+ * distinto do apenas destacado (blue-100 vs sunken), separador e um item
+ * desabilitado ("em breve") — todos no mesmo menu de categorias.
+ */
+export const MenuComIconesESeparador: Story = {
+  name: "Menu com ícones, separador e item desabilitado",
+  render: () => (
+    <div style={{ width: "18rem" }}>
+      <Select
+        label="Categoria"
+        value="moradia"
+        defaultOpen
+        options={[
+          { value: "alimentacao", label: "Alimentação", icon: FoodIcon },
+          { value: "moradia", label: "Moradia", icon: HomeIcon },
+          {
+            value: "transporte",
+            label: "Transporte",
+            icon: TransportIcon,
+          },
+          { separator: true },
+          {
+            value: "investimentos",
+            label: "Investimentos (em breve)",
+            disabled: true,
+          },
+        ]}
+      />
+    </div>
+  ),
+};

@@ -1,6 +1,7 @@
 import {
   type FocusEvent,
   type KeyboardEvent,
+  type ReactNode,
   useId,
   useMemo,
   useRef,
@@ -11,12 +12,32 @@ import { FieldMessage } from "../shared/FieldMessage";
 export interface SelectOption {
   value: string;
   label: string;
+  /** Leading icon (index.html id="select": each category item in the open menu carries one). Always rendered `aria-hidden` — `label` is the accessible name. */
+  icon?: ReactNode;
+  /** Renders per `.hmc-menu__item.is-disabled` (index.html id="select", "Investimentos (em breve)"): dimmed, unreachable by click or keyboard. */
+  disabled?: boolean;
+}
+
+/**
+ * A non-selectable divider between groups of options (index.html id="select",
+ * `.hmc-menu__sep`). Purely visual — rendered `aria-hidden` rather than given
+ * an ARIA role, since `role="separator"` isn't a valid child of `role="listbox"`
+ * (only `option`/`group` are) and this component's listbox is real ARIA, not decorative.
+ */
+export interface SelectSeparator {
+  separator: true;
+}
+
+export type SelectItem = SelectOption | SelectSeparator;
+
+function isSeparator(item: SelectItem): item is SelectSeparator {
+  return "separator" in item && item.separator === true;
 }
 
 export interface SelectProps {
   /** Visible label — every select must have one. */
   label: string;
-  options: SelectOption[];
+  options: SelectItem[];
   /** Currently selected value, or `null`/`undefined` for none. Controlled by the caller. */
   value?: string | null;
   /** Called with the newly chosen option's value. This component never owns the selection. */
@@ -62,16 +83,34 @@ export function Select({
   const [highlighted, setHighlighted] = useState(0);
   const containerRef = useRef<HTMLDivElement>(null);
 
-  const selectedOption = options.find((o) => o.value === value) ?? null;
+  const selectableOptions = useMemo(
+    () => options.filter((item): item is SelectOption => !isSeparator(item)),
+    [options],
+  );
+  const selectedOption =
+    selectableOptions.find((o) => o.value === value) ?? null;
   const hasError = Boolean(error);
 
-  const filtered = useMemo(() => {
+  const filteredItems = useMemo(() => {
     if (!query) return options;
     const q = query.toLocaleLowerCase("pt-BR");
-    return options.filter((o) =>
-      o.label.toLocaleLowerCase("pt-BR").includes(q),
+    return options.filter(
+      (item) =>
+        isSeparator(item) || item.label.toLocaleLowerCase("pt-BR").includes(q),
     );
   }, [options, query]);
+
+  // Keyboard nav and aria-activedescendant only ever target selectable
+  // (non-separator, non-disabled) options — index.html id="select": a
+  // disabled item ("Investimentos (em breve)") is unreachable by keyboard,
+  // same as it is by click.
+  const navigableOptions = useMemo(
+    () =>
+      filteredItems.filter(
+        (item): item is SelectOption => !isSeparator(item) && !item.disabled,
+      ),
+    [filteredItems],
+  );
 
   function commit(optionValue: string) {
     onChange?.(optionValue);
@@ -87,7 +126,7 @@ export function Select({
         if (!open) setOpen(true);
         else
           setHighlighted((h) =>
-            Math.min(h + 1, Math.max(filtered.length - 1, 0)),
+            Math.min(h + 1, Math.max(navigableOptions.length - 1, 0)),
           );
         break;
       case "ArrowUp":
@@ -95,7 +134,7 @@ export function Select({
         setHighlighted((h) => Math.max(h - 1, 0));
         break;
       case "Enter": {
-        const target = filtered[highlighted];
+        const target = navigableOptions[highlighted];
         event.preventDefault();
         if (open && target) commit(target.value);
         else setOpen(true);
@@ -117,7 +156,7 @@ export function Select({
     }
   }
 
-  const activeOption = open ? filtered[highlighted] : undefined;
+  const activeOption = open ? navigableOptions[highlighted] : undefined;
 
   return (
     <div className="grid gap-1.5" ref={containerRef} onBlur={handleBlur}>
@@ -205,14 +244,31 @@ export function Select({
               "border border-[var(--hm-border)] bg-[var(--hm-surface)] py-1 shadow-[var(--hm-e2)]",
             ].join(" ")}
           >
-            {filtered.length === 0 ? (
+            {navigableOptions.length === 0 ? (
               <div className="px-3.5 py-2 text-sm text-[var(--hm-text-2)]">
                 {emptyMessage}
               </div>
             ) : (
-              filtered.map((option, index) => {
+              filteredItems.map((item, itemIndex) => {
+                if (isSeparator(item)) {
+                  // index.html id="select", `.hmc-menu__sep`: a pure visual
+                  // divider — aria-hidden rather than role="separator",
+                  // which isn't a valid child of role="listbox".
+                  return (
+                    <div
+                      // biome-ignore lint/suspicious/noArrayIndexKey: separators carry no identity of their own
+                      key={`sep-${itemIndex}`}
+                      aria-hidden="true"
+                      className="my-1.5 h-px bg-[var(--hm-border)]"
+                    />
+                  );
+                }
+
+                const option = item;
                 const isSelected = option.value === value;
-                const isHighlighted = index === highlighted;
+                const isHighlighted = activeOption?.value === option.value;
+                const navIndex = navigableOptions.indexOf(option);
+
                 return (
                   <div
                     key={option.value}
@@ -221,19 +277,40 @@ export function Select({
                     role="option"
                     tabIndex={-1}
                     aria-selected={isSelected}
+                    aria-disabled={option.disabled || undefined}
                     onMouseDown={(event) => {
                       event.preventDefault();
+                      if (option.disabled) return;
                       commit(option.value);
                     }}
-                    onMouseEnter={() => setHighlighted(index)}
+                    onMouseEnter={() => {
+                      if (option.disabled) return;
+                      setHighlighted(navIndex);
+                    }}
                     className={[
-                      "cursor-pointer px-3.5 py-2 text-[.9375rem]",
-                      isHighlighted ? "bg-[var(--hm-surface-sunken)]" : "",
+                      "flex items-center gap-2.5 px-3.5 py-2 text-[.9375rem]",
+                      option.disabled
+                        ? "pointer-events-none opacity-45"
+                        : "cursor-pointer",
+                      // index.html id="select": selected keeps its blue-100
+                      // wash even while highlighted (the reference's CSS
+                      // declares `.is-selected` after `.is-highlighted`, so
+                      // it wins) — highlighted-only gets the plain sunken hover tint.
                       isSelected
-                        ? "font-bold text-[var(--hm-text)]"
-                        : "text-[var(--hm-text)]",
+                        ? "bg-[var(--hm-blue-100)] font-bold text-[var(--hm-text)] dark:bg-[var(--hm-blue-700)]/30"
+                        : isHighlighted
+                          ? "bg-[var(--hm-surface-sunken)] text-[var(--hm-text)]"
+                          : "text-[var(--hm-text)]",
                     ].join(" ")}
                   >
+                    {option.icon ? (
+                      <span
+                        aria-hidden="true"
+                        className="inline-flex h-[18px] w-[18px] flex-none text-[var(--hm-blue-700)] dark:text-[var(--hm-blue-300)] [&>svg]:h-full [&>svg]:w-full"
+                      >
+                        {option.icon}
+                      </span>
+                    ) : null}
                     {option.label}
                   </div>
                 );
