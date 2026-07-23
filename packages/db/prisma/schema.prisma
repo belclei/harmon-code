@@ -1,0 +1,507 @@
+// Harmon — Prisma schema (normativo)
+// Fonte da verdade: /home/bel/Projects/harmon/docs/architecture/IMPLEMENTACAO.md §1 (1.1-1.8)
+// Este arquivo é uma tradução literal do schema documentado — não introduz decisão nova.
+// Convenções globais (§0): dinheiro = Int centavos (sufixo ...Cents), cuid() para toda PK,
+// enums nativos, soft-delete via deletedAt, fuso America/Sao_Paulo para lógica de data,
+// datas de transação = @db.Date, timestamps de sistema = DateTime UTC.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ---------------------------------------------------------------------------
+// §1.1 Identidade e acesso
+// ---------------------------------------------------------------------------
+
+enum Role {
+  user
+  admin
+}
+
+enum AvatarMode {
+  dicebear
+  gravatar
+}
+
+enum ThemePref {
+  light
+  dark
+}
+
+enum UserStatus {
+  active
+  disabled
+}
+
+model User {
+  id                    String     @id @default(cuid())
+  email                 String     @unique
+  name                  String
+  birthDate             DateTime   @db.Date
+  passwordHash          String? // nulo em conta Google-only (§6.1)
+  googleId              String?    @unique
+  role                  Role       @default(user)
+  isBetaTester          Boolean    @default(false)
+  avatarMode            AvatarMode @default(dicebear)
+  themePref             ThemePref  @default(light)
+  status                UserStatus @default(active)
+  onboardingCompletedAt DateTime?
+  lastLoginAt           DateTime?
+  deletedAt             DateTime? // soft-delete (§7.2)
+  createdAt             DateTime   @default(now())
+  updatedAt             DateTime   @updatedAt
+
+  @@index([status])
+}
+
+enum WaitlistStatus {
+  pending
+  approved
+  rejected
+  registered
+}
+
+model WaitlistEntry {
+  id                    String         @id @default(cuid())
+  name                  String
+  email                 String
+  status                WaitlistStatus @default(pending)
+  registrationTokenHash String? // set no approve; single-use
+  tokenExpiresAt        DateTime? // approve + 7 dias
+  approvedByUserId      String?
+  approvedAt            DateTime?
+  registeredUserId      String?
+  createdAt             DateTime       @default(now())
+
+  @@index([email])
+  @@index([status])
+}
+
+enum InviteStatus {
+  awaiting_approval
+  approved
+  registered
+  rejected
+  expired
+}
+
+model Invite {
+  id                    String       @id @default(cuid())
+  inviterUserId         String
+  inviteeName           String
+  inviteeEmail          String
+  status                InviteStatus @default(awaiting_approval)
+  registrationTokenHash String?
+  tokenExpiresAt        DateTime?
+  approvedByUserId      String?
+  approvedAt            DateTime?
+  registeredUserId      String?
+  createdAt             DateTime     @default(now())
+
+  @@index([inviterUserId])
+  @@index([inviteeEmail])
+}
+
+// Refresh tokens rotativos com detecção de reuso (§6.1): família revogada se
+// um token já usado reaparece.
+model RefreshToken {
+  id        String    @id @default(cuid())
+  userId    String
+  familyId  String // rotação: mesma família, gerações encadeadas
+  tokenHash String    @unique
+  usedAt    DateTime?
+  revokedAt DateTime?
+  expiresAt DateTime
+  createdAt DateTime  @default(now())
+
+  @@index([userId])
+  @@index([familyId])
+}
+
+// ⚠ Tokens sempre como hash. registrationTokenHash, tokenHash, qualquer token
+// de conexão: guarda-se sha256(token), nunca o valor. Vazamento de banco não
+// vira vazamento de acesso.
+
+// ---------------------------------------------------------------------------
+// §1.2 Conexões e compartilhamento
+// ---------------------------------------------------------------------------
+
+enum ConnectionStatus {
+  pending
+  accepted
+  rejected
+}
+
+model UserConnection {
+  id                  String           @id @default(cuid())
+  requesterUserId     String
+  addresseeUserId     String
+  status              ConnectionStatus @default(pending)
+  connectionTokenHash String? // link enviado por A (§6.10)
+  respondedAt         DateTime?
+  createdAt           DateTime         @default(now())
+
+  @@unique([requesterUserId, addresseeUserId])
+  @@index([addresseeUserId])
+}
+
+enum SharedItemType {
+  account
+  credit_card
+}
+
+enum SharePermission {
+  view
+  edit
+}
+
+model SharedItem {
+  id               String          @id @default(cuid())
+  ownerUserId      String
+  sharedWithUserId String
+  itemType         SharedItemType
+  accountId        String?
+  creditCardId     String?
+  permission       SharePermission
+  createdAt        DateTime        @default(now())
+  updatedAt        DateTime        @updatedAt
+
+  // CHECK aplicado por migração: (itemType='account' AND accountId NOT NULL AND creditCardId IS NULL)
+  //                           OR (itemType='credit_card' AND creditCardId NOT NULL AND accountId IS NULL)
+  @@unique([ownerUserId, sharedWithUserId, itemType, accountId, creditCardId])
+  @@index([sharedWithUserId])
+}
+
+// ---------------------------------------------------------------------------
+// §1.3 Instituições, contas e cartões
+// ---------------------------------------------------------------------------
+
+// Catálogo curado (seed). Asset SVG local — sem API externa de logos (§6.4).
+model Institution {
+  id        String  @id @default(cuid())
+  name      String
+  compeCode String? @unique // 001, 041… (nulo para não-bancos sem COMPE)
+  logoAsset String // caminho do SVG local em ui-tokens/institutions
+  isActive  Boolean @default(true)
+}
+
+enum AccountType {
+  checking
+  savings
+  cash
+}
+
+model Account {
+  id                     String      @id @default(cuid())
+  userId                 String
+  institutionId          String? // nulo permitido só para type=cash (§6.4)
+  name                   String? // facultativo — desambigua ("Nubank PJ")
+  type                   AccountType
+  currency               String      @default("BRL")
+  openingBalanceCents    Int         @default(0) // saldo inicial informado
+  overdraftLimitCents    Int         @default(0) // cheque especial; 0 = não pode negativar
+  reconciledBalanceCents Int? // CACHE do saldo derivado — nunca é a verdade (§2.2)
+  reconciledAt           DateTime?
+  isActive               Boolean     @default(true)
+  createdAt              DateTime    @default(now())
+  updatedAt              DateTime    @updatedAt
+
+  @@index([userId])
+  // Invariantes (validadas no domínio, não só no banco):
+  //  - type=cash  => institutionId IS NULL AND overdraftLimitCents = 0
+  //  - saldo nunca abaixo de -overdraftLimitCents (rejeição na escrita, §2.3)
+}
+
+model CreditCard {
+  id                 String   @id @default(cuid())
+  userId             String
+  institutionId      String
+  name               String?
+  limitCents         Int
+  closingDay         Int // 1..31 (clamp ao último dia do mês, §3.4)
+  dueDay             Int // 1..31
+  autoDebitAccountId String? // débito automático (§6.4)
+  currency           String   @default("BRL")
+  isActive           Boolean  @default(true)
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+
+  @@index([userId])
+}
+
+// ---------------------------------------------------------------------------
+// §1.4 Categorias e transações
+// ---------------------------------------------------------------------------
+
+enum TxKind {
+  income
+  expense
+  transfer
+}
+
+model Category {
+  id         String  @id @default(cuid())
+  userId     String? // nulo = categoria do sistema (read-only, seed)
+  name       String
+  kind       TxKind
+  icon       String // nome do ícone (tokens da marca — sem clichê financeiro)
+  colorToken String // ex.: "--hm-sage-500"
+  isSystem   Boolean @default(false)
+
+  @@unique([userId, name, kind])
+}
+
+enum TxSource {
+  manual
+  import
+}
+
+model Transaction {
+  id                             String   @id @default(cuid())
+  userId                         String
+  accountId                      String? // XOR com creditCardId (CHECK)
+  creditCardId                   String?
+  categoryId                     String? // opcional (§6.5)
+  kind                           TxKind
+  source                         TxSource @default(manual)
+  description                    String
+  transactionDate                DateTime @db.Date
+  // dinheiro
+  currency                       String   @default("BRL")
+  amountCents                    Int // valor na moeda de origem, sempre positivo
+  amountBRLCents                 Int // convertido; base de TODO agregado do core
+  fxRate                         Decimal? @db.Decimal(18, 8) // registrada se currency != BRL
+  // natureza
+  isScheduled                    Boolean  @default(false) // futura conhecida; fora do saldo (§6.6)
+  isFixedOverride                Boolean? // aluguel atrasado continua fixo (§6.6)
+  // agrupamentos
+  transferPairId                 String? // par saída/entrada (§6.6)
+  installmentGroupId             String? // parcelamento (§6.6)
+  installmentNumber              Int?
+  installmentTotal               Int?
+  installmentPurchaseAmountCents Int? // compra original (mesmo valor em todas as linhas do grupo)
+  installmentHasInterest         Boolean?
+  recurringTransactionId         String? // ocorrência de uma série (§6.7)
+  // origem/roteamento
+  importedDocumentId             String?
+  portadorUserId                 String? // atribuída a um conectado (§6.10)
+  portadorSettled                Boolean  @default(false)
+  createdAt                      DateTime @default(now())
+  updatedAt                      DateTime @updatedAt
+
+  @@index([userId, transactionDate])
+  @@index([accountId])
+  @@index([creditCardId])
+  @@index([transferPairId])
+  @@index([installmentGroupId])
+  @@index([recurringTransactionId])
+  // CHECK: (accountId IS NULL) <> (creditCardId IS NULL)  -- exatamente um
+  // CHECK: amountCents > 0  -- sinal vem de kind, nunca do valor
+}
+
+// ⚠ O sinal do dinheiro vem de kind, nunca do valor. amountCents/amountBRLCents
+// são sempre positivos; o core aplica + para income, − para expense, e trata
+// transfer como neutro no cálculo de receita/despesa (§3.1). Guardar valor
+// negativo é bug — quebra somas e o contrato de decomposição.
+
+// ---------------------------------------------------------------------------
+// §1.5 Recorrências
+// ---------------------------------------------------------------------------
+
+model RecurringTransaction {
+  id                      String   @id @default(cuid())
+  userId                  String
+  description             String
+  kind                    TxKind // income | expense (transfer não recorre)
+  accountId               String?
+  creditCardId            String?
+  categoryId              String?
+  referenceAmountCents    Int
+  referenceAmountBRLCents Int
+  currency                String   @default("BRL")
+  dayOfMonth              Int // 1..31 (clamp, §3.4)
+  isVariableAmount        Boolean  @default(false) // conta de luz (§6.7)
+  isActive                Boolean  @default(true)
+  startDate               DateTime @db.Date
+  endDate                 DateTime? @db.Date // nulo = infinita
+  createdAt               DateTime @default(now())
+  updatedAt               DateTime @updatedAt
+
+  @@index([userId])
+}
+
+enum FulfillmentMethod {
+  scheduled_confirm
+  manual
+  import_link
+}
+
+// Único por (série, ano, mês) — impede dupla contagem (§6.7).
+model RecurringFulfillment {
+  id                      String            @id @default(cuid())
+  recurringTransactionId  String
+  year                    Int
+  month                   Int // 1..12
+  transactionId           String? // a transação real que cumpriu
+  method                  FulfillmentMethod
+  fulfilledAt             DateTime          @default(now())
+
+  @@unique([recurringTransactionId, year, month])
+  @@index([recurringTransactionId])
+}
+
+// ---------------------------------------------------------------------------
+// §1.6 Importação (pipeline com staging)
+// ---------------------------------------------------------------------------
+
+enum ImportType {
+  card_invoice
+  account_statement
+}
+
+enum ImportStatus {
+  pending
+  processing
+  extracted
+  reviewed
+  error
+}
+
+model ImportedDocument {
+  id           String       @id @default(cuid())
+  userId       String
+  type         ImportType
+  accountId    String?
+  creditCardId String?
+  contentHash  String // sha256 do arquivo, calculado no navegador (§6.8)
+  // v0.7: sem extractedText — o texto sobe no corpo de POST /v1/imports, vive só no payload
+  // do job (BullMQ/Redis) durante o processamento e é descartado ao terminar (sucesso ou
+  // falha). Nunca toca esta tabela nem qualquer storage permanente (§6.8 arq).
+  rawJson      Json? // resposta bruta (saída) do DeepSeek — dado processado, para auditoria
+  status       ImportStatus @default(pending)
+  errorMessage String?
+  createdAt    DateTime     @default(now())
+  processedAt  DateTime?
+
+  @@unique([userId, contentHash]) // dedup de arquivo (§6.8)
+  @@index([userId])
+}
+
+enum ExtractedStatus {
+  pending
+  confirmed
+  rejected
+}
+
+model ExtractedTransaction {
+  id                      String          @id @default(cuid())
+  importedDocumentId      String
+  status                  ExtractedStatus @default(pending)
+  transactionDate         DateTime        @db.Date
+  amountCents             Int
+  currency                String          @default("BRL")
+  description             String
+  suggestedCategoryId     String?
+  confidence               Float // 0..1 interno; exibido em PIPS (§3.6)
+  cardHolderRaw            String? // "ADICIONAL - MARIA"
+  suggestedPortadorUserId String?
+  installmentNumber       Int?
+  installmentTotal        Int?
+  duplicateOfTxId         String? // possível duplicata (§6.8)
+  suggestedRecurringId    String? // possível vínculo com série (§6.7)
+  confirmedTransactionId  String? // set ao confirmar
+  createdAt               DateTime        @default(now())
+
+  @@index([importedDocumentId])
+}
+
+// ---------------------------------------------------------------------------
+// §1.7 Eventos, telemetria e flags
+// ---------------------------------------------------------------------------
+
+// Append-only. Sem UPDATE, sem DELETE. Alimenta Timeline + auditoria + telemetria.
+model DomainEvent {
+  id            String   @id @default(cuid())
+  userId        String // dono do agregado
+  actorUserId   String? // quem causou (admin em ação de suporte, §6.2)
+  type          String // catálogo em §6
+  aggregateType String // "Account" | "Transaction" | ...
+  aggregateId   String
+  payload       Json // shape por tipo, §6 — SEM valor financeiro em texto livre
+  createdAt     DateTime @default(now())
+
+  @@index([userId, createdAt])
+  @@index([aggregateType, aggregateId])
+}
+
+// Telemetria agregável, retenção 12 meses (§6.2). SEM PII, SEM valor financeiro.
+model UsageEvent {
+  id         String   @id @default(cuid())
+  userId     String?
+  name       String // registry Zod central (§7.5 arq)
+  properties Json
+  createdAt  DateTime @default(now())
+
+  @@index([name, createdAt])
+}
+
+model UsageDailyRollup {
+  id        String   @id @default(cuid())
+  day       DateTime @db.Date
+  metric    String
+  dimension String?
+  value     Int
+
+  @@unique([day, metric, dimension])
+}
+
+enum FlagState {
+  off
+  beta
+  on
+}
+
+model FeatureFlag {
+  key            String    @id
+  description    String
+  state          FlagState @default(off)
+  rolloutPercent Int       @default(100) // 0..100
+  updatedAt      DateTime  @updatedAt
+  createdAt      DateTime  @default(now())
+}
+
+model FeatureFlagOverride {
+  id      String    @id @default(cuid())
+  flagKey String
+  userId  String
+  state   FlagState // on | off (beta não faz sentido em override individual)
+
+  @@unique([flagKey, userId])
+}
+
+// ---------------------------------------------------------------------------
+// §1.8 Investimentos (stub — próxima fase)
+// ---------------------------------------------------------------------------
+
+// Schema previsto para não quebrar o Patrimônio quando o módulo chegar (§6.9).
+// Nenhuma tela no MVP. Não instrumentar, não expor endpoint ainda.
+model Investment {
+  id        String   @id @default(cuid())
+  userId    String
+  name      String
+  kind      String // renda fixa, ação, fundo… (enum na próxima fase)
+  createdAt DateTime @default(now())
+}
+
+model InvestmentMovement {
+  id             String   @id @default(cuid())
+  investmentId   String
+  amountBRLCents Int
+  movementDate   DateTime @db.Date
+  createdAt      DateTime @default(now())
+}
