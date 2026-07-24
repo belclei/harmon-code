@@ -25,6 +25,10 @@ const meta: Meta<typeof Alert> = {
       control: "select",
       options: ["info", "success", "warning", "error"],
     },
+    layout: {
+      control: "select",
+      options: ["box", "inline"],
+    },
   },
 };
 
@@ -72,6 +76,27 @@ export const Variantes: Story = {
 export const SemBotaoFechar: Story = {
   name: "Sem botão de fechar",
   args: { onClose: undefined },
+};
+
+/**
+ * `layout="inline"`: sem fundo/padding, do tamanho de um texto de apoio —
+ * para uma mensagem que vive dentro de outro componente (ex.: o erro de um
+ * campo, ver Input/FieldMessage) em vez de se anunciar como um bloco à parte.
+ * Nunca renderiza `actions`/`onClose`.
+ */
+export const Inline: Story = {
+  render: () => (
+    <div style={{ display: "grid", gap: "0.75rem", width: "22rem" }}>
+      {(Object.keys(COPY) as AlertVariant[]).map((variant) => (
+        <Alert
+          key={variant}
+          variant={variant}
+          layout="inline"
+          title={COPY[variant].title}
+        />
+      ))}
+    </div>
+  ),
 };
 
 /**

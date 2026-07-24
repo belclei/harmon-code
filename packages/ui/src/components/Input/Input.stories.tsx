@@ -1,5 +1,6 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
-import { Fragment } from "react";
+import { Fragment, useState } from "react";
+import type { AffixMenuOption } from "../shared/AffixMenu";
 import { Input, type InputType } from "./Input";
 
 const meta: Meta<typeof Input> = {
@@ -31,7 +32,11 @@ const meta: Meta<typeof Input> = {
 export default meta;
 type Story = StoryObj<typeof Input>;
 
-export const Playground: Story = {};
+export const Playground: Story = {
+  args: {
+    money: false,
+  },
+};
 
 const TYPES: { type: InputType; label: string; placeholder: string }[] = [
   { type: "text", label: "Nome", placeholder: "Ana Souza" },
@@ -149,6 +154,42 @@ export const Monetario: Story = {
       </div>
     </div>
   ),
+};
+
+const CURRENCY_OPTIONS: AffixMenuOption[] = [
+  { value: "BRL", code: "BRL", label: "Real", symbol: "R$" },
+  { value: "USD", code: "USD", label: "Dólar", symbol: "US$" },
+  { value: "EUR", code: "EUR", label: "Euro", symbol: "€" },
+];
+
+function AfixInterativoDemo() {
+  const [currency, setCurrency] = useState("BRL");
+  return (
+    <div style={{ width: "220px" }}>
+      <Input
+        label="Valor"
+        defaultValue="1.842,90"
+        money
+        affixMenu={{
+          label: "Moeda",
+          options: CURRENCY_OPTIONS,
+          value: currency,
+          onChange: setCurrency,
+        }}
+      />
+    </div>
+  );
+}
+
+/**
+ * index.html id="affix", "affix falante": ao contrário do prefixo estático
+ * "R$" (`Monetario` acima), este affix é um botão — abre um menu para
+ * escolher a moeda (BRL/USD/EUR). Os sinais de que é clicável: seta,
+ * hover, separador visível e `aria-haspopup="listbox"`.
+ */
+export const AfixInterativo: Story = {
+  name: "Afix interativo (menu)",
+  render: () => <AfixInterativoDemo />,
 };
 
 /** index.html id="campo", "Área de texto e busca": afixo decorativo (ícone) à esquerda do campo, dentro do mesmo `.hmc-inputgroup`. */

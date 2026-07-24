@@ -47,28 +47,22 @@ export type BadgeProps = BadgeStatusProps | BadgeCategoryProps;
 // tones are only checked for a light page, so they get a dark: override
 // each (translucent wash of the base hue + the ~300-tier lighter text).
 //
-// Two pairs failed axe-core's color-contrast check even in that scheme,
-// because --hm-blue-700/--hm-sage-700 were only AA-checked against the
-// neutral page background (harmon-tokens.css's own v1.1 comment), not
-// against their *own* -100 chip background — a badge/chip is exactly the
-// "text on its own tint" case that check never covered:
-//   blue-700 (#5069A8) on blue-100 (#E2E7F2) → 4.32:1 (needs 4.5:1)
-//   sage-700 (#5D705E) on sage-100 (#E4EAE2) → 4.35:1 (needs 4.5:1)
-// #4C649F / #5A6C5A below are those same hues nudged darker (HSL lightness
-// only) until they clear 4.5:1, computed against these exact backgrounds —
-// not in harmon-tokens.css yet; flagged for a designer to fold into the
-// token set as real "on-chip" text tokens rather than living as one-off
-// hex here. The dark-mode clay chip had the same problem (clay-500 on the
-// clay-700/20 wash measured 3.34:1); reused --hm-money-out's dark value
-// (#E08A7D) instead of inventing a third clay hex, since that's already
-// the brand's answer to "clay tone readable on a dark surface".
+// blue-700/sage-700 fail axe-core's color-contrast check on their *own*
+// -100 chip background (4.32:1 / 4.35:1, short of 4.5:1) even though they
+// pass against the neutral page — a badge/chip is exactly the "text on its
+// own tint" case harmon-tokens.css's v1.1 pass never covered. --hm-blue-on-tint
+// / --hm-sage-on-tint (v1.2) are that same hue nudged darker until it clears
+// 4.5:1 against these exact backgrounds. The dark-mode clay chip had the
+// same problem (clay-500 on the clay-700/20 wash measured 3.34:1); uses
+// --hm-clay-300, the brand's token for "clay tone readable on a dark
+// surface" (also --hm-money-out's dark value).
 const STATUS_STYLES: Record<
   BadgeStatus,
   { bg: string; text: string; dot: string; label: string }
 > = {
   active: {
     bg: "bg-[var(--hm-sage-100)] dark:bg-[var(--hm-sage-700)]/20",
-    text: "text-[#5A6C5A] dark:text-[var(--hm-sage-300)]",
+    text: "text-[var(--hm-sage-on-tint)] dark:text-[var(--hm-sage-300)]",
     dot: "bg-[var(--hm-sage-700)] dark:bg-[var(--hm-sage-300)]",
     label: "Ativo",
   },
@@ -96,11 +90,11 @@ const CATEGORY_STYLES: Record<
   },
   blue: {
     bg: "bg-[var(--hm-blue-100)] dark:bg-[var(--hm-blue-700)]/20",
-    text: "text-[#4C649F] dark:text-[var(--hm-blue-300)]",
+    text: "text-[var(--hm-blue-on-tint)] dark:text-[var(--hm-blue-300)]",
   },
   sage: {
     bg: "bg-[var(--hm-sage-100)] dark:bg-[var(--hm-sage-700)]/20",
-    text: "text-[#5A6C5A] dark:text-[var(--hm-sage-300)]",
+    text: "text-[var(--hm-sage-on-tint)] dark:text-[var(--hm-sage-300)]",
   },
   sand: {
     bg: "bg-[var(--hm-sand-100)] dark:bg-[var(--hm-sand-700)]/20",
@@ -108,7 +102,7 @@ const CATEGORY_STYLES: Record<
   },
   clay: {
     bg: "bg-[var(--hm-clay-100)] dark:bg-[var(--hm-clay-600)]/20",
-    text: "text-[var(--hm-clay-650)] dark:text-[#E08A7D]",
+    text: "text-[var(--hm-clay-650)] dark:text-[var(--hm-clay-300)]",
   },
 };
 
@@ -163,7 +157,7 @@ export function Badge(props: BadgeProps) {
           type="button"
           onClick={props.onRemove}
           aria-label={props.removeLabel ?? "Remover categoria"}
-          className="-mr-1 ml-0.5 inline-flex h-3.5 w-3.5 flex-none items-center justify-center text-[var(--hm-text-2)] hover:text-[var(--hm-text)]"
+          className="-mr-1 ml-0.5 inline-flex h-3.5 w-3.5 flex-none cursor-pointer items-center justify-center text-[var(--hm-text-2)] hover:text-[var(--hm-text)]"
         >
           <svg
             aria-hidden="true"

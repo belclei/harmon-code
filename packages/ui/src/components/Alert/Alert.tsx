@@ -2,6 +2,14 @@ import type { ReactNode } from "react";
 import { Button } from "../Button/Button";
 
 export type AlertVariant = "info" | "success" | "warning" | "error";
+/**
+ * "box" (default): the padded, tinted-background notification — index.html
+ * id="alerta". "inline" strips the background/padding down to icon + text
+ * at hint-copy size, for a message that lives inside the flow of another
+ * component (e.g. a form field's own error line) instead of announcing
+ * itself as a standalone block.
+ */
+export type AlertLayout = "box" | "inline";
 
 export interface AlertAction {
   label: string;
@@ -16,6 +24,8 @@ export interface AlertAction {
 
 export interface AlertProps {
   variant?: AlertVariant;
+  /** "box" (default) or "inline" — see `AlertLayout`. `actions`/`onClose` are box-only; inline never renders them. */
+  layout?: AlertLayout;
   title: string;
   description?: ReactNode;
   /**
@@ -29,7 +39,23 @@ export interface AlertProps {
   /** When provided, a close button is rendered and this is called on click. Purely presentational — dismissal state lives with the caller. */
   onClose?: () => void;
   className?: string;
+  id?: string;
 }
+
+// Inline layout has no tinted background to carry the color signal, so it
+// needs its own AA-against-neutral-surface text tone per variant — NOT
+// VARIANT_STYLES.icon below, which is only ever verified for a non-text
+// graphic's 3:1 bar (error's icon, e.g., uses --hm-clay-500 at 3.95:1 —
+// clears 3:1 but fails 4.5:1 for text). --hm-clay-600/--hm-clay-300 here
+// are FieldMessage's original error-only precedent for this exact problem,
+// generalized to the other three variants using each hue's own already-AA
+// text tier (harmon-tokens.css v1.1).
+const INLINE_TONE: Record<AlertVariant, string> = {
+  info: "text-[var(--hm-blue-700)] dark:text-[var(--hm-blue-300)]",
+  success: "text-[var(--hm-sage-700)] dark:text-[var(--hm-sage-300)]",
+  warning: "text-[var(--hm-sand-700)] dark:text-[var(--hm-sand-300)]",
+  error: "text-[var(--hm-clay-600)] dark:text-[var(--hm-clay-300)]",
+};
 
 // harmon-tokens.css never redefines the raw --hm-*-100 tints (or the
 // AA-checked --hm-*-700 text tones) for [data-theme="dark"] — they're only
@@ -116,16 +142,48 @@ const ACTION_VARIANT_MAP = {
  */
 export function Alert({
   variant = "info",
+  layout = "box",
   title,
   description,
   actions,
   onClose,
   className = "",
+  id,
 }: AlertProps) {
   const styles = VARIANT_STYLES[variant];
 
+  if (layout === "inline") {
+    return (
+      <p
+        id={id}
+        role={styles.role}
+        className={[
+          "m-0 flex items-start gap-1.5 text-[.8125rem]",
+          INLINE_TONE[variant],
+          className,
+        ].join(" ")}
+      >
+        <svg
+          aria-hidden="true"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth={2}
+          className="mt-0.5 h-3.5 w-3.5 flex-none"
+        >
+          {ICON_PATHS[variant]}
+        </svg>
+        <span>
+          {title}
+          {description ? <> {description}</> : null}
+        </span>
+      </p>
+    );
+  }
+
   return (
     <div
+      id={id}
       role={styles.role}
       className={[
         "flex items-start gap-3 rounded-[var(--hm-r-md)] p-4",
@@ -209,7 +267,7 @@ export function Alert({
           type="button"
           onClick={onClose}
           aria-label="Fechar alerta"
-          className="-m-1 flex-none rounded-[var(--hm-r-sm)] p-1 text-[var(--hm-text-2)] opacity-70 hover:bg-black/5 hover:opacity-100 dark:hover:bg-white/10"
+          className="-m-1 flex-none cursor-pointer rounded-[var(--hm-r-sm)] p-1 text-[var(--hm-text-2)] opacity-70 hover:bg-black/5 hover:opacity-100 dark:hover:bg-white/10"
         >
           <svg
             aria-hidden="true"

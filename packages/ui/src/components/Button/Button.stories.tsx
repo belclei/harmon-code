@@ -142,9 +142,54 @@ const PlusIcon = (
  */
 export const ComIcone: Story = {
   render: () => (
-    <Button variant="primary" leadingIcon={PlusIcon}>
+    <Button variant="primary" icon={PlusIcon}>
       Nova transação
     </Button>
+  ),
+};
+
+const MoreIcon = (
+  <svg aria-hidden="true" viewBox="0 0 24 24" fill="currentColor">
+    <circle cx="12" cy="5" r="1.6" />
+    <circle cx="12" cy="12" r="1.6" />
+    <circle cx="12" cy="19" r="1.6" />
+  </svg>
+);
+
+/**
+ * Sem rótulo: `icon` sem `children` vira um botão quadrado só-ícone
+ * (antigo `IconButton`, fundido aqui). `aria-label` é obrigatório — o
+ * TypeScript recusa o componente sem ele, já que o ícone é sempre
+ * `aria-hidden` e não há texto visível para servir de nome acessível.
+ */
+export const SoIcone: Story = {
+  render: () => (
+    <div style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
+      <Button
+        variant="tertiary"
+        size="sm"
+        icon={MoreIcon}
+        aria-label="Mais opções"
+      />
+      <Button
+        variant="tertiary"
+        size="md"
+        icon={MoreIcon}
+        aria-label="Mais opções"
+      />
+      <Button
+        variant="tertiary"
+        size="lg"
+        icon={MoreIcon}
+        aria-label="Mais opções"
+      />
+      <Button
+        variant="tertiary"
+        icon={MoreIcon}
+        aria-label="Mais opções (desabilitado)"
+        disabled
+      />
+    </div>
   ),
 };
 

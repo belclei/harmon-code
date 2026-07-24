@@ -1,7 +1,16 @@
 import { type InputHTMLAttributes, type ReactNode, useId } from "react";
+import { AffixMenu, type AffixMenuOption } from "../shared/AffixMenu";
 import { FieldMessage } from "../shared/FieldMessage";
 
 export type InputType = "text" | "email" | "password" | "number";
+
+export interface InputAffixMenuProps {
+  /** Accessible name for the trigger button and its listbox (e.g. "Moeda"). */
+  label: string;
+  options: AffixMenuOption[];
+  value: string;
+  onChange: (value: string) => void;
+}
 
 export interface InputProps
   extends Omit<InputHTMLAttributes<HTMLInputElement>, "type" | "size"> {
@@ -16,11 +25,16 @@ export interface InputProps
   /**
    * Static, non-interactive decoration at the field's leading edge — a
    * currency prefix ("R$") or a search icon (index.html id="campo"/id="affix",
-   * `.hmc-affix`/`.hmc-inputgroup`). Purely decorative: an affix that opens
-   * something (a currency picker, a calendar) is a different, interactive
-   * pattern (`.hmc-affix--action`) this atom doesn't cover.
+   * `.hmc-affix`/`.hmc-inputgroup`). Ignored when `affixMenu` is set.
    */
   affix?: ReactNode;
+  /**
+   * Interactive leading affix (index.html id="affix", "affix falante" /
+   * `.hmc-affix--action`) — a menu button for picking among a small fixed
+   * set of options (e.g. currency: BRL/USD/EUR) instead of a plain prefix.
+   * Takes over from `affix` when set. See `AffixMenu`.
+   */
+  affixMenu?: InputAffixMenuProps;
   /**
    * Harmon's money typography (index.html id="campo", `.hmc-input--money`):
    * mono, tabular-nums, right-aligned, larger size. Also defaults
@@ -46,6 +60,7 @@ export function Input({
   id,
   className = "",
   affix,
+  affixMenu,
   money = false,
   readOnly,
   inputMode,
@@ -55,7 +70,9 @@ export function Input({
   const inputId = id ?? autoId;
   const hintId = `${inputId}-hint`;
   const errorId = `${inputId}-error`;
+  const affixMenuId = `${inputId}-affix`;
   const hasError = Boolean(error);
+  const hasAffix = Boolean(affixMenu) || Boolean(affix);
 
   const inputEl = (
     <input
@@ -74,7 +91,7 @@ export function Input({
         "placeholder:text-[var(--hm-text-2)]",
         "disabled:bg-[var(--hm-surface-sunken)] disabled:text-[var(--hm-text-2)]",
         "disabled:cursor-not-allowed disabled:pointer-events-none",
-        affix
+        hasAffix
           ? "rounded-l-none rounded-r-[var(--hm-r-md)] border-l-0"
           : "rounded-[var(--hm-r-md)]",
         // index.html id="campo": readonly is dashed + sunken, distinct from
@@ -106,15 +123,28 @@ export function Input({
           // the dark theme's --hm-bg, and even --hm-clay-500 only reaches
           // 3.95:1 for text) — this asterisk uses the identical token and
           // was never exercised by a story, so axe-core never caught it.
-          // Same fix: #E08A7D, --hm-money-out's dark value (Badge.tsx's
-          // precedent for an AA-checked clay tone on a dark surface).
-          <span className="text-[var(--hm-clay-600)] dark:text-[#E08A7D]">
+          // Same fix: --hm-clay-300, the brand's AA-checked clay tone for a
+          // dark surface (also Badge.tsx's precedent, also --hm-money-out's
+          // dark value).
+          <span className="text-[var(--hm-clay-600)] dark:text-[var(--hm-clay-300)]">
             {" "}
             *
           </span>
         ) : null}
       </label>
-      {affix ? (
+      {affixMenu ? (
+        <div className="flex items-stretch">
+          <AffixMenu
+            id={affixMenuId}
+            label={affixMenu.label}
+            options={affixMenu.options}
+            value={affixMenu.value}
+            onChange={affixMenu.onChange}
+            disabled={disabled}
+          />
+          {inputEl}
+        </div>
+      ) : affix ? (
         // index.html id="campo"/id="affix": `.hmc-inputgroup` + static
         // `.hmc-affix` — a non-interactive prefix sharing one visual box
         // with the field (rounded only on its outer corner, no right border).
