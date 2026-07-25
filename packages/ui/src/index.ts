@@ -28,3 +28,4 @@ export * from "./components/Calendar/MonthDayPicker";
 export * from "./components/AccountCard/AccountCard";
 export * from "./components/CreditCardCard/CreditCardCard";
 export * from "./components/InsightCard/InsightCard";
+export * from "./components/TransactionRow/TransactionRow";
