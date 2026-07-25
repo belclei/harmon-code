@@ -1,8 +1,8 @@
 import type { ReactNode } from "react";
 import { Badge } from "../Badge/Badge";
-import { Body } from "../Typography/Body";
 import { Button } from "../Button/Button";
 import { Card } from "../Card/Card";
+import { Body } from "../Typography/Body";
 import { Mono } from "../Typography/Mono";
 import { formatDate } from "../shared/formatDate";
 import { formatMoney } from "../shared/formatMoney";
@@ -109,7 +109,10 @@ export function StagingReviewRow({
           </div>
           <Body muted className="text-[.8125rem]">
             {suggestedCategoryIcon ? (
-              <span aria-hidden="true" className="mr-1 inline-block h-3.5 w-3.5 align-text-bottom">
+              <span
+                aria-hidden="true"
+                className="mr-1 inline-block h-3.5 w-3.5 align-text-bottom"
+              >
                 {suggestedCategoryIcon}
               </span>
             ) : null}
