@@ -1,8 +1,8 @@
 import type { Money } from "@harmon/domain";
 import { useState } from "react";
+import { Button } from "../Button/Button";
 import { Card } from "../Card/Card";
 import { Body } from "../Typography/Body";
-import { Heading } from "../Typography/Heading";
 import { Mono } from "../Typography/Mono";
 import { formatMoney } from "../shared/formatMoney";
 
@@ -34,14 +34,15 @@ export function InsightCard({
       <Mono variant="number" className="mt-1 block text-[2rem]">
         {formatMoney(money.valueCents)}
       </Mono>
-      <button
-        type="button"
+      <Button
+        variant="link"
+        size="sm"
         onClick={() => setExpanded((current) => !current)}
         aria-expanded={expanded}
-        className="mt-2 cursor-pointer border-0 bg-transparent p-0 text-[.8125rem] font-medium text-[var(--hm-blue-700)] underline-offset-2 hover:underline dark:text-[var(--hm-blue-300)]"
+        className="mt-2"
       >
         {expanded ? "Ocultar detalhes" : "De onde vem esse número?"}
-      </button>
+      </Button>
       {expanded ? (
         <ul className="mt-3 flex flex-col gap-1.5 border-t border-[var(--hm-border)] pt-3">
           {money.breakdown.map((line, index) => (
