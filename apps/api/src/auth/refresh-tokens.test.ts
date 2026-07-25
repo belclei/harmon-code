@@ -48,6 +48,26 @@ describe("refresh token rotation", () => {
     await expect(rotateRefreshToken(prisma, second.token)).rejects.toThrow();
   });
 
+  it("closes the TOCTOU race: only one of two concurrent rotations on the same token wins, and the family is revoked", async () => {
+    const user = await makeUser();
+    const first = await issueRefreshTokenFamily(prisma, user.id);
+
+    const results = await Promise.allSettled([
+      rotateRefreshToken(prisma, first.token),
+      rotateRefreshToken(prisma, first.token),
+    ]);
+
+    const fulfilled = results.filter((r) => r.status === "fulfilled");
+    const rejected = results.filter((r) => r.status === "rejected");
+    expect(fulfilled).toHaveLength(1);
+    expect(rejected).toHaveLength(1);
+    expect((rejected[0] as PromiseRejectedResult).reason).toBeInstanceOf(RefreshTokenReuseError);
+
+    // The family must now be revoked, so even the winner's freshly-minted token is unusable.
+    const winnerToken = (fulfilled[0] as PromiseFulfilledResult<{ token: string }>).value.token;
+    await expect(rotateRefreshToken(prisma, winnerToken)).rejects.toThrow();
+  });
+
   it("rejects an unknown token", async () => {
     await expect(rotateRefreshToken(prisma, "not-a-real-token")).rejects.toThrow();
   });

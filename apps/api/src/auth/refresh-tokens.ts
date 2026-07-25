@@ -51,12 +51,16 @@ export async function rotateRefreshToken(
     throw new Error("Invalid or expired refresh token");
   }
 
-  if (row.usedAt) {
+  const claim = await prisma.refreshToken.updateMany({
+    where: { id: row.id, usedAt: null },
+    data: { usedAt: new Date() },
+  });
+  if (claim.count === 0) {
+    // Either already used, or being raced right now — either way, reuse.
     await revokeRefreshFamily(prisma, row.familyId);
     throw new RefreshTokenReuseError();
   }
 
-  await prisma.refreshToken.update({ where: { id: row.id }, data: { usedAt: new Date() } });
   const newToken = await createTokenRow(prisma, row.userId, row.familyId);
   return { token: newToken, userId: row.userId, familyId: row.familyId };
 }
