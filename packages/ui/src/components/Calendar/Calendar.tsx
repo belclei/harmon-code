@@ -216,6 +216,21 @@ export function Calendar({
             isBetween(date, selectedRange.from, selectedRange.to);
           const disabled = isDisabled?.(date) ?? false;
           const status = dayStatus?.(date);
+          // Exactly one text-color utility per button: Tailwind gives
+          // same-specificity utilities equal precedence, so the winner is
+          // whichever lands last in the compiled stylesheet — not whichever
+          // comes last in this class list. Stacking e.g. the default
+          // text-[var(--hm-text)] alongside a conditional text-[var(--hm-bone-000)]
+          // let the base class silently win in the built CSS, which made
+          // selected days (ink-900 bg) render their digit in --hm-text
+          // (also ink-900) — invisible. Compute one winner up front instead.
+          const textColorClass = disabled
+            ? "text-[var(--hm-ink-300)]"
+            : isSelected
+              ? "text-[var(--hm-bone-000)]"
+              : outside
+                ? "text-[var(--hm-ink-300)]"
+                : "text-[var(--hm-text)]";
 
           return (
             <button
@@ -228,23 +243,30 @@ export function Calendar({
               aria-pressed={isSelected}
               className={[
                 "relative aspect-square min-h-9 cursor-pointer border border-transparent",
-                "font-mono text-[.8125rem] text-[var(--hm-text)] transition-colors duration-150",
+                "font-mono text-[.8125rem] transition-colors duration-150",
+                textColorClass,
                 isSelected || inRange
                   ? ""
                   : "hover:bg-[var(--hm-surface-sunken)]",
-                outside ? "text-[var(--hm-ink-300)]" : "",
                 isToday ? "border-[var(--hm-sand-600)]" : "",
                 inRange
                   ? "rounded-none bg-[var(--hm-blue-100)] dark:bg-[var(--hm-blue-700)]/30"
                   : "rounded-[var(--hm-r-sm)]",
                 isRangeStart ? "rounded-r-none" : "",
                 isRangeEnd ? "rounded-l-none" : "",
+                // dark:bg-ink-700 alone measures 1.29:1 against this card's
+                // --hm-surface (ink-800) — Button's primary variant made the
+                // same ink-900→ink-700 dark-mode step, but that one sits
+                // directly on --hm-bg (ink-900 page), not a --hm-surface
+                // card, so its fill/background gap survives. The border
+                // gives the same 3:1 boundary Card/Dialog/Sheet already lean
+                // on for definition against --hm-surface, without touching
+                // the fill (bone-000 text on ink-700 is already 10.7:1, no
+                // need to trade that away for a lighter fill).
                 isSelected
-                  ? "bg-[var(--hm-ink-900)] text-[var(--hm-bone-000)] dark:bg-[var(--hm-ink-700)]"
+                  ? "bg-[var(--hm-ink-900)] dark:border-[var(--hm-ink-500)] dark:bg-[var(--hm-ink-700)]"
                   : "",
-                disabled
-                  ? "cursor-not-allowed text-[var(--hm-ink-300)] hover:bg-transparent"
-                  : "",
+                disabled ? "cursor-not-allowed hover:bg-transparent" : "",
               ].join(" ")}
             >
               {date.getDate()}

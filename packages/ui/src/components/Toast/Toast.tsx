@@ -30,21 +30,23 @@ const ICON_PATHS: Record<Exclude<ToastVariant, "neutral">, ReactNode> = {
   ),
 };
 
-// --hm-clay-300 (v1.2, harmon-tokens.css) replaces the raw #E08A7D this
-// toast's danger icon used in brand/design-system/harmon-components.css —
-// same "clay tone readable on a dark surface" token already reused by
-// Badge/Input/FieldMessage.
+// Same "AA against a neutral surface, both themes" pairing already
+// established by Alert's INLINE_TONE and Badge's `text` tone (sand-700
+// dark:sand-300 etc.) — Toast's icon sits directly on --hm-surface, not a
+// tinted wash, so it needs the same light/dark pair rather than the
+// dark-only tone this used when the surface was hardcoded to ink-900.
 const ICON_TONE: Record<Exclude<ToastVariant, "neutral">, string> = {
-  success: "text-[var(--hm-sage-300)]",
-  danger: "text-[var(--hm-clay-300)]",
+  success: "text-[var(--hm-sage-700)] dark:text-[var(--hm-sage-300)]",
+  danger: "text-[var(--hm-clay-600)] dark:text-[var(--hm-clay-300)]",
 };
 
 /**
- * Harmon's toast (index.html id="dialogo"). Always the dark surface
- * (--hm-ink-900) regardless of theme — a toast reads as a stamped
- * notification, not a themed panel. Purely presentational: a single item
- * with no queue, stacking, portal, or auto-dismiss timer of its own — an
- * app-level toast manager owns when/where this renders and for how long.
+ * Harmon's toast (index.html id="dialogo"). Themed panel — follows
+ * Dialog/Sheet's --hm-surface + --hm-border + shadow pattern instead of a
+ * fixed dark surface, so it switches with [data-theme="dark"] like the
+ * rest of the elevated-surface components. Purely presentational: a single
+ * item with no queue, stacking, portal, or auto-dismiss timer of its own —
+ * an app-level toast manager owns when/where this renders and for how long.
  */
 export function Toast({
   variant = "neutral",
@@ -56,8 +58,9 @@ export function Toast({
     <div
       role={variant === "danger" ? "alert" : "status"}
       className={[
-        "flex max-w-[400px] items-start gap-3 rounded-[var(--hm-r-md)] bg-[var(--hm-ink-900)] p-3.5",
-        "text-[.875rem] text-[var(--hm-bone-100)] shadow-[var(--hm-e2)]",
+        "flex max-w-[400px] items-start gap-3 rounded-[var(--hm-r-md)] p-3.5",
+        "border border-[var(--hm-border)] bg-[var(--hm-surface)]",
+        "text-[.875rem] text-[var(--hm-text)] shadow-[var(--hm-e2)]",
         className,
       ].join(" ")}
     >
@@ -81,7 +84,7 @@ export function Toast({
         <button
           type="button"
           onClick={action.onClick}
-          className="flex-none cursor-pointer bg-transparent text-[.8125rem] text-[var(--hm-sand-500)]"
+          className="flex-none cursor-pointer bg-transparent text-[.8125rem] text-[var(--hm-sand-700)] dark:text-[var(--hm-sand-300)]"
         >
           {action.label}
         </button>
