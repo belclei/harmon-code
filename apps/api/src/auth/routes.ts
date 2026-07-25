@@ -7,6 +7,7 @@ import {
   issueRefreshTokenFamily,
   rotateRefreshToken,
   revokeRefreshFamily,
+  hashToken,
   RefreshTokenReuseError,
 } from "./refresh-tokens.js";
 import { registerAuthRateLimit } from "./rate-limit.js";
@@ -108,8 +109,14 @@ export async function registerAuthRoutes(fastify: FastifyInstance): Promise<void
 
     const rawToken = request.cookies[REFRESH_COOKIE_NAME];
     if (rawToken) {
-      const tokenRow = await fastify.prisma.refreshToken.findFirst({ where: { userId: payload.sub } });
-      if (tokenRow) {
+      const tokenRow = await fastify.prisma.refreshToken.findUnique({
+        where: { tokenHash: hashToken(rawToken) },
+      });
+      // Defense-in-depth: only revoke the family if the presented cookie's
+      // row actually belongs to the authenticated user. If it doesn't (or
+      // no row is found at all), there's nothing valid to log out — don't
+      // leak whether the token belongs to someone else.
+      if (tokenRow && tokenRow.userId === payload.sub) {
         await revokeRefreshFamily(fastify.prisma, tokenRow.familyId);
       }
     }

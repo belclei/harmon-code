@@ -297,4 +297,61 @@ describe("POST /v1/auth/logout", () => {
     });
     expect(badAuth.statusCode).toBe(400);
   });
+
+  it("only revokes the presented session's own family, not another concurrent session of the same user", async () => {
+    // Regression test for the `findFirst({ where: { userId } })` bug: with
+    // no ordering and no filter on the actual cookie presented, logout could
+    // pick an arbitrary refresh-token row belonging to the user and revoke
+    // *that* family — potentially the wrong one. Reproduced here by logging
+    // in twice as the same user (two tabs), which yields two independent
+    // refresh-token families. Logging out of the second session must revoke
+    // only the second session's family; the first session's refresh cookie
+    // must remain valid.
+    const passwordHash = await hashPassword("supersecret123");
+    await server.prisma.user.create({
+      data: {
+        email: "two-session-logout-test@harmon.dev",
+        name: "Two Session Logout Test",
+        birthDate: new Date("1990-01-01"),
+        passwordHash,
+      },
+    });
+
+    const loginA = await server.inject({
+      method: "POST",
+      url: "/v1/auth/login",
+      payload: { email: "two-session-logout-test@harmon.dev", password: "supersecret123" },
+    });
+    const cookieA = loginA.cookies.find((c) => c.name === "refreshToken")!;
+
+    const loginB = await server.inject({
+      method: "POST",
+      url: "/v1/auth/login",
+      payload: { email: "two-session-logout-test@harmon.dev", password: "supersecret123" },
+    });
+    const cookieB = loginB.cookies.find((c) => c.name === "refreshToken")!;
+    const accessTokenB = loginB.json().accessToken;
+
+    const logoutB = await server.inject({
+      method: "POST",
+      url: "/v1/auth/logout",
+      headers: { authorization: `Bearer ${accessTokenB}` },
+      cookies: { refreshToken: cookieB.value },
+    });
+    expect(logoutB.statusCode).toBe(200);
+
+    const refreshB = await server.inject({
+      method: "POST",
+      url: "/v1/auth/refresh",
+      cookies: { refreshToken: cookieB.value },
+    });
+    expect(refreshB.statusCode).toBe(400);
+
+    const refreshA = await server.inject({
+      method: "POST",
+      url: "/v1/auth/refresh",
+      cookies: { refreshToken: cookieA.value },
+    });
+    expect(refreshA.statusCode).toBe(200);
+  });
 });
