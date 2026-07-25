@@ -32,3 +32,4 @@ export * from "./components/TransactionRow/TransactionRow";
 export * from "./components/TimelineEventRow/TimelineEventRow";
 export * from "./components/TimelineAlertBanner/TimelineAlertBanner";
 export * from "./components/RecurringRow/RecurringRow";
+export * from "./components/StagingReviewRow/StagingReviewRow";
