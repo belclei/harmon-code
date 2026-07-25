@@ -11,6 +11,7 @@ import {
   createGoogleIdTokenVerifier,
 } from "./auth/google.js";
 import { registerAuthRoutes } from "./auth/routes.js";
+import { registerResendWebhook } from "./email/webhook.js";
 import { type Env, loadEnv } from "./env.js";
 import { AppError, INTERNAL, VALIDATION_FAILED } from "./errors.js";
 import prismaPlugin from "./plugins/prisma.js";
@@ -39,6 +40,7 @@ export async function buildServer(envOverride?: Env): Promise<FastifyInstance> {
   await fastify.register(redisPlugin);
   await fastify.register(cookie);
   await registerAuthRoutes(fastify);
+  await registerResendWebhook(fastify);
 
   fastify.get("/health", async () => ({ status: "ok" }));
   fastify.get("/ready", async (_request, reply) => {
