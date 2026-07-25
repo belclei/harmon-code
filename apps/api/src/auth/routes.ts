@@ -2,10 +2,15 @@
 import { z } from "zod";
 import type { FastifyInstance } from "fastify";
 import { verifyPassword } from "./password.js";
-import { signAccessToken } from "./jwt.js";
-import { issueRefreshTokenFamily } from "./refresh-tokens.js";
+import { signAccessToken, verifyAccessToken } from "./jwt.js";
+import {
+  issueRefreshTokenFamily,
+  rotateRefreshToken,
+  revokeRefreshFamily,
+  RefreshTokenReuseError,
+} from "./refresh-tokens.js";
 import { registerAuthRateLimit } from "./rate-limit.js";
-import { AUTH_INVALID_CREDENTIALS } from "../errors.js";
+import { AUTH_INVALID_CREDENTIALS, AUTH_TOKEN_INVALID } from "../errors.js";
 
 const REFRESH_COOKIE_NAME = "refreshToken";
 const REFRESH_COOKIE_MAX_AGE_SECONDS = 30 * 24 * 60 * 60;
@@ -62,4 +67,53 @@ export async function registerAuthRoutes(fastify: FastifyInstance): Promise<void
       return { accessToken };
     },
   );
+
+  fastify.post("/v1/auth/refresh", async (request, reply) => {
+    const rawToken = request.cookies[REFRESH_COOKIE_NAME];
+    if (!rawToken) {
+      throw AUTH_TOKEN_INVALID();
+    }
+    try {
+      const { token: newRefreshToken, userId } = await rotateRefreshToken(fastify.prisma, rawToken);
+      const user = await fastify.prisma.user.findUniqueOrThrow({ where: { id: userId } });
+      const accessToken = await signAccessToken({ sub: user.id, role: user.role }, fastify.env.JWT_SECRET);
+
+      reply.setCookie(REFRESH_COOKIE_NAME, newRefreshToken, {
+        httpOnly: true,
+        secure: true,
+        sameSite: "strict",
+        path: "/v1/auth",
+        maxAge: REFRESH_COOKIE_MAX_AGE_SECONDS,
+      });
+      return { accessToken };
+    } catch (error) {
+      if (error instanceof RefreshTokenReuseError) {
+        throw AUTH_TOKEN_INVALID();
+      }
+      throw AUTH_TOKEN_INVALID();
+    }
+  });
+
+  fastify.post("/v1/auth/logout", async (request, reply) => {
+    const authHeader = request.headers.authorization;
+    if (!authHeader?.startsWith("Bearer ")) {
+      throw AUTH_TOKEN_INVALID();
+    }
+    let payload;
+    try {
+      payload = await verifyAccessToken(authHeader.slice("Bearer ".length), fastify.env.JWT_SECRET);
+    } catch {
+      throw AUTH_TOKEN_INVALID();
+    }
+
+    const rawToken = request.cookies[REFRESH_COOKIE_NAME];
+    if (rawToken) {
+      const tokenRow = await fastify.prisma.refreshToken.findFirst({ where: { userId: payload.sub } });
+      if (tokenRow) {
+        await revokeRefreshFamily(fastify.prisma, tokenRow.familyId);
+      }
+    }
+    reply.clearCookie(REFRESH_COOKIE_NAME, { path: "/v1/auth" });
+    return { ok: true };
+  });
 }
