@@ -31,3 +31,4 @@ export * from "./components/InsightCard/InsightCard";
 export * from "./components/TransactionRow/TransactionRow";
 export * from "./components/TimelineEventRow/TimelineEventRow";
 export * from "./components/TimelineAlertBanner/TimelineAlertBanner";
+export * from "./components/RecurringRow/RecurringRow";

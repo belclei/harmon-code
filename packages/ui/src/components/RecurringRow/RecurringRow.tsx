@@ -1,0 +1,88 @@
+import { Badge } from "../Badge/Badge";
+import { Card } from "../Card/Card";
+import { Body } from "../Typography/Body";
+import { Mono } from "../Typography/Mono";
+import { formatDate } from "../shared/formatDate";
+import { formatMoney } from "../shared/formatMoney";
+
+export type RecurringStatus = "active" | "paused" | "ended";
+
+const STATUS_BADGE: Record<
+  RecurringStatus,
+  { status: "active" | "pending" | "inactive"; label: string }
+> = {
+  active: { status: "active", label: "Ativa" },
+  paused: { status: "pending", label: "Pausada" },
+  ended: { status: "inactive", label: "Encerrada" },
+};
+
+export interface RecurringRowProps {
+  description: string;
+  referenceAmountCents: number;
+  /** §6.7 item 3: no valor fixo — o valor de referência é sinalizado como estimativa. */
+  isVariableAmount: boolean;
+  /** Absent when `status="ended"`. */
+  nextOccurrenceDate?: string;
+  status: RecurringStatus;
+  /** §6.7 item 6 — decided by the caller (real value diverged from reference); this component only paints the badge. */
+  hasVariationAlert?: boolean;
+  onClick?: () => void;
+}
+
+/**
+ * Harmon's recurring-series summary row. Dumb component: `status` and
+ * `hasVariationAlert` arrive via props — no divergence math happens here
+ * (§6.7, BACKLOG US-2.5).
+ */
+export function RecurringRow({
+  description,
+  referenceAmountCents,
+  isVariableAmount,
+  nextOccurrenceDate,
+  status,
+  hasVariationAlert = false,
+  onClick,
+}: RecurringRowProps) {
+  const badge = STATUS_BADGE[status];
+
+  return (
+    <Card interactive={Boolean(onClick)} onClick={onClick}>
+      <div className="flex items-center justify-between gap-3">
+        <div className="min-w-0 flex-1">
+          <div className="flex items-center gap-2">
+            <Body weight="medium" className="truncate">
+              {description}
+            </Body>
+            <Badge kind="status" status={badge.status}>
+              {badge.label}
+            </Badge>
+            {isVariableAmount ? (
+              <Badge kind="category" color="sand">
+                Valor variável
+              </Badge>
+            ) : null}
+            {hasVariationAlert ? (
+              <Badge kind="status" status="alert">
+                Variação
+              </Badge>
+            ) : null}
+          </div>
+          <Body muted className="text-[.8125rem]">
+            {status === "ended"
+              ? "Série encerrada"
+              : nextOccurrenceDate
+                ? `Próxima ocorrência: ${formatDate(nextOccurrenceDate)}`
+                : ""}
+          </Body>
+        </div>
+        <Mono
+          variant="number"
+          tone={isVariableAmount ? "estimate" : "default"}
+          className="flex-none"
+        >
+          {formatMoney(referenceAmountCents)}
+        </Mono>
+      </div>
+    </Card>
+  );
+}
