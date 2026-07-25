@@ -186,99 +186,107 @@ export function Alert({
       id={id}
       role={styles.role}
       className={[
-        "flex items-start gap-3 rounded-[var(--hm-r-md)] p-4",
-        // index.html id="alerta": below 560px, actions wrap onto their own
-        // line under the text instead of squeezing beside it.
-        "max-[560px]:flex-wrap",
+        // @container has to live on an ANCESTOR of the element carrying
+        // @max-[560px]:flex-wrap below, not the same element — a size
+        // container query can't restyle the container it's establishing
+        // (flex-wrap changes the row's own height, which the containment
+        // spec excludes to avoid a resize loop), so a self-query like the
+        // previous single-div version silently never fired.
+        "@container rounded-[var(--hm-r-md)]",
         styles.bg,
         className,
       ].join(" ")}
     >
-      <svg
-        aria-hidden="true"
-        viewBox="0 0 24 24"
-        fill="none"
-        stroke="currentColor"
-        strokeWidth={1.8}
-        className={["mt-px h-[18px] w-[18px] flex-none", styles.icon].join(" ")}
-      >
-        {ICON_PATHS[variant]}
-      </svg>
-      <div className="min-w-0 flex-1">
-        <p className="m-0 text-[.875rem] font-bold text-[var(--hm-text)]">
-          {title}
-        </p>
-        {description ? (
-          // NOT --hm-text-2: that token is AA-checked against the neutral
-          // --hm-bg/--hm-surface only (per its own v1.1 comment in
-          // harmon-tokens.css). On top of these variants' tinted washes
-          // (blue-100/sage-100/clay-100 etc.) it measured 4.12–4.35:1 via
-          // axe-core — short of the 4.5:1 this component's own a11y bar
-          // requires. brand/design-system/harmon-components.css's
-          // `.hmc-alert__body` has this identical gap. Full-strength text
-          // trades a bit of visual "secondary" softness for guaranteed AA.
-          <p className="m-0 mt-0.5 text-[.875rem] text-[var(--hm-text)]">
-            {description}
+      <div className="flex items-start gap-3 p-4 @max-[560px]:flex-wrap">
+        <svg
+          aria-hidden="true"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth={1.8}
+          className={["mt-px h-[18px] w-[18px] flex-none", styles.icon].join(
+            " ",
+          )}
+        >
+          {ICON_PATHS[variant]}
+        </svg>
+        <div className="min-w-0 flex-1">
+          <p className="m-0 text-[.875rem] font-bold text-[var(--hm-text)]">
+            {title}
           </p>
+          {description ? (
+            // NOT --hm-text-2: that token is AA-checked against the neutral
+            // --hm-bg/--hm-surface only (per its own v1.1 comment in
+            // harmon-tokens.css). On top of these variants' tinted washes
+            // (blue-100/sage-100/clay-100 etc.) it measured 4.12–4.35:1 via
+            // axe-core — short of the 4.5:1 this component's own a11y bar
+            // requires. brand/design-system/harmon-components.css's
+            // `.hmc-alert__body` has this identical gap. Full-strength text
+            // trades a bit of visual "secondary" softness for guaranteed AA.
+            <p className="m-0 mt-0.5 text-[.875rem] text-[var(--hm-text)]">
+              {description}
+            </p>
+          ) : null}
+        </div>
+        {actions && actions.length > 0 ? (
+          <div
+            className={[
+              "flex flex-none items-center gap-2 self-center",
+              "ml-[var(--hm-s2)]",
+              // index.html id="alerta": below 560px the actions stretch to
+              // full width, drop the left margin in favor of 30px of
+              // left padding (aligns under the text, after the icon), and
+              // left-justify instead of trailing the text. Container query to
+              // match the @container/@max-[560px] switch on the row above.
+              "@max-[560px]:ml-0 @max-[560px]:mt-2.5 @max-[560px]:w-full",
+              "@max-[560px]:justify-start @max-[560px]:self-stretch @max-[560px]:pl-[30px]",
+            ].join(" ")}
+          >
+            {actions.map((action) => (
+              <Button
+                key={action.label}
+                type="button"
+                size="sm"
+                variant={ACTION_VARIANT_MAP[action.variant ?? "ghost"]}
+                onClick={action.onClick}
+                // Button's "tertiary"/ghost text color (--hm-text-2) was only
+                // ever AA-checked against the plain page surface, not against
+                // Alert's own tinted backgrounds (blue-100/sage-100/etc.) —
+                // axe-core caught exactly that combination here: 4.35:1 on
+                // sage-100, short of 4.5:1. Same "text on its own tint" class
+                // of bug already flagged on Badge/Alert's own title-text
+                // comments elsewhere in this file; the fix is the same one
+                // already applied to this component's title/description:
+                // force full-strength --hm-text instead of the muted tone.
+                // The trailing `!` is Tailwind v4's important-utility syntax —
+                // needed because two different arbitrary-value utility
+                // classes targeting `color` don't otherwise have a
+                // predictable winner based on this component's own class order.
+                className="text-[var(--hm-text)]!"
+              >
+                {action.label}
+              </Button>
+            ))}
+          </div>
+        ) : null}
+        {onClose ? (
+          <button
+            type="button"
+            onClick={onClose}
+            aria-label="Fechar alerta"
+            className="-m-1 flex-none cursor-pointer rounded-[var(--hm-r-sm)] p-1 text-[var(--hm-text-2)] opacity-70 hover:bg-black/5 hover:opacity-100 dark:hover:bg-white/10"
+          >
+            <svg
+              aria-hidden="true"
+              viewBox="0 0 20 20"
+              fill="currentColor"
+              className="h-4 w-4"
+            >
+              <path d="M6.28 5.22a.75.75 0 00-1.06 1.06L8.94 10l-3.72 3.72a.75.75 0 101.06 1.06L10 11.06l3.72 3.72a.75.75 0 101.06-1.06L11.06 10l3.72-3.72a.75.75 0 00-1.06-1.06L10 8.94 6.28 5.22z" />
+            </svg>
+          </button>
         ) : null}
       </div>
-      {actions && actions.length > 0 ? (
-        <div
-          className={[
-            "flex flex-none items-center gap-2 self-center",
-            "ml-[var(--hm-s2)]",
-            // index.html id="alerta": below 560px the actions stretch to
-            // full width, drop the left margin in favor of 30px of
-            // left padding (aligns under the text, after the icon), and
-            // left-justify instead of trailing the text.
-            "max-[560px]:ml-0 max-[560px]:mt-2.5 max-[560px]:w-full",
-            "max-[560px]:justify-start max-[560px]:self-stretch max-[560px]:pl-[30px]",
-          ].join(" ")}
-        >
-          {actions.map((action) => (
-            <Button
-              key={action.label}
-              type="button"
-              size="sm"
-              variant={ACTION_VARIANT_MAP[action.variant ?? "ghost"]}
-              onClick={action.onClick}
-              // Button's "tertiary"/ghost text color (--hm-text-2) was only
-              // ever AA-checked against the plain page surface, not against
-              // Alert's own tinted backgrounds (blue-100/sage-100/etc.) —
-              // axe-core caught exactly that combination here: 4.35:1 on
-              // sage-100, short of 4.5:1. Same "text on its own tint" class
-              // of bug already flagged on Badge/Alert's own title-text
-              // comments elsewhere in this file; the fix is the same one
-              // already applied to this component's title/description:
-              // force full-strength --hm-text instead of the muted tone.
-              // The trailing `!` is Tailwind v4's important-utility syntax —
-              // needed because two different arbitrary-value utility
-              // classes targeting `color` don't otherwise have a
-              // predictable winner based on this component's own class order.
-              className="text-[var(--hm-text)]!"
-            >
-              {action.label}
-            </Button>
-          ))}
-        </div>
-      ) : null}
-      {onClose ? (
-        <button
-          type="button"
-          onClick={onClose}
-          aria-label="Fechar alerta"
-          className="-m-1 flex-none cursor-pointer rounded-[var(--hm-r-sm)] p-1 text-[var(--hm-text-2)] opacity-70 hover:bg-black/5 hover:opacity-100 dark:hover:bg-white/10"
-        >
-          <svg
-            aria-hidden="true"
-            viewBox="0 0 20 20"
-            fill="currentColor"
-            className="h-4 w-4"
-          >
-            <path d="M6.28 5.22a.75.75 0 00-1.06 1.06L8.94 10l-3.72 3.72a.75.75 0 101.06 1.06L10 11.06l3.72 3.72a.75.75 0 101.06-1.06L11.06 10l3.72-3.72a.75.75 0 00-1.06-1.06L10 8.94 6.28 5.22z" />
-          </svg>
-        </button>
-      ) : null}
     </div>
   );
 }

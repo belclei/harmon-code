@@ -156,7 +156,12 @@ export const ComAcoesEFechar: Story = {
 /** index.html id="alerta", "Estreito": abaixo de 560px as ações empilham sob o texto, alinhadas à esquerda (não centradas sob o ícone). */
 export const Estreito: Story = {
   render: () => (
-    <div style={{ maxWidth: "380px" }}>
+    // `width`, not `maxWidth`: Alert's own @container div has
+    // `container-type: inline-size`, which per the CSS Containment spec
+    // strips it from intrinsic (shrink-to-fit) sizing — inside Storybook's
+    // flex-centered layout, a `maxWidth`-only wrapper has no content-based
+    // width to cap, so it collapses to 0 instead of 380px.
+    <div style={{ width: "380px" }}>
       <Alert
         variant="warning"
         title="Saldo abaixo do limite"
