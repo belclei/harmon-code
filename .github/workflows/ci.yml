@@ -8,6 +8,34 @@ on:
 jobs:
   quality:
     runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: harmon
+          POSTGRES_PASSWORD: harmon
+          POSTGRES_DB: harmon
+        ports: ["5433:5432"]
+        options: >-
+          --health-cmd "pg_isready -U harmon"
+          --health-interval 5s
+          --health-timeout 3s
+          --health-retries 10
+      redis:
+        image: redis:7-alpine
+        ports: ["6379:6379"]
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 5s
+          --health-timeout 3s
+          --health-retries 10
+    env:
+      DATABASE_URL: postgresql://harmon:harmon@localhost:5433/harmon?schema=public
+      REDIS_URL: redis://localhost:6379
+      JWT_SECRET: ci-only-secret-not-used-in-prod-32-bytes
+      GOOGLE_CLIENT_ID: ci-placeholder
+      RESEND_API_KEY: ci-placeholder
+      RESEND_WEBHOOK_SECRET: ci-placeholder
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -15,6 +43,8 @@ jobs:
           node-version: 20
           cache: npm
       - run: npm ci
+      - name: Apply migrations
+        run: npm run generate --workspace=@harmon/db && npx --workspace=@harmon/db prisma migrate deploy
       - name: Lint
         run: npm run lint
       - name: Typecheck
