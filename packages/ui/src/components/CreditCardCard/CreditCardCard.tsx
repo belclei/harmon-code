@@ -115,9 +115,9 @@ export function CreditCardCard({
           de {formatMoney(limitCents)}
         </Body>
       </div>
+      {/* biome-ignore lint/a11y/useFocusableInteractive: progressbar is a read-only status widget per WAI-ARIA APG — it is not expected to be keyboard-operable, so it should not be a tab stop */}
       <div
         role="progressbar"
-        tabIndex={0}
         aria-label={`${institutionName}: uso do limite`}
         aria-valuenow={Math.round(usagePercent)}
         aria-valuemin={0}
