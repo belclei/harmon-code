@@ -69,6 +69,51 @@ describe("POST /v1/auth/login", () => {
     const body = response.json();
     expect(body.accessToken).toEqual(expect.any(String));
     expect(response.cookies.some((c) => c.name === "refreshToken")).toBe(true);
+
+    // Not just presence — the cookie itself must carry the hardening
+    // attributes (httpOnly/secure/sameSite/path), not only a bare
+    // `refreshToken=...` name/value pair.
+    const setCookieHeader = response.headers["set-cookie"];
+    const rawHeaders = Array.isArray(setCookieHeader)
+      ? setCookieHeader
+      : [setCookieHeader];
+    const refreshCookieHeader = rawHeaders.find((header) =>
+      header?.startsWith("refreshToken="),
+    );
+    expect(refreshCookieHeader).toContain("HttpOnly");
+    expect(refreshCookieHeader).toContain("Secure");
+    expect(refreshCookieHeader).toContain("SameSite=Strict");
+    expect(refreshCookieHeader).toContain("Path=/v1/auth");
+  });
+
+  it("rejects login for a disabled user with the same response as a wrong password", async () => {
+    const passwordHash = await hashPassword("supersecret123");
+    await server.prisma.user.create({
+      data: {
+        email: "disabled-login-test@harmon.dev",
+        name: "Disabled Login Test",
+        birthDate: new Date("1990-01-01"),
+        passwordHash,
+        status: "disabled",
+      },
+    });
+
+    const disabledAttempt = await server.inject({
+      method: "POST",
+      url: "/v1/auth/login",
+      payload: {
+        email: "disabled-login-test@harmon.dev",
+        password: "supersecret123",
+      },
+    });
+    const wrongPasswordAttempt = await server.inject({
+      method: "POST",
+      url: "/v1/auth/login",
+      payload: { email: "no-such-account@harmon.dev", password: "wrong" },
+    });
+
+    expect(disabledAttempt.statusCode).toBe(401);
+    expect(disabledAttempt.json()).toEqual(wrongPasswordAttempt.json());
   });
 
   it("returns the same error for a wrong password and a nonexistent e-mail", async () => {
@@ -271,6 +316,40 @@ describe("POST /v1/auth/refresh", () => {
     });
     expect(afterFamilyRevocation.statusCode).toBe(400);
   });
+
+  it("stops a previously-valid refresh token from working once the user becomes disabled", async () => {
+    const passwordHash = await hashPassword("supersecret123");
+    const user = await server.prisma.user.create({
+      data: {
+        email: "disabled-refresh-test@harmon.dev",
+        name: "Disabled Refresh Test",
+        birthDate: new Date("1990-01-01"),
+        passwordHash,
+      },
+    });
+    const login = await server.inject({
+      method: "POST",
+      url: "/v1/auth/login",
+      payload: {
+        email: "disabled-refresh-test@harmon.dev",
+        password: "supersecret123",
+      },
+    });
+    const cookieValue = getRefreshCookieValue(login);
+
+    await server.prisma.user.update({
+      where: { id: user.id },
+      data: { status: "disabled" },
+    });
+
+    const refreshed = await server.inject({
+      method: "POST",
+      url: "/v1/auth/refresh",
+      cookies: { refreshToken: cookieValue },
+    });
+    expect(refreshed.statusCode).toBe(400);
+    expect(refreshed.json().code).toBe("auth.token_invalid");
+  });
 });
 
 describe("POST /v1/auth/logout", () => {
@@ -434,6 +513,33 @@ describe("POST /v1/auth/google", () => {
       where: { email: "google-existing@harmon.dev" },
     });
     expect(count).toBe(1);
+  });
+
+  it("rate-limits the 6th request from the same IP within the window", async () => {
+    // Unlike /v1/auth/login, there's no e-mail in the request body to key
+    // on, so this exercises the keyGenerator's `request.ip` fallback
+    // (rate-limit.ts) — every `server.inject` call here shares the same
+    // (fake) client IP.
+    server.googleVerifier = async () => ({
+      googleId: "google-sub-ratelimit",
+      email: "google-ratelimit@harmon.dev",
+      name: "Google Ratelimit",
+    });
+    await server.redis.flushall();
+    for (let i = 0; i < 5; i++) {
+      await server.inject({
+        method: "POST",
+        url: "/v1/auth/google",
+        payload: { idToken: "fake-token-verified-by-injected-mock" },
+      });
+    }
+    const sixth = await server.inject({
+      method: "POST",
+      url: "/v1/auth/google",
+      payload: { idToken: "fake-token-verified-by-injected-mock" },
+    });
+    expect(sixth.statusCode).toBe(429);
+    expect(sixth.json().code).toBe("auth.rate_limited");
   });
 });
 
