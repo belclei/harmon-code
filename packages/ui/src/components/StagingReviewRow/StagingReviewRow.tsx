@@ -128,14 +128,9 @@ export function StagingReviewRow({
       {status === "pending" ? (
         <div className="mt-3 flex gap-2 border-t border-[var(--hm-border)] pt-3">
           {onConfirm ? (
-            // No "success" Button variant exists yet — this stays hand-rolled until one is added.
-            <button
-              type="button"
-              onClick={onConfirm}
-              className="cursor-pointer rounded-[var(--hm-r-sm)] bg-[var(--hm-sage-700)] px-3 py-1.5 text-[.8125rem] font-medium text-white hover:opacity-90"
-            >
+            <Button variant="primary" size="sm" onClick={onConfirm}>
               Confirmar
-            </button>
+            </Button>
           ) : null}
           {onEdit ? (
             <Button variant="secondary" size="sm" onClick={onEdit}>

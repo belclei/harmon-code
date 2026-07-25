@@ -130,13 +130,14 @@ const EVENT_TEXT: Record<DomainEventType, (p: DomainEventPayload) => string> = {
 };
 
 // Category → icon mapping (line icons, viewBox 24×24, stroke 1.8 — Alert.tsx's
-// established convention). One shared icon per event family, not per type,
-// keeping this table readable; distinguishing copy carries the specifics.
+// established convention). One shared icon per event *family* (not per type)
+// keeps this table readable — distinguishing copy carries the specifics —
+// but each family below now gets its own icon pulled from an existing
+// design-system glyph (brand/design-system/index.html), rather than the
+// previous 2-icon catch-all that made ~24 of the 31 types visually
+// indistinguishable from each other.
 function eventIcon(type: DomainEventType): ReactNode {
-  if (
-    type.startsWith("account.over_limit") ||
-    type.startsWith("card.over_limit")
-  ) {
+  if (type.endsWith("over_limit_entered")) {
     return (
       <>
         <path d="M12 4 3 19h18z" />
@@ -144,22 +145,67 @@ function eventIcon(type: DomainEventType): ReactNode {
       </>
     );
   }
+  // Entering vs. leaving the alert state are opposite-meaning events — the
+  // warning triangle above only ever fit "entered"; "cleared" gets the same
+  // resolved/success checkmark Alert.tsx uses for its `success` variant.
+  if (type.endsWith("over_limit_cleared")) {
+    return (
+      <>
+        <circle cx="12" cy="12" r="9" />
+        <path d="m8 12 3 3 5-6" />
+      </>
+    );
+  }
   if (type.startsWith("card.invoice")) {
     return <path d="M4 7h16v10H4zM4 11h16" />;
+  }
+  // index.html "hmc-inst" — the institution glyph AccountCard/CreditCardCard
+  // already show next to an account/card's own name.
+  if (type.startsWith("account") || type.startsWith("card")) {
+    return (
+      <>
+        <rect x="3" y="7" width="18" height="12" rx="2" />
+        <path d="M16 13h2" />
+      </>
+    );
+  }
+  // index.html nav item "Transações".
+  if (type.startsWith("transaction")) {
+    return <path d="M4 7h16M4 12h16M4 17h10" />;
+  }
+  // index.html nav item "Timeline" — the same clock glyph already tags an
+  // "Agendada" TransactionRow/badge elsewhere in the reference.
+  if (type.startsWith("scheduled")) {
+    return (
+      <>
+        <circle cx="12" cy="12" r="8" />
+        <path d="M12 8v4l3 2" />
+      </>
+    );
+  }
+  // index.html nav item "Recorrências".
+  if (type.startsWith("recurring")) {
+    return (
+      <>
+        <path d="M4 12a8 8 0 0 1 14-5M20 12a8 8 0 0 1-14 5" />
+        <path d="M18 3v4h-4M6 21v-4h4" />
+      </>
+    );
   }
   if (type.startsWith("import")) {
     return <path d="M12 3v12m0 0 4-4m-4 4-4-4M4 19h16" />;
   }
-  if (
-    type.startsWith("connection") ||
-    type.startsWith("share") ||
-    type.startsWith("portador")
-  ) {
-    return (
-      <path d="M9 12a3 3 0 100-6 3 3 0 000 6zM15 18a3 3 0 100-6 3 3 0 000 6zM10.5 10.5l3 4" />
-    );
-  }
-  return <path d="M5 12h14M12 5v14" />;
+  // connection.*/share.*/portador.*: the reference never draws a dedicated
+  // icon for "another person" — it uses an avatar (hmc-avatar, initial +
+  // color) instead, everywhere from the connections list to a portador
+  // validation card. This row has no avatar slot (just icon+text+timestamp),
+  // and inventing 3 icons with no design-system precedent would trade one
+  // compliance problem for another — so these 10 types keep sharing a single
+  // "connected people" glyph, at least now scoped to one coherent domain
+  // instead of a meaningless catch-all shared with unrelated event types.
+  return (
+    <path d="M9 12a3 3 0 100-6 3 3 0 000 6zM15 18a3 3 0 100-6 3 3 0 000 6zM10.5 10.5l3 4" />
+  );
 }
 
 /**

@@ -66,9 +66,17 @@ const VARIANT_CLASSES: Record<ButtonVariant, string> = {
     "bg-[var(--hm-ink-900)] text-[var(--hm-bone-000)] border border-transparent " +
     "hover:bg-[var(--hm-ink-700)] active:bg-[var(--hm-ink-800)] " +
     "dark:bg-[var(--hm-ink-700)] dark:hover:bg-[var(--hm-ink-600)] dark:active:bg-[var(--hm-ink-800)]",
+  // active:bg-[var(--hm-bone-100)] is a raw light-tint token with no dark
+  // redefinition — in dark mode --hm-text also resolves to --hm-bone-100
+  // (harmon-tokens.css's [data-theme="dark"] block), so the active
+  // background and the button's own text became the same color, making the
+  // label disappear. dark:active: steps to --hm-ink-700 (one tick lighter
+  // than --hm-surface's ink-800), same "never match dark text" fix already
+  // applied to primary above.
   secondary:
     "bg-[var(--hm-surface)] text-[var(--hm-text)] border border-[var(--hm-border)] " +
-    "hover:bg-[var(--hm-surface-sunken)] hover:border-[var(--hm-ink-300)] active:bg-[var(--hm-bone-100)]",
+    "hover:bg-[var(--hm-surface-sunken)] hover:border-[var(--hm-ink-300)] " +
+    "active:bg-[var(--hm-bone-100)] dark:active:bg-[var(--hm-ink-700)]",
   // active: text-2 (#5f6c80) measured 4.12:1 against the active background
   // (border/40 over the page bg) — short of AA's 4.5:1. Verified with axe-core;
   // switching to full-strength text on active (matches the hover treatment)

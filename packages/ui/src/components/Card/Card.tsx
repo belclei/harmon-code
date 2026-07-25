@@ -72,8 +72,15 @@ export function Card({
       }
       className={[
         "hm-card",
-        sunken ? "bg-[var(--hm-surface-sunken)]" : "",
-        dashed ? "border-dashed bg-transparent" : "",
+        // `!` (Tailwind v4 important-modifier) is required here: harmon-tokens.css's
+        // `.hm-card` sets `background`/`border` as an unlayered shorthand rule, and
+        // unlayered CSS always wins over Tailwind's utilities (emitted inside
+        // `@layer utilities`) regardless of source order or specificity — without
+        // it, `sunken`/`dashed` silently no-op (e.g. TransactionRow's "agendada"
+        // card rendered a solid border instead of dashed). Same class of bug
+        // already flagged/fixed with `!` on Alert.tsx's action button text color.
+        sunken ? "bg-[var(--hm-surface-sunken)]!" : "",
+        dashed ? "border-dashed! bg-transparent!" : "",
         interactive
           ? "cursor-pointer transition-[box-shadow,border-color] duration-150 hover:border-[var(--hm-ink-300)] hover:shadow-[var(--hm-e1)]"
           : "",

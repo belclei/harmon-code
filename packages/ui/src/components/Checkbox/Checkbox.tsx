@@ -67,8 +67,9 @@ export function Checkbox({
             "pointer-events-none absolute inset-0 grid place-items-center rounded-[var(--hm-r-sm)] border transition-colors duration-150",
             isFilled
               ? "border-[var(--hm-ink-900)] bg-[var(--hm-ink-900)] dark:border-[var(--hm-ink-700)] dark:bg-[var(--hm-ink-700)]"
-              : "border-[var(--hm-ink-300)] bg-[var(--hm-surface)]",
-            error && !isFilled ? "border-[var(--hm-clay-600)]" : "",
+              : error
+                ? "border-[var(--hm-clay-600)] bg-[var(--hm-surface)]"
+                : "border-[var(--hm-ink-300)] bg-[var(--hm-surface)]",
             "peer-focus-visible:outline peer-focus-visible:outline-2 peer-focus-visible:outline-offset-2 peer-focus-visible:outline-[var(--hm-focus-ring)]",
           ].join(" ")}
         >

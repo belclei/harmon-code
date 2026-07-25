@@ -58,7 +58,7 @@ export type BadgeProps = BadgeStatusProps | BadgeCategoryProps;
 // surface" (also --hm-money-out's dark value).
 const STATUS_STYLES: Record<
   BadgeStatus,
-  { bg: string; text: string; dot: string; label: string }
+  { bg: string; text: string; dot: string; label: string; border?: string }
 > = {
   active: {
     bg: "bg-[var(--hm-sage-100)] dark:bg-[var(--hm-sage-700)]/20",
@@ -66,11 +66,17 @@ const STATUS_STYLES: Record<
     dot: "bg-[var(--hm-sage-700)] dark:bg-[var(--hm-sage-300)]",
     label: "Ativo",
   },
+  // Was bg-[var(--hm-bone-100)]: in light theme that token IS --hm-bg (the
+  // page background itself, harmon-tokens.css line 47), so the pill was
+  // literally invisible against the page and only its text floated. The
+  // reference's neutral chip/badge (harmon-components.css .hmc-badge/.hmc-chip
+  // base rule) uses --hm-surface-sunken + a real border instead — matches that.
   inactive: {
-    bg: "bg-[var(--hm-bone-100)] dark:bg-white/10",
+    bg: "bg-[var(--hm-surface-sunken)] dark:bg-white/10",
     text: "text-[var(--hm-text-2)]",
     dot: "bg-[var(--hm-ink-500)] dark:bg-[var(--hm-ink-300)]",
     label: "Inativo",
+    border: "border border-[var(--hm-border)]",
   },
   pending: {
     bg: "bg-[var(--hm-sand-100)] dark:bg-[var(--hm-sand-700)]/20",
@@ -88,11 +94,14 @@ const STATUS_STYLES: Record<
 
 const CATEGORY_STYLES: Record<
   BadgeCategoryColor,
-  { bg: string; text: string }
+  { bg: string; text: string; border?: string }
 > = {
+  // Same page-bg-collision bug as STATUS_STYLES.inactive above — bg-surface-sunken
+  // + border matches the reference's neutral chip instead of the raw page-bg token.
   ink: {
-    bg: "bg-[var(--hm-bone-100)] dark:bg-white/10",
+    bg: "bg-[var(--hm-surface-sunken)] dark:bg-white/10",
     text: "text-[var(--hm-ink-700)] dark:text-[var(--hm-ink-200)]",
+    border: "border border-[var(--hm-border)]",
   },
   blue: {
     bg: "bg-[var(--hm-blue-100)] dark:bg-[var(--hm-blue-700)]/20",
@@ -124,7 +133,15 @@ export function Badge(props: BadgeProps) {
   if (props.kind === "status") {
     const s = STATUS_STYLES[props.status];
     return (
-      <span className={[base, s.bg, s.text, props.className ?? ""].join(" ")}>
+      <span
+        className={[
+          base,
+          s.bg,
+          s.text,
+          s.border ?? "",
+          props.className ?? "",
+        ].join(" ")}
+      >
         <span
           aria-hidden="true"
           className={["h-1.5 w-1.5 rounded-full", s.dot].join(" ")}
@@ -147,7 +164,7 @@ export function Badge(props: BadgeProps) {
     <span
       className={[
         base,
-        props.none ? noneClasses : [c.bg, c.text].join(" "),
+        props.none ? noneClasses : [c.bg, c.text, c.border ?? ""].join(" "),
         !props.none && props.suggested ? suggestedClasses : "",
         props.className ?? "",
       ].join(" ")}

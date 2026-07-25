@@ -89,15 +89,14 @@ export function PortadorCard({
             placeholder="Escolha uma conta ou cartão"
           />
           <div className="flex gap-2">
-            <button
-              type="button"
+            <Button
+              variant="primary"
+              size="sm"
               disabled={!selectedTarget}
               onClick={() => selectedTarget && onAccept?.(selectedTarget)}
-              className="cursor-pointer rounded-[var(--hm-r-sm)] bg-[var(--hm-sage-700)] px-3 py-1.5 text-[.8125rem] font-medium text-white hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50"
             >
-              {/* No "success" Button variant exists yet — this stays hand-rolled until one is added. */}
               Aceitar
-            </button>
+            </Button>
             <Button variant="secondary" size="sm" onClick={onReject}>
               Rejeitar
             </Button>

@@ -98,6 +98,15 @@ function RowHeader(props: TransactionRowProps) {
               Transferência
             </Badge>
           ) : null}
+          {/* Collapsed installment rows were visually identical to a plain
+              transaction — this is the only always-visible tell that the
+              row is parcelada, so it survives even when never expanded. */}
+          {props.variant === "installment" ? (
+            <Badge kind="category" color="ink">
+              {props.installment.installmentNumber}/
+              {props.installment.installmentTotal}
+            </Badge>
+          ) : null}
         </div>
         <Body muted className="text-[.8125rem]">
           {props.categoryLabel ? `${props.categoryLabel} · ` : ""}
@@ -212,14 +221,9 @@ export function TransactionRow(props: TransactionRowProps) {
       ) : null}
       {props.variant === "scheduled" ? (
         <div className="mt-3 flex gap-2 border-t border-[var(--hm-border)] pt-3">
-          {/* No "success" Button variant exists yet — this stays hand-rolled until one is added. */}
-          <button
-            type="button"
-            onClick={props.onConfirm}
-            className="cursor-pointer rounded-[var(--hm-r-sm)] bg-[var(--hm-sage-700)] px-3 py-1.5 text-[.8125rem] font-medium text-white hover:opacity-90"
-          >
+          <Button variant="primary" size="sm" onClick={props.onConfirm}>
             Confirmar
-          </button>
+          </Button>
           <Button variant="secondary" size="sm" onClick={props.onEdit}>
             Editar
           </Button>

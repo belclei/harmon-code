@@ -34,4 +34,3 @@ export * from "./components/TimelineAlertBanner/TimelineAlertBanner";
 export * from "./components/RecurringRow/RecurringRow";
 export * from "./components/StagingReviewRow/StagingReviewRow";
 export * from "./components/PortadorCard/PortadorCard";
-export * from "./components/OnboardingCard/OnboardingCard";

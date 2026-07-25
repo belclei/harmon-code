@@ -70,8 +70,9 @@ export function RadioGroup({
                   "pointer-events-none absolute inset-0 rounded-full transition-colors duration-150",
                   isChecked
                     ? "border-[6px] border-[var(--hm-ink-900)] bg-[var(--hm-surface)] dark:border-[var(--hm-ink-700)]"
-                    : "border border-[var(--hm-ink-300)] bg-[var(--hm-surface)]",
-                  error && !isChecked ? "border-[var(--hm-clay-600)]" : "",
+                    : error
+                      ? "border border-[var(--hm-clay-600)] bg-[var(--hm-surface)]"
+                      : "border border-[var(--hm-ink-300)] bg-[var(--hm-surface)]",
                   "peer-focus-visible:outline peer-focus-visible:outline-2 peer-focus-visible:outline-offset-2 peer-focus-visible:outline-[var(--hm-focus-ring)]",
                 ].join(" ")}
               />
