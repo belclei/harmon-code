@@ -4,7 +4,9 @@ import { hashPassword, verifyPassword } from "./password.js";
 describe("password", () => {
   it("hashes and verifies a matching password", async () => {
     const hash = await hashPassword("correct horse battery staple");
-    expect(await verifyPassword(hash, "correct horse battery staple")).toBe(true);
+    expect(await verifyPassword(hash, "correct horse battery staple")).toBe(
+      true,
+    );
   });
 
   it("rejects a non-matching password", async () => {

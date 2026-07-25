@@ -2,7 +2,9 @@ import rateLimit from "@fastify/rate-limit";
 import type { FastifyInstance } from "fastify";
 import { AUTH_RATE_LIMITED } from "../errors.js";
 
-export async function registerAuthRateLimit(fastify: FastifyInstance): Promise<void> {
+export async function registerAuthRateLimit(
+  fastify: FastifyInstance,
+): Promise<void> {
   await fastify.register(rateLimit, {
     global: false,
     redis: fastify.redis,

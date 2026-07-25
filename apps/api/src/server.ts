@@ -1,3 +1,4 @@
+import cookie from "@fastify/cookie";
 import {
   type ZodTypeProvider,
   serializerCompiler,
@@ -5,13 +6,15 @@ import {
 } from "@fastify/type-provider-zod";
 // apps/api/src/server.ts
 import Fastify, { type FastifyError, type FastifyInstance } from "fastify";
-import cookie from "@fastify/cookie";
+import {
+  type GoogleIdTokenVerifier,
+  createGoogleIdTokenVerifier,
+} from "./auth/google.js";
+import { registerAuthRoutes } from "./auth/routes.js";
 import { type Env, loadEnv } from "./env.js";
 import { AppError, INTERNAL, VALIDATION_FAILED } from "./errors.js";
 import prismaPlugin from "./plugins/prisma.js";
 import redisPlugin from "./plugins/redis.js";
-import { registerAuthRoutes } from "./auth/routes.js";
-import { createGoogleIdTokenVerifier, type GoogleIdTokenVerifier } from "./auth/google.js";
 
 declare module "fastify" {
   interface FastifyInstance {
@@ -27,7 +30,10 @@ export async function buildServer(envOverride?: Env): Promise<FastifyInstance> {
 
   const env = envOverride ?? loadEnv();
   fastify.decorate("env", env);
-  fastify.decorate("googleVerifier", createGoogleIdTokenVerifier(env.GOOGLE_CLIENT_ID));
+  fastify.decorate(
+    "googleVerifier",
+    createGoogleIdTokenVerifier(env.GOOGLE_CLIENT_ID),
+  );
 
   await fastify.register(prismaPlugin);
   await fastify.register(redisPlugin);

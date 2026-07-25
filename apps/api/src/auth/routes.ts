@@ -1,19 +1,23 @@
+import type { FastifyInstance } from "fastify";
 // apps/api/src/auth/routes.ts
 import { z } from "zod";
-import type { FastifyInstance } from "fastify";
-import { verifyPassword } from "./password.js";
-import { signAccessToken, verifyAccessToken } from "./jwt.js";
-import {
-  issueRefreshTokenFamily,
-  rotateRefreshToken,
-  revokeRefreshFamily,
-  hashToken,
-  RefreshTokenReuseError,
-} from "./refresh-tokens.js";
-import { registerAuthRateLimit } from "./rate-limit.js";
-import { requireUser } from "./authenticate.js";
-import { resolveFlags } from "../flags/resolve.js";
 import { AUTH_INVALID_CREDENTIALS, AUTH_TOKEN_INVALID } from "../errors.js";
+import { resolveFlags } from "../flags/resolve.js";
+import { requireUser } from "./authenticate.js";
+import {
+  type AccessTokenPayload,
+  signAccessToken,
+  verifyAccessToken,
+} from "./jwt.js";
+import { verifyPassword } from "./password.js";
+import { registerAuthRateLimit } from "./rate-limit.js";
+import {
+  RefreshTokenReuseError,
+  hashToken,
+  issueRefreshTokenFamily,
+  revokeRefreshFamily,
+  rotateRefreshToken,
+} from "./refresh-tokens.js";
 
 const REFRESH_COOKIE_NAME = "refreshToken";
 const REFRESH_COOKIE_MAX_AGE_SECONDS = 30 * 24 * 60 * 60;
@@ -25,7 +29,9 @@ const LoginBody = z.object({
 
 const GoogleAuthBody = z.object({ idToken: z.string().min(1) });
 
-export async function registerAuthRoutes(fastify: FastifyInstance): Promise<void> {
+export async function registerAuthRoutes(
+  fastify: FastifyInstance,
+): Promise<void> {
   await registerAuthRateLimit(fastify);
 
   fastify.post(
@@ -57,10 +63,19 @@ export async function registerAuthRoutes(fastify: FastifyInstance): Promise<void
         throw AUTH_INVALID_CREDENTIALS();
       }
 
-      const accessToken = await signAccessToken({ sub: user.id, role: user.role }, fastify.env.JWT_SECRET);
-      const { token: refreshToken } = await issueRefreshTokenFamily(fastify.prisma, user.id);
+      const accessToken = await signAccessToken(
+        { sub: user.id, role: user.role },
+        fastify.env.JWT_SECRET,
+      );
+      const { token: refreshToken } = await issueRefreshTokenFamily(
+        fastify.prisma,
+        user.id,
+      );
 
-      await fastify.prisma.user.update({ where: { id: user.id }, data: { lastLoginAt: new Date() } });
+      await fastify.prisma.user.update({
+        where: { id: user.id },
+        data: { lastLoginAt: new Date() },
+      });
 
       reply.setCookie(REFRESH_COOKIE_NAME, refreshToken, {
         httpOnly: true,
@@ -79,9 +94,17 @@ export async function registerAuthRoutes(fastify: FastifyInstance): Promise<void
       throw AUTH_TOKEN_INVALID();
     }
     try {
-      const { token: newRefreshToken, userId } = await rotateRefreshToken(fastify.prisma, rawToken);
-      const user = await fastify.prisma.user.findUniqueOrThrow({ where: { id: userId } });
-      const accessToken = await signAccessToken({ sub: user.id, role: user.role }, fastify.env.JWT_SECRET);
+      const { token: newRefreshToken, userId } = await rotateRefreshToken(
+        fastify.prisma,
+        rawToken,
+      );
+      const user = await fastify.prisma.user.findUniqueOrThrow({
+        where: { id: userId },
+      });
+      const accessToken = await signAccessToken(
+        { sub: user.id, role: user.role },
+        fastify.env.JWT_SECRET,
+      );
 
       reply.setCookie(REFRESH_COOKIE_NAME, newRefreshToken, {
         httpOnly: true,
@@ -104,9 +127,12 @@ export async function registerAuthRoutes(fastify: FastifyInstance): Promise<void
     if (!authHeader?.startsWith("Bearer ")) {
       throw AUTH_TOKEN_INVALID();
     }
-    let payload;
+    let payload: AccessTokenPayload;
     try {
-      payload = await verifyAccessToken(authHeader.slice("Bearer ".length), fastify.env.JWT_SECRET);
+      payload = await verifyAccessToken(
+        authHeader.slice("Bearer ".length),
+        fastify.env.JWT_SECRET,
+      );
     } catch {
       throw AUTH_TOKEN_INVALID();
     }
@@ -128,45 +154,67 @@ export async function registerAuthRoutes(fastify: FastifyInstance): Promise<void
     return { ok: true };
   });
 
-  fastify.post("/v1/auth/google", { schema: { body: GoogleAuthBody } }, async (request, reply) => {
-    const { idToken } = request.body as z.infer<typeof GoogleAuthBody>;
-    const identity = await fastify.googleVerifier(idToken);
+  fastify.post(
+    "/v1/auth/google",
+    { schema: { body: GoogleAuthBody } },
+    async (request, reply) => {
+      const { idToken } = request.body as z.infer<typeof GoogleAuthBody>;
+      const identity = await fastify.googleVerifier(idToken);
 
-    const user = await fastify.prisma.user.upsert({
-      where: { email: identity.email },
-      update: { googleId: identity.googleId, lastLoginAt: new Date() },
-      create: {
-        email: identity.email,
-        name: identity.name,
-        googleId: identity.googleId,
-        birthDate: new Date(0), // placeholder — real birthDate collection is a registration-flow concern (Épico 8, out of scope here); Google login for an already-seeded user (belclei) never hits `create`.
-      },
-    });
+      const user = await fastify.prisma.user.upsert({
+        where: { email: identity.email },
+        update: { googleId: identity.googleId, lastLoginAt: new Date() },
+        create: {
+          email: identity.email,
+          name: identity.name,
+          googleId: identity.googleId,
+          birthDate: new Date(0), // placeholder — real birthDate collection is a registration-flow concern (Épico 8, out of scope here); Google login for an already-seeded user (belclei) never hits `create`.
+        },
+      });
 
-    const accessToken = await signAccessToken({ sub: user.id, role: user.role }, fastify.env.JWT_SECRET);
-    const { token: refreshToken } = await issueRefreshTokenFamily(fastify.prisma, user.id);
-    reply.setCookie(REFRESH_COOKIE_NAME, refreshToken, {
-      httpOnly: true,
-      secure: true,
-      sameSite: "strict",
-      path: "/v1/auth",
-      maxAge: REFRESH_COOKIE_MAX_AGE_SECONDS,
-    });
-    return { accessToken };
-  });
+      const accessToken = await signAccessToken(
+        { sub: user.id, role: user.role },
+        fastify.env.JWT_SECRET,
+      );
+      const { token: refreshToken } = await issueRefreshTokenFamily(
+        fastify.prisma,
+        user.id,
+      );
+      reply.setCookie(REFRESH_COOKIE_NAME, refreshToken, {
+        httpOnly: true,
+        secure: true,
+        sameSite: "strict",
+        path: "/v1/auth",
+        maxAge: REFRESH_COOKIE_MAX_AGE_SECONDS,
+      });
+      return { accessToken };
+    },
+  );
 
-  fastify.get("/v1/me", { preHandler: requireUser(fastify) }, async (request) => {
-    const user = await fastify.prisma.user.findUniqueOrThrow({ where: { id: request.userId! } });
-    const flags = await resolveFlags(fastify.prisma, user.id);
-    return {
-      id: user.id,
-      email: user.email,
-      name: user.name,
-      role: user.role,
-      isBetaTester: user.isBetaTester,
-      avatarMode: user.avatarMode,
-      themePref: user.themePref,
-      flags,
-    };
-  });
+  fastify.get(
+    "/v1/me",
+    { preHandler: requireUser(fastify) },
+    async (request) => {
+      // requireUser() preHandler above always sets request.userId (or throws
+      // before this handler runs), but the module augmentation in
+      // authenticate.ts declares it optional since it's not set on
+      // unauthenticated routes.
+      // biome-ignore lint/style/noNonNullAssertion: set by requireUser() preHandler, which runs before this handler and throws if auth fails
+      const userId = request.userId!;
+      const user = await fastify.prisma.user.findUniqueOrThrow({
+        where: { id: userId },
+      });
+      const flags = await resolveFlags(fastify.prisma, user.id);
+      return {
+        id: user.id,
+        email: user.email,
+        name: user.name,
+        role: user.role,
+        isBetaTester: user.isBetaTester,
+        avatarMode: user.avatarMode,
+        themePref: user.themePref,
+        flags,
+      };
+    },
+  );
 }

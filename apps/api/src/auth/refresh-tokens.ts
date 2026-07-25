@@ -1,5 +1,5 @@
 // apps/api/src/auth/refresh-tokens.ts
-import { randomBytes, createHash, randomUUID } from "node:crypto";
+import { createHash, randomBytes, randomUUID } from "node:crypto";
 import type { PrismaClient } from "@harmon/db";
 
 const REFRESH_TOKEN_TTL_MS = 30 * 24 * 60 * 60 * 1000; // 30 days
@@ -65,7 +65,10 @@ export async function rotateRefreshToken(
   return { token: newToken, userId: row.userId, familyId: row.familyId };
 }
 
-export async function revokeRefreshFamily(prisma: PrismaClient, familyId: string): Promise<void> {
+export async function revokeRefreshFamily(
+  prisma: PrismaClient,
+  familyId: string,
+): Promise<void> {
   await prisma.refreshToken.updateMany({
     where: { familyId, revokedAt: null },
     data: { revokedAt: new Date() },

@@ -7,9 +7,13 @@ export interface GoogleIdentity {
   name: string;
 }
 
-export type GoogleIdTokenVerifier = (idToken: string) => Promise<GoogleIdentity>;
+export type GoogleIdTokenVerifier = (
+  idToken: string,
+) => Promise<GoogleIdentity>;
 
-export function createGoogleIdTokenVerifier(clientId: string): GoogleIdTokenVerifier {
+export function createGoogleIdTokenVerifier(
+  clientId: string,
+): GoogleIdTokenVerifier {
   const client = new OAuth2Client(clientId);
   return async (idToken: string): Promise<GoogleIdentity> => {
     const ticket = await client.verifyIdToken({ idToken, audience: clientId });

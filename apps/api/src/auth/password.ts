@@ -5,6 +5,9 @@ export async function hashPassword(plain: string): Promise<string> {
   return hash(plain, { algorithm: 2 });
 }
 
-export async function verifyPassword(hashValue: string, plain: string): Promise<boolean> {
+export async function verifyPassword(
+  hashValue: string,
+  plain: string,
+): Promise<boolean> {
   return verify(hashValue, plain);
 }

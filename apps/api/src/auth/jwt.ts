@@ -21,9 +21,15 @@ export async function signAccessToken(
     .sign(new TextEncoder().encode(secret));
 }
 
-export async function verifyAccessToken(token: string, secret: string): Promise<AccessTokenPayload> {
+export async function verifyAccessToken(
+  token: string,
+  secret: string,
+): Promise<AccessTokenPayload> {
   const { payload } = await jwtVerify(token, new TextEncoder().encode(secret));
-  if (typeof payload.sub !== "string" || (payload.role !== "user" && payload.role !== "admin")) {
+  if (
+    typeof payload.sub !== "string" ||
+    (payload.role !== "user" && payload.role !== "admin")
+  ) {
     throw new Error("Malformed access token payload");
   }
   return { sub: payload.sub, role: payload.role };

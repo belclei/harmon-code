@@ -49,7 +49,9 @@ describe("createGoogleIdTokenVerifier", () => {
     });
 
     const verify = createGoogleIdTokenVerifier(CLIENT_ID);
-    await expect(verify("fake-id-token")).rejects.toThrow("Google id_token email not verified");
+    await expect(verify("fake-id-token")).rejects.toThrow(
+      "Google id_token email not verified",
+    );
   });
 
   it("rejects when email_verified is missing entirely", async () => {
@@ -60,7 +62,9 @@ describe("createGoogleIdTokenVerifier", () => {
     });
 
     const verify = createGoogleIdTokenVerifier(CLIENT_ID);
-    await expect(verify("fake-id-token")).rejects.toThrow("Google id_token email not verified");
+    await expect(verify("fake-id-token")).rejects.toThrow(
+      "Google id_token email not verified",
+    );
   });
 
   it("rejects when required claims are missing", async () => {

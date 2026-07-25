@@ -1,11 +1,11 @@
-// apps/api/src/auth/refresh-tokens.test.ts
-import { afterEach, beforeAll, afterAll, describe, expect, it } from "vitest";
 import { PrismaClient } from "@harmon/db";
+// apps/api/src/auth/refresh-tokens.test.ts
+import { afterAll, afterEach, beforeAll, describe, expect, it } from "vitest";
 import { resetTestDb } from "../../test/db.js";
 import {
+  RefreshTokenReuseError,
   issueRefreshTokenFamily,
   rotateRefreshToken,
-  RefreshTokenReuseError,
 } from "./refresh-tokens.js";
 
 const prisma = new PrismaClient();
@@ -22,7 +22,11 @@ afterAll(async () => {
 
 async function makeUser() {
   return prisma.user.create({
-    data: { email: `${crypto.randomUUID()}@test.com`, name: "Test", birthDate: new Date("1990-01-01") },
+    data: {
+      email: `${crypto.randomUUID()}@test.com`,
+      name: "Test",
+      birthDate: new Date("1990-01-01"),
+    },
   });
 }
 
@@ -42,7 +46,9 @@ describe("refresh token rotation", () => {
     const second = await rotateRefreshToken(prisma, first.token);
 
     // Reusing `first.token` (already consumed) must revoke the family...
-    await expect(rotateRefreshToken(prisma, first.token)).rejects.toThrow(RefreshTokenReuseError);
+    await expect(rotateRefreshToken(prisma, first.token)).rejects.toThrow(
+      RefreshTokenReuseError,
+    );
 
     // ...so the otherwise-valid `second.token` is now also revoked.
     await expect(rotateRefreshToken(prisma, second.token)).rejects.toThrow();
@@ -61,15 +67,21 @@ describe("refresh token rotation", () => {
     const rejected = results.filter((r) => r.status === "rejected");
     expect(fulfilled).toHaveLength(1);
     expect(rejected).toHaveLength(1);
-    expect((rejected[0] as PromiseRejectedResult).reason).toBeInstanceOf(RefreshTokenReuseError);
+    expect((rejected[0] as PromiseRejectedResult).reason).toBeInstanceOf(
+      RefreshTokenReuseError,
+    );
 
     // The family must now be revoked, so even the winner's freshly-minted token is unusable.
-    const winnerToken = (fulfilled[0] as PromiseFulfilledResult<{ token: string }>).value.token;
+    const winnerToken = (
+      fulfilled[0] as PromiseFulfilledResult<{ token: string }>
+    ).value.token;
     await expect(rotateRefreshToken(prisma, winnerToken)).rejects.toThrow();
   });
 
   it("rejects an unknown token", async () => {
-    await expect(rotateRefreshToken(prisma, "not-a-real-token")).rejects.toThrow();
+    await expect(
+      rotateRefreshToken(prisma, "not-a-real-token"),
+    ).rejects.toThrow();
   });
 
   it("rejects an expired token", async () => {

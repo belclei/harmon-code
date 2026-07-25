@@ -1,12 +1,14 @@
-// apps/api/src/auth/routes.test.ts
-import { afterEach, beforeAll, afterAll, describe, expect, it } from "vitest";
-import { buildServer } from "../server.js";
-import { resetTestDb } from "../../test/db.js";
-import { hashPassword } from "./password.js";
 import type { FastifyInstance } from "fastify";
+// apps/api/src/auth/routes.test.ts
+import { afterAll, afterEach, beforeAll, describe, expect, it } from "vitest";
+import { resetTestDb } from "../../test/db.js";
+import { buildServer } from "../server.js";
+import { hashPassword } from "./password.js";
 
 const TEST_ENV = {
-  DATABASE_URL: process.env.DATABASE_URL ?? "postgresql://harmon:harmon@localhost:5433/harmon",
+  DATABASE_URL:
+    process.env.DATABASE_URL ??
+    "postgresql://harmon:harmon@localhost:5433/harmon",
   REDIS_URL: "redis://localhost:6379",
   JWT_SECRET: "x".repeat(32),
   GOOGLE_CLIENT_ID: "placeholder",
@@ -26,6 +28,24 @@ afterEach(async () => {
 afterAll(async () => {
   await server.close();
 });
+
+// Every test below logs in (or refreshes) first and then needs the
+// resulting Set-Cookie value. `.find()` is inherently Optional, and a
+// bare `!` would just throw an opaque TypeError if the invariant "login
+// always sets a refreshToken cookie" is ever violated — throwing a
+// specific error here keeps that same fail-loud behavior with a clearer
+// message, without a non-null assertion.
+function getRefreshCookieValue(
+  response: Awaited<ReturnType<FastifyInstance["inject"]>>,
+): string {
+  const cookie = response.cookies.find((c) => c.name === "refreshToken");
+  if (!cookie) {
+    throw new Error(
+      'expected a "refreshToken" cookie in the response, but none was set',
+    );
+  }
+  return cookie.value;
+}
 
 describe("POST /v1/auth/login", () => {
   it("logs in with correct credentials and sets a refresh cookie", async () => {
@@ -143,19 +163,21 @@ describe("POST /v1/auth/refresh", () => {
       url: "/v1/auth/login",
       payload: { email: "refresh-test@harmon.dev", password: "supersecret123" },
     });
-    const cookie = login.cookies.find((c) => c.name === "refreshToken");
+    const cookieValue = getRefreshCookieValue(login);
 
     const refreshed = await server.inject({
       method: "POST",
       url: "/v1/auth/refresh",
-      cookies: { refreshToken: cookie!.value },
+      cookies: { refreshToken: cookieValue },
     });
 
     expect(refreshed.statusCode).toBe(200);
     expect(refreshed.json().accessToken).toEqual(expect.any(String));
-    expect(refreshed.cookies.some((c) => c.name === "refreshToken" && c.value !== cookie!.value)).toBe(
-      true,
-    );
+    expect(
+      refreshed.cookies.some(
+        (c) => c.name === "refreshToken" && c.value !== cookieValue,
+      ),
+    ).toBe(true);
   });
 
   it("rejects a reused refresh token", async () => {
@@ -173,13 +195,17 @@ describe("POST /v1/auth/refresh", () => {
       url: "/v1/auth/login",
       payload: { email: "reuse-test@harmon.dev", password: "supersecret123" },
     });
-    const cookie = login.cookies.find((c) => c.name === "refreshToken")!;
+    const cookieValue = getRefreshCookieValue(login);
 
-    await server.inject({ method: "POST", url: "/v1/auth/refresh", cookies: { refreshToken: cookie.value } });
+    await server.inject({
+      method: "POST",
+      url: "/v1/auth/refresh",
+      cookies: { refreshToken: cookieValue },
+    });
     const reused = await server.inject({
       method: "POST",
       url: "/v1/auth/refresh",
-      cookies: { refreshToken: cookie.value },
+      cookies: { refreshToken: cookieValue },
     });
     // NOTE: the plan's brief snippet asserted 401 here, but AUTH_TOKEN_INVALID()
     // (errors.ts, matching IMPLEMENTACAO.md §7's `auth.token_invalid` catalog
@@ -210,23 +236,26 @@ describe("POST /v1/auth/refresh", () => {
     const login = await server.inject({
       method: "POST",
       url: "/v1/auth/login",
-      payload: { email: "family-reuse-test@harmon.dev", password: "supersecret123" },
+      payload: {
+        email: "family-reuse-test@harmon.dev",
+        password: "supersecret123",
+      },
     });
-    const gen0 = login.cookies.find((c) => c.name === "refreshToken")!.value;
+    const gen0 = getRefreshCookieValue(login);
 
     const rotate1 = await server.inject({
       method: "POST",
       url: "/v1/auth/refresh",
       cookies: { refreshToken: gen0 },
     });
-    const gen1 = rotate1.cookies.find((c) => c.name === "refreshToken")!.value;
+    const gen1 = getRefreshCookieValue(rotate1);
 
     const rotate2 = await server.inject({
       method: "POST",
       url: "/v1/auth/refresh",
       cookies: { refreshToken: gen1 },
     });
-    const gen2 = rotate2.cookies.find((c) => c.name === "refreshToken")!.value;
+    const gen2 = getRefreshCookieValue(rotate2);
 
     const replay = await server.inject({
       method: "POST",
@@ -260,21 +289,21 @@ describe("POST /v1/auth/logout", () => {
       url: "/v1/auth/login",
       payload: { email: "logout-test@harmon.dev", password: "supersecret123" },
     });
-    const cookie = login.cookies.find((c) => c.name === "refreshToken")!;
+    const cookieValue = getRefreshCookieValue(login);
     const accessToken = login.json().accessToken;
 
     const logout = await server.inject({
       method: "POST",
       url: "/v1/auth/logout",
       headers: { authorization: `Bearer ${accessToken}` },
-      cookies: { refreshToken: cookie.value },
+      cookies: { refreshToken: cookieValue },
     });
     expect(logout.statusCode).toBe(200);
 
     const afterLogout = await server.inject({
       method: "POST",
       url: "/v1/auth/refresh",
-      cookies: { refreshToken: cookie.value },
+      cookies: { refreshToken: cookieValue },
     });
     // See note above: real AUTH_TOKEN_INVALID() status is 400, not the
     // brief's 401.
@@ -320,37 +349,43 @@ describe("POST /v1/auth/logout", () => {
     const loginA = await server.inject({
       method: "POST",
       url: "/v1/auth/login",
-      payload: { email: "two-session-logout-test@harmon.dev", password: "supersecret123" },
+      payload: {
+        email: "two-session-logout-test@harmon.dev",
+        password: "supersecret123",
+      },
     });
-    const cookieA = loginA.cookies.find((c) => c.name === "refreshToken")!;
+    const cookieAValue = getRefreshCookieValue(loginA);
 
     const loginB = await server.inject({
       method: "POST",
       url: "/v1/auth/login",
-      payload: { email: "two-session-logout-test@harmon.dev", password: "supersecret123" },
+      payload: {
+        email: "two-session-logout-test@harmon.dev",
+        password: "supersecret123",
+      },
     });
-    const cookieB = loginB.cookies.find((c) => c.name === "refreshToken")!;
+    const cookieBValue = getRefreshCookieValue(loginB);
     const accessTokenB = loginB.json().accessToken;
 
     const logoutB = await server.inject({
       method: "POST",
       url: "/v1/auth/logout",
       headers: { authorization: `Bearer ${accessTokenB}` },
-      cookies: { refreshToken: cookieB.value },
+      cookies: { refreshToken: cookieBValue },
     });
     expect(logoutB.statusCode).toBe(200);
 
     const refreshB = await server.inject({
       method: "POST",
       url: "/v1/auth/refresh",
-      cookies: { refreshToken: cookieB.value },
+      cookies: { refreshToken: cookieBValue },
     });
     expect(refreshB.statusCode).toBe(400);
 
     const refreshA = await server.inject({
       method: "POST",
       url: "/v1/auth/refresh",
-      cookies: { refreshToken: cookieA.value },
+      cookies: { refreshToken: cookieAValue },
     });
     expect(refreshA.statusCode).toBe(200);
   });
@@ -384,10 +419,20 @@ describe("POST /v1/auth/google", () => {
       email: "google-existing@harmon.dev",
       name: "Google Existing",
     });
-    await server.inject({ method: "POST", url: "/v1/auth/google", payload: { idToken: "t1" } });
-    await server.inject({ method: "POST", url: "/v1/auth/google", payload: { idToken: "t2" } });
+    await server.inject({
+      method: "POST",
+      url: "/v1/auth/google",
+      payload: { idToken: "t1" },
+    });
+    await server.inject({
+      method: "POST",
+      url: "/v1/auth/google",
+      payload: { idToken: "t2" },
+    });
 
-    const count = await server.prisma.user.count({ where: { email: "google-existing@harmon.dev" } });
+    const count = await server.prisma.user.count({
+      where: { email: "google-existing@harmon.dev" },
+    });
     expect(count).toBe(1);
   });
 });
@@ -405,7 +450,12 @@ describe("GET /v1/me", () => {
       },
     });
     await server.prisma.featureFlag.create({
-      data: { key: "imports.pipeline", description: "test", state: "beta", rolloutPercent: 100 },
+      data: {
+        key: "imports.pipeline",
+        description: "test",
+        state: "beta",
+        rolloutPercent: 100,
+      },
     });
 
     const login = await server.inject({
