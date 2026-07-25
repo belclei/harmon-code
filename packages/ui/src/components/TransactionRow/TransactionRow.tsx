@@ -1,5 +1,6 @@
 import type { ReactNode } from "react";
 import { Badge } from "../Badge/Badge";
+import { Button } from "../Button/Button";
 import { Card } from "../Card/Card";
 import { Body } from "../Typography/Body";
 import { Mono } from "../Typography/Mono";
@@ -52,6 +53,7 @@ export type TransactionRowProps =
     })
   | (TransactionRowCommon & {
       variant: "scheduled";
+      onClick?: never;
       onConfirm: () => void;
       onEdit: () => void;
       onSkip: () => void;
@@ -193,55 +195,40 @@ export function TransactionRow(props: TransactionRowProps) {
       {props.variant === "installment" ? (
         <div className="mt-2 flex gap-3">
           {props.onViewAllInstallments ? (
-            <button
-              type="button"
+            <Button
+              variant="link"
+              size="sm"
               onClick={props.onViewAllInstallments}
-              className="cursor-pointer border-0 bg-transparent p-0 text-[.8125rem] font-medium text-[var(--hm-blue-700)] hover:underline dark:text-[var(--hm-blue-300)]"
             >
               Ver todas as parcelas
-            </button>
+            </Button>
           ) : null}
           {props.onEdit ? (
-            <button
-              type="button"
-              onClick={props.onEdit}
-              className="cursor-pointer border-0 bg-transparent p-0 text-[.8125rem] font-medium text-[var(--hm-blue-700)] hover:underline dark:text-[var(--hm-blue-300)]"
-            >
+            <Button variant="link" size="sm" onClick={props.onEdit}>
               Editar
-            </button>
+            </Button>
           ) : null}
         </div>
       ) : null}
       {props.variant === "scheduled" ? (
         <div className="mt-3 flex gap-2 border-t border-[var(--hm-border)] pt-3">
+          {/* No "success" Button variant exists yet — this stays hand-rolled until one is added. */}
           <button
             type="button"
             onClick={props.onConfirm}
-            className="cursor-pointer rounded-[var(--hm-r-sm)] bg-[var(--hm-sage-600)] px-3 py-1.5 text-[.8125rem] font-medium text-white hover:opacity-90"
+            className="cursor-pointer rounded-[var(--hm-r-sm)] bg-[var(--hm-sage-700)] px-3 py-1.5 text-[.8125rem] font-medium text-white hover:opacity-90"
           >
             Confirmar
           </button>
-          <button
-            type="button"
-            onClick={props.onEdit}
-            className="cursor-pointer rounded-[var(--hm-r-sm)] border border-[var(--hm-border)] bg-transparent px-3 py-1.5 text-[.8125rem] font-medium text-[var(--hm-text)] hover:bg-[var(--hm-surface-sunken)]"
-          >
+          <Button variant="secondary" size="sm" onClick={props.onEdit}>
             Editar
-          </button>
-          <button
-            type="button"
-            onClick={props.onSkip}
-            className="cursor-pointer rounded-[var(--hm-r-sm)] border border-[var(--hm-border)] bg-transparent px-3 py-1.5 text-[.8125rem] font-medium text-[var(--hm-text)] hover:bg-[var(--hm-surface-sunken)]"
-          >
+          </Button>
+          <Button variant="secondary" size="sm" onClick={props.onSkip}>
             Pular
-          </button>
-          <button
-            type="button"
-            onClick={props.onDelete}
-            className="cursor-pointer rounded-[var(--hm-r-sm)] border border-[var(--hm-border)] bg-transparent px-3 py-1.5 text-[.8125rem] font-medium text-[var(--hm-clay-650)] hover:bg-[var(--hm-clay-100)] dark:text-[var(--hm-clay-300)] dark:hover:bg-[var(--hm-clay-600)]/20"
-          >
+          </Button>
+          <Button variant="danger" size="sm" onClick={props.onDelete}>
             Apagar
-          </button>
+          </Button>
         </div>
       ) : null}
     </Card>
