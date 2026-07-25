@@ -1,0 +1,73 @@
+import {
+  type ZodTypeProvider,
+  serializerCompiler,
+  validatorCompiler,
+} from "@fastify/type-provider-zod";
+// apps/api/src/server.ts
+import Fastify, { type FastifyError, type FastifyInstance } from "fastify";
+import { type Env, loadEnv } from "./env.js";
+import { AppError, INTERNAL, VALIDATION_FAILED } from "./errors.js";
+import prismaPlugin from "./plugins/prisma.js";
+import redisPlugin from "./plugins/redis.js";
+
+declare module "fastify" {
+  interface FastifyInstance {
+    env: Env;
+  }
+}
+
+export async function buildServer(envOverride?: Env): Promise<FastifyInstance> {
+  const fastify = Fastify({ logger: true }).withTypeProvider<ZodTypeProvider>();
+  fastify.setValidatorCompiler(validatorCompiler);
+  fastify.setSerializerCompiler(serializerCompiler);
+
+  const env = envOverride ?? loadEnv();
+  fastify.decorate("env", env);
+
+  await fastify.register(prismaPlugin);
+  await fastify.register(redisPlugin);
+
+  fastify.get("/health", async () => ({ status: "ok" }));
+  fastify.get("/ready", async (_request, reply) => {
+    try {
+      await fastify.prisma.$queryRaw`SELECT 1`;
+      await fastify.redis.ping();
+      return { status: "ready" };
+    } catch {
+      return reply.code(503).send({ status: "not_ready" });
+    }
+  });
+
+  fastify.setErrorHandler((error: FastifyError, _request, reply) => {
+    if (error instanceof AppError) {
+      return reply.code(error.statusCode).send({
+        code: error.code,
+        message: error.message,
+        ...(error.details ? { details: error.details } : {}),
+      });
+    }
+    if (error.validation) {
+      const details = error.validation.map((v) => ({
+        field:
+          v.instancePath.replace(/^\//, "") ||
+          (typeof v.params?.missingProperty === "string"
+            ? v.params.missingProperty
+            : "unknown"),
+        message: v.message ?? "Campo inválido.",
+      }));
+      const validationError = VALIDATION_FAILED(details);
+      return reply.code(validationError.statusCode).send({
+        code: validationError.code,
+        message: validationError.message,
+        details: validationError.details,
+      });
+    }
+    fastify.log.error(error);
+    const internal = INTERNAL();
+    return reply
+      .code(internal.statusCode)
+      .send({ code: internal.code, message: internal.message });
+  });
+
+  return fastify;
+}

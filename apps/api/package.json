@@ -1,0 +1,29 @@
+{
+  "name": "@harmon/api",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "main": "./src/index.ts",
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "dev": "tsx watch src/index.ts"
+  },
+  "dependencies": {
+    "@fastify/rate-limit": "^10.1.1",
+    "@fastify/type-provider-zod": "^1.0.0",
+    "@harmon/db": "*",
+    "@node-rs/argon2": "^2.0.2",
+    "fastify": "^5.1.0",
+    "fastify-plugin": "^5.0.1",
+    "google-auth-library": "^9.15.0",
+    "ioredis": "^5.4.1",
+    "jose": "^5.9.6",
+    "resend": "^4.0.1",
+    "zod": "^4.4.3"
+  },
+  "devDependencies": {
+    "tsx": "^4.19.2",
+    "vitest": "^2.1.8"
+  }
+}
