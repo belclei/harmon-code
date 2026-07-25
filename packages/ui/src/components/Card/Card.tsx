@@ -43,6 +43,11 @@ export function Card({
   const paddingOverride = PADDING_OVERRIDE[padding];
 
   const handleKeyDown = (event: React.KeyboardEvent<HTMLDivElement>) => {
+    // Guard against bubbled keydown events from nested interactive elements.
+    // Only handle keydowns that originated on the Card's own element.
+    if (event.target !== event.currentTarget) {
+      return;
+    }
     // If onClick is provided, make the card keyboard-accessible via Enter and Space
     if (onClick && (event.key === "Enter" || event.key === " ")) {
       event.preventDefault();
