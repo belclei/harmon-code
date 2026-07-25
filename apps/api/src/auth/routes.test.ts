@@ -391,3 +391,56 @@ describe("POST /v1/auth/google", () => {
     expect(count).toBe(1);
   });
 });
+
+describe("GET /v1/me", () => {
+  it("returns profile, role, and resolved flags map", async () => {
+    const passwordHash = await hashPassword("supersecret123");
+    await server.prisma.user.create({
+      data: {
+        email: "me-test@harmon.dev",
+        name: "Me Test",
+        birthDate: new Date("1990-01-01"),
+        passwordHash,
+        isBetaTester: true,
+      },
+    });
+    await server.prisma.featureFlag.create({
+      data: { key: "imports.pipeline", description: "test", state: "beta", rolloutPercent: 100 },
+    });
+
+    const login = await server.inject({
+      method: "POST",
+      url: "/v1/auth/login",
+      payload: { email: "me-test@harmon.dev", password: "supersecret123" },
+    });
+    const accessToken = login.json().accessToken;
+
+    const me = await server.inject({
+      method: "GET",
+      url: "/v1/me",
+      headers: { authorization: `Bearer ${accessToken}` },
+    });
+
+    expect(me.statusCode).toBe(200);
+    const body = me.json();
+    expect(body.email).toBe("me-test@harmon.dev");
+    expect(body.role).toBe("user");
+    expect(body.flags).toEqual({ "imports.pipeline": true });
+  });
+
+  it("rejects a request with no Authorization header at all", async () => {
+    const response = await server.inject({ method: "GET", url: "/v1/me" });
+    expect(response.statusCode).toBe(400);
+    expect(response.json().code).toBe("auth.token_invalid");
+  });
+
+  it("rejects a malformed/invalid bearer token", async () => {
+    const response = await server.inject({
+      method: "GET",
+      url: "/v1/me",
+      headers: { authorization: "Bearer not-a-real-jwt" },
+    });
+    expect(response.statusCode).toBe(400);
+    expect(response.json().code).toBe("auth.token_invalid");
+  });
+});

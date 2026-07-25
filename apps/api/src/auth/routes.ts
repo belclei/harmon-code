@@ -11,6 +11,8 @@ import {
   RefreshTokenReuseError,
 } from "./refresh-tokens.js";
 import { registerAuthRateLimit } from "./rate-limit.js";
+import { requireUser } from "./authenticate.js";
+import { resolveFlags } from "../flags/resolve.js";
 import { AUTH_INVALID_CREDENTIALS, AUTH_TOKEN_INVALID } from "../errors.js";
 
 const REFRESH_COOKIE_NAME = "refreshToken";
@@ -151,5 +153,20 @@ export async function registerAuthRoutes(fastify: FastifyInstance): Promise<void
       maxAge: REFRESH_COOKIE_MAX_AGE_SECONDS,
     });
     return { accessToken };
+  });
+
+  fastify.get("/v1/me", { preHandler: requireUser(fastify) }, async (request) => {
+    const user = await fastify.prisma.user.findUniqueOrThrow({ where: { id: request.userId! } });
+    const flags = await resolveFlags(fastify.prisma, user.id);
+    return {
+      id: user.id,
+      email: user.email,
+      name: user.name,
+      role: user.role,
+      isBetaTester: user.isBetaTester,
+      avatarMode: user.avatarMode,
+      themePref: user.themePref,
+      flags,
+    };
   });
 }
