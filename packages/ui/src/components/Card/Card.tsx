@@ -36,13 +36,29 @@ export function Card({
   className = "",
   style,
   children,
+  onClick,
+  onKeyDown,
   ...rest
 }: CardProps) {
   const paddingOverride = PADDING_OVERRIDE[padding];
 
+  const handleKeyDown = (event: React.KeyboardEvent<HTMLDivElement>) => {
+    // If onClick is provided, make the card keyboard-accessible via Enter and Space
+    if (onClick && (event.key === "Enter" || event.key === " ")) {
+      event.preventDefault();
+      onClick(event as unknown as React.MouseEvent<HTMLDivElement>);
+    }
+    // Call any existing onKeyDown handler from props
+    onKeyDown?.(event);
+  };
+
   return (
     <div
       {...rest}
+      onClick={onClick}
+      onKeyDown={onClick ? handleKeyDown : onKeyDown}
+      role={onClick ? "button" : undefined}
+      tabIndex={onClick ? 0 : undefined}
       style={
         paddingOverride !== undefined
           ? { padding: paddingOverride, ...style }
