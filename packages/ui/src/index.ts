@@ -30,3 +30,4 @@ export * from "./components/CreditCardCard/CreditCardCard";
 export * from "./components/InsightCard/InsightCard";
 export * from "./components/TransactionRow/TransactionRow";
 export * from "./components/TimelineEventRow/TimelineEventRow";
+export * from "./components/TimelineAlertBanner/TimelineAlertBanner";
