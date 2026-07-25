@@ -1,6 +1,6 @@
 import type { ReactNode } from "react";
 
-export type BadgeStatus = "active" | "inactive" | "pending";
+export type BadgeStatus = "active" | "inactive" | "pending" | "alert";
 export type BadgeCategoryColor = "ink" | "blue" | "sage" | "sand" | "clay";
 
 interface BadgeCommonProps {
@@ -77,6 +77,12 @@ const STATUS_STYLES: Record<
     text: "text-[var(--hm-sand-700)] dark:text-[var(--hm-sand-300)]",
     dot: "bg-[var(--hm-sand-600)] dark:bg-[var(--hm-sand-300)]",
     label: "Pendente",
+  },
+  alert: {
+    bg: "bg-[var(--hm-clay-100)] dark:bg-[var(--hm-clay-600)]/20",
+    text: "text-[var(--hm-clay-650)] dark:text-[var(--hm-clay-300)]",
+    dot: "bg-[var(--hm-clay-650)] dark:bg-[var(--hm-clay-300)]",
+    label: "Alerta",
   },
 };
 
@@ -180,4 +186,5 @@ export const BADGE_STATUS_LABEL: Record<BadgeStatus, string> = {
   active: STATUS_STYLES.active.label,
   inactive: STATUS_STYLES.inactive.label,
   pending: STATUS_STYLES.pending.label,
+  alert: STATUS_STYLES.alert.label,
 };
