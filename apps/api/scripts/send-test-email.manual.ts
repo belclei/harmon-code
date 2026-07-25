@@ -1,6 +1,8 @@
 // apps/api/scripts/send-test-email.manual.ts
 // Run manually after filling a real RESEND_API_KEY into apps/api/.env:
-//   cd apps/api && npx tsx scripts/send-test-email.manual.ts you@example.com
+//   cd apps/api && npx tsx --env-file=.env scripts/send-test-email.manual.ts you@example.com
+// (--env-file is required — this script doesn't go through any dotenv
+// loading on its own.)
 import {
   createResendClient,
   sendTestEmail,
