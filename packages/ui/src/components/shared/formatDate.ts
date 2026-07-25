@@ -1,4 +1,6 @@
-const DATE_FORMATTER = new Intl.DateTimeFormat("pt-BR");
+const DATE_FORMATTER = new Intl.DateTimeFormat("pt-BR", {
+  timeZone: "America/Sao_Paulo",
+});
 
 /**
  * Formats an ISO date string as pt-BR `dd/mm/aaaa` — `IMPLEMENTACAO.md §7`.
