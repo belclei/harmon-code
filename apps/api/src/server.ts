@@ -11,10 +11,12 @@ import { AppError, INTERNAL, VALIDATION_FAILED } from "./errors.js";
 import prismaPlugin from "./plugins/prisma.js";
 import redisPlugin from "./plugins/redis.js";
 import { registerAuthRoutes } from "./auth/routes.js";
+import { createGoogleIdTokenVerifier, type GoogleIdTokenVerifier } from "./auth/google.js";
 
 declare module "fastify" {
   interface FastifyInstance {
     env: Env;
+    googleVerifier: GoogleIdTokenVerifier;
   }
 }
 
@@ -25,6 +27,7 @@ export async function buildServer(envOverride?: Env): Promise<FastifyInstance> {
 
   const env = envOverride ?? loadEnv();
   fastify.decorate("env", env);
+  fastify.decorate("googleVerifier", createGoogleIdTokenVerifier(env.GOOGLE_CLIENT_ID));
 
   await fastify.register(prismaPlugin);
   await fastify.register(redisPlugin);

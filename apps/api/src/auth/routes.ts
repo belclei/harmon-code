@@ -21,6 +21,8 @@ const LoginBody = z.object({
   password: z.string().min(1),
 });
 
+const GoogleAuthBody = z.object({ idToken: z.string().min(1) });
+
 export async function registerAuthRoutes(fastify: FastifyInstance): Promise<void> {
   await registerAuthRateLimit(fastify);
 
@@ -122,5 +124,32 @@ export async function registerAuthRoutes(fastify: FastifyInstance): Promise<void
     }
     reply.clearCookie(REFRESH_COOKIE_NAME, { path: "/v1/auth" });
     return { ok: true };
+  });
+
+  fastify.post("/v1/auth/google", { schema: { body: GoogleAuthBody } }, async (request, reply) => {
+    const { idToken } = request.body as z.infer<typeof GoogleAuthBody>;
+    const identity = await fastify.googleVerifier(idToken);
+
+    const user = await fastify.prisma.user.upsert({
+      where: { email: identity.email },
+      update: { googleId: identity.googleId, lastLoginAt: new Date() },
+      create: {
+        email: identity.email,
+        name: identity.name,
+        googleId: identity.googleId,
+        birthDate: new Date(0), // placeholder — real birthDate collection is a registration-flow concern (Épico 8, out of scope here); Google login for an already-seeded user (belclei) never hits `create`.
+      },
+    });
+
+    const accessToken = await signAccessToken({ sub: user.id, role: user.role }, fastify.env.JWT_SECRET);
+    const { token: refreshToken } = await issueRefreshTokenFamily(fastify.prisma, user.id);
+    reply.setCookie(REFRESH_COOKIE_NAME, refreshToken, {
+      httpOnly: true,
+      secure: true,
+      sameSite: "strict",
+      path: "/v1/auth",
+      maxAge: REFRESH_COOKIE_MAX_AGE_SECONDS,
+    });
+    return { accessToken };
   });
 }

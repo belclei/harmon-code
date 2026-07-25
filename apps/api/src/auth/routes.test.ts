@@ -355,3 +355,39 @@ describe("POST /v1/auth/logout", () => {
     expect(refreshA.statusCode).toBe(200);
   });
 });
+
+describe("POST /v1/auth/google", () => {
+  it("creates a Google-only account (null passwordHash) on first login", async () => {
+    server.googleVerifier = async () => ({
+      googleId: "google-sub-123",
+      email: "google-user@harmon.dev",
+      name: "Google User",
+    });
+
+    const response = await server.inject({
+      method: "POST",
+      url: "/v1/auth/google",
+      payload: { idToken: "fake-token-verified-by-injected-mock" },
+    });
+
+    expect(response.statusCode).toBe(200);
+    const user = await server.prisma.user.findUniqueOrThrow({
+      where: { email: "google-user@harmon.dev" },
+    });
+    expect(user.passwordHash).toBeNull();
+    expect(user.googleId).toBe("google-sub-123");
+  });
+
+  it("logs in an existing Google user without duplicating the row", async () => {
+    server.googleVerifier = async () => ({
+      googleId: "google-sub-456",
+      email: "google-existing@harmon.dev",
+      name: "Google Existing",
+    });
+    await server.inject({ method: "POST", url: "/v1/auth/google", payload: { idToken: "t1" } });
+    await server.inject({ method: "POST", url: "/v1/auth/google", payload: { idToken: "t2" } });
+
+    const count = await server.prisma.user.count({ where: { email: "google-existing@harmon.dev" } });
+    expect(count).toBe(1);
+  });
+});
