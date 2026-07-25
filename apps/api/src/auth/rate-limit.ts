@@ -1,5 +1,6 @@
 import rateLimit from "@fastify/rate-limit";
 import type { FastifyInstance } from "fastify";
+import { AUTH_RATE_LIMITED } from "../errors.js";
 
 export async function registerAuthRateLimit(fastify: FastifyInstance): Promise<void> {
   await fastify.register(rateLimit, {
@@ -11,9 +12,11 @@ export async function registerAuthRateLimit(fastify: FastifyInstance): Promise<v
       const body = request.body as { email?: string } | undefined;
       return body?.email ? `auth:${body.email}` : request.ip;
     },
-    errorResponseBuilder: () => ({
-      code: "auth.rate_limited",
-      message: "Muitas tentativas. Tente de novo em alguns minutos.",
-    }),
+    // Must throw an AppError (not a plain object) — the plugin `throw`s
+    // whatever this returns, and the server's setErrorHandler only maps
+    // AppError instances to their intended statusCode/body. A plain
+    // { code, message } object has no statusCode, so it fell through to a
+    // generic 500 instead of 429.
+    errorResponseBuilder: () => AUTH_RATE_LIMITED(),
   });
 }

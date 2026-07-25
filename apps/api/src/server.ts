@@ -5,10 +5,12 @@ import {
 } from "@fastify/type-provider-zod";
 // apps/api/src/server.ts
 import Fastify, { type FastifyError, type FastifyInstance } from "fastify";
+import cookie from "@fastify/cookie";
 import { type Env, loadEnv } from "./env.js";
 import { AppError, INTERNAL, VALIDATION_FAILED } from "./errors.js";
 import prismaPlugin from "./plugins/prisma.js";
 import redisPlugin from "./plugins/redis.js";
+import { registerAuthRoutes } from "./auth/routes.js";
 
 declare module "fastify" {
   interface FastifyInstance {
@@ -26,6 +28,8 @@ export async function buildServer(envOverride?: Env): Promise<FastifyInstance> {
 
   await fastify.register(prismaPlugin);
   await fastify.register(redisPlugin);
+  await fastify.register(cookie);
+  await registerAuthRoutes(fastify);
 
   fastify.get("/health", async () => ({ status: "ok" }));
   fastify.get("/ready", async (_request, reply) => {
