@@ -17,6 +17,9 @@ export function createGoogleIdTokenVerifier(clientId: string): GoogleIdTokenVeri
     if (!payload?.sub || !payload.email || !payload.name) {
       throw new Error("Google id_token missing required claims");
     }
+    if (!payload.email_verified) {
+      throw new Error("Google id_token email not verified");
+    }
     return { googleId: payload.sub, email: payload.email, name: payload.name };
   };
 }
