@@ -79,6 +79,7 @@ describe("POST /v1/auth/login", () => {
   });
 
   it("rate-limits the 6th attempt within 15 minutes for the same e-mail", async () => {
+    await server.redis.flushall();
     for (let i = 0; i < 5; i++) {
       await server.inject({
         method: "POST",
@@ -93,5 +94,35 @@ describe("POST /v1/auth/login", () => {
     });
     expect(sixth.statusCode).toBe(429);
     expect(sixth.json().code).toBe("auth.rate_limited");
+  });
+
+  it("keys the rate limiter per e-mail, not per IP — a different e-mail from the same client is unaffected", async () => {
+    // Regression test: @fastify/rate-limit's default hook is 'onRequest',
+    // which fires before the body is parsed, so a keyGenerator reading
+    // request.body silently falls back to request.ip. All requests here
+    // come from the same `server.inject` test client (same IP), so this
+    // only passes if keying is genuinely e-mail-based (hook: 'preHandler').
+    await server.redis.flushall();
+    for (let i = 0; i < 5; i++) {
+      await server.inject({
+        method: "POST",
+        url: "/v1/auth/login",
+        payload: { email: "emailA@harmon.dev", password: "wrong" },
+      });
+    }
+    const emailAExhausted = await server.inject({
+      method: "POST",
+      url: "/v1/auth/login",
+      payload: { email: "emailA@harmon.dev", password: "wrong" },
+    });
+    expect(emailAExhausted.statusCode).toBe(429);
+
+    const emailBAttempt = await server.inject({
+      method: "POST",
+      url: "/v1/auth/login",
+      payload: { email: "emailB@harmon.dev", password: "wrong" },
+    });
+    expect(emailBAttempt.statusCode).toBe(401);
+    expect(emailBAttempt.json().code).not.toBe("auth.rate_limited");
   });
 });

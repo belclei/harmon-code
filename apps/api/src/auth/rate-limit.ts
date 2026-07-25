@@ -8,6 +8,11 @@ export async function registerAuthRateLimit(fastify: FastifyInstance): Promise<v
     redis: fastify.redis,
     max: 5,
     timeWindow: "15 minutes",
+    // keyGenerator needs the parsed body (for email-based keying), but the
+    // plugin's default hook is 'onRequest', which runs before Fastify parses
+    // the body — request.body is always undefined there, silently degrading
+    // the limiter to IP-only keying. 'preHandler' runs after body parsing.
+    hook: "preHandler",
     keyGenerator: (request) => {
       const body = request.body as { email?: string } | undefined;
       return body?.email ? `auth:${body.email}` : request.ip;
