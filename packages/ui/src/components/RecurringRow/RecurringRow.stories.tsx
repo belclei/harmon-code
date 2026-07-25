@@ -35,7 +35,7 @@ export const Playground: Story = {
 
 export const Estados: Story = {
   render: () => (
-    <div style={{ display: "grid", gap: "0.75rem", width: "28rem" }}>
+    <div style={{ display: "grid", gap: "0.75rem", width: "34rem" }}>
       <RecurringRow
         description="Aluguel"
         referenceAmountCents={180000}

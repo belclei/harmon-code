@@ -3,7 +3,7 @@ import type { Meta, StoryObj } from "@storybook/react-vite";
 import { InsightCard } from "./InsightCard";
 
 const SAMPLE_MONEY: Money = {
-  valueCents: 234050,
+  valueCents: 226050,
   breakdown: [
     {
       label: "Saldo em contas líquidas",
@@ -25,7 +25,7 @@ const SAMPLE_MONEY: Money = {
     },
     {
       label: "Conta de luz (estimada)",
-      valueCents: -0,
+      valueCents: -8000,
       kind: "recurring_expense",
       isEstimate: true,
     },
