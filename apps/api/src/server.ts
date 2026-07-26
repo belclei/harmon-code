@@ -20,6 +20,8 @@ import { AppError, INTERNAL, VALIDATION_FAILED } from "./errors.js";
 import { registerInstitutionRoutes } from "./institutions/routes.js";
 import prismaPlugin from "./plugins/prisma.js";
 import redisPlugin from "./plugins/redis.js";
+import { registerRecurringTransactionRoutes } from "./recurring-transactions/routes.js";
+import { registerTransactionRoutes } from "./transactions/routes.js";
 
 declare module "fastify" {
   interface FastifyInstance {
@@ -49,6 +51,8 @@ export async function buildServer(envOverride?: Env): Promise<FastifyInstance> {
   await registerAccountRoutes(fastify);
   await registerCardRoutes(fastify);
   await registerCategoryRoutes(fastify);
+  await registerTransactionRoutes(fastify);
+  await registerRecurringTransactionRoutes(fastify);
 
   fastify.get("/health", async () => ({ status: "ok" }));
   fastify.get("/ready", async (_request, reply) => {
@@ -67,6 +71,7 @@ export async function buildServer(envOverride?: Env): Promise<FastifyInstance> {
         code: error.code,
         message: error.message,
         ...(error.details ? { details: error.details } : {}),
+        ...(error.data ? { data: error.data } : {}),
       });
     }
     if (error.validation) {

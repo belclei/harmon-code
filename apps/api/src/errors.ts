@@ -8,17 +8,22 @@ export class AppError extends Error {
   readonly code: string;
   readonly statusCode: number;
   readonly details?: ErrorDetail[];
+  // Structured payload for errors whose client needs numbers, not a field list
+  // (ex.: overdraft — §2.3 exige details.projectedBalanceCents/overdraftLimitCents).
+  readonly data?: Record<string, unknown>;
 
   constructor(
     code: string,
     statusCode: number,
     message: string,
     details?: ErrorDetail[],
+    data?: Record<string, unknown>,
   ) {
     super(message);
     this.code = code;
     this.statusCode = statusCode;
     this.details = details;
+    this.data = data;
   }
 }
 
@@ -47,6 +52,33 @@ export const VALIDATION_FAILED = (details: ErrorDetail[]) =>
   );
 export const NOT_FOUND = () =>
   new AppError("not_found", 404, "Não encontramos o que você procurava.");
+// §2.3 — escrita ultrapassaria o cheque especial e confirmOverLimit !== true.
+// Não grava; client remonta o aviso a partir de data.{projectedBalanceCents,overdraftLimitCents}.
+export const ACCOUNT_OVERDRAFT_CONFIRMATION_REQUIRED = (
+  projectedBalanceCents: number,
+  overdraftLimitCents: number,
+) =>
+  new AppError(
+    "account.overdraft_confirmation_required",
+    409,
+    "Esta transação deixa a conta além do limite de cheque especial. Confirmar mesmo assim?",
+    undefined,
+    { projectedBalanceCents, overdraftLimitCents },
+  );
+// §2.3 — carteira física (type=cash) não pode ficar negativa; sem confirmOverLimit.
+export const ACCOUNT_CASH_CANNOT_BE_NEGATIVE = () =>
+  new AppError(
+    "account.cash_cannot_be_negative",
+    422,
+    "A carteira não pode ficar negativa.",
+  );
+// §7 — transação pertence a uma conta OU a um cartão, nunca aos dois (nem a nenhum).
+export const TRANSACTION_ACCOUNT_XOR_CARD = () =>
+  new AppError(
+    "transaction.account_xor_card",
+    422,
+    "A transação pertence a uma conta ou a um cartão, nunca aos dois.",
+  );
 export const INTERNAL = () =>
   new AppError(
     "internal",

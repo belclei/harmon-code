@@ -3,8 +3,21 @@
 // account list/detail responses. Reuses packages/core — never recomputes the
 // formula locally (single source of truth for "what is the real balance").
 import { balance } from "@harmon/core";
-import type { Account, Institution } from "@harmon/db";
+import type { Account, Institution, Transaction } from "@harmon/db";
 import { institutionLogoUrl } from "../institutions/logo-url.js";
+
+/** Rows já escopadas a esta conta (ambas as pernas de transfer) → contrato do core. */
+function toTransactionLike(tx: Transaction) {
+  return {
+    id: tx.id,
+    kind: tx.kind,
+    transferDirection: tx.transferDirection ?? undefined,
+    amountBRLCents: tx.amountBRLCents,
+    transactionDate: tx.transactionDate,
+    isScheduled: tx.isScheduled,
+    recurringTransactionId: tx.recurringTransactionId ?? undefined,
+  };
+}
 
 export interface AccountResponse {
   id: string;
@@ -20,12 +33,13 @@ export interface AccountResponse {
   isActive: boolean;
 }
 
-// Sprint 4 has no transaction-creation endpoint yet (that's US-3.5, Sprint 5),
-// so `transactions` is always [] today — the balance/core wiring is done now
-// so it's correct the moment transactions exist, not bolted on later.
+// Since Sprint 5 (US-3.5) transactions exist; the caller passes the rows scoped
+// to this account so the balance reflects them. Defaults to [] for a fresh
+// account (POST) that has no history yet.
 export function toAccountResponse(
   account: Account,
   institution: Institution | null,
+  transactions: Transaction[] = [],
 ): AccountResponse {
   const money = balance({
     account: {
@@ -35,7 +49,7 @@ export function toAccountResponse(
       overdraftLimitCents: account.overdraftLimitCents,
       isActive: account.isActive,
     },
-    transactions: [],
+    transactions: transactions.map(toTransactionLike),
     asOf: new Date(),
   });
 

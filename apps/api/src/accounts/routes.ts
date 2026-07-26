@@ -51,12 +51,27 @@ export async function registerAccountRoutes(
         where: { id: { in: institutionIds } },
       });
       const institutionById = new Map(institutions.map((i) => [i.id, i]));
+
+      // Balance derives from this account's transactions (§2.1) — batch-fetch
+      // all of the user's account rows and group by accountId.
+      const txs = await fastify.prisma.transaction.findMany({
+        where: { userId, accountId: { not: null } },
+      });
+      const txByAccount = new Map<string, typeof txs>();
+      for (const tx of txs) {
+        if (!tx.accountId) continue;
+        const list = txByAccount.get(tx.accountId) ?? [];
+        list.push(tx);
+        txByAccount.set(tx.accountId, list);
+      }
+
       return accounts.map((account) =>
         toAccountResponse(
           account,
           account.institutionId
             ? (institutionById.get(account.institutionId) ?? null)
             : null,
+          txByAccount.get(account.id) ?? [],
         ),
       );
     },
@@ -167,7 +182,10 @@ export async function registerAccountRoutes(
             where: { id: account.institutionId },
           })
         : null;
-      return toAccountResponse(account, institution);
+      const transactions = await fastify.prisma.transaction.findMany({
+        where: { accountId: account.id },
+      });
+      return toAccountResponse(account, institution, transactions);
     },
   );
 

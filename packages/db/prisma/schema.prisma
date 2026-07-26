@@ -261,6 +261,15 @@ enum TxSource {
   import
 }
 
+// §6.6 — direção de cada perna de uma transferência. Resolve a ambiguidade
+// documentada em packages/domain/entities.ts: transferPairId liga as duas
+// pernas, mas nada indicava qual é a origem (−) e qual o destino (+). Nulo
+// para kind != transfer.
+enum TxDirection {
+  out
+  in
+}
+
 model Transaction {
   id                             String   @id @default(cuid())
   userId                         String
@@ -281,6 +290,7 @@ model Transaction {
   isFixedOverride                Boolean? // aluguel atrasado continua fixo (§6.6)
   // agrupamentos
   transferPairId                 String? // par saída/entrada (§6.6)
+  transferDirection              TxDirection? // out=origem(−), in=destino(+); só quando kind=transfer (§6.6)
   installmentGroupId             String? // parcelamento (§6.6)
   installmentNumber              Int?
   installmentTotal               Int?
