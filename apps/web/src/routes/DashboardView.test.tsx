@@ -67,11 +67,12 @@ describe("DashboardView (US-3.11)", () => {
     });
     expect(toggles).toHaveLength(3);
 
-    // Expandindo o herói, suas linhas de decomposição aparecem.
+    // Expandindo o herói, suas linhas de decomposição aparecem com rótulos
+    // traduzidos (§3.0: label é chave estável, "a UI traduz").
     const heroToggle = toggles[0];
     if (!heroToggle) throw new Error("toggle do herói ausente");
     fireEvent.click(heroToggle);
-    expect(screen.getByText("opening_balance")).toBeInTheDocument();
-    expect(screen.getByText("transaction")).toBeInTheDocument();
+    expect(screen.getByText("Saldo inicial")).toBeInTheDocument();
+    expect(screen.getByText("Transação")).toBeInTheDocument();
   });
 });

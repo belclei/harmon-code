@@ -2,6 +2,7 @@ import type { Money } from "@harmon/domain";
 import { Body } from "../Typography/Body";
 import { Mono } from "../Typography/Mono";
 import { formatMoney } from "../shared/formatMoney";
+import { breakdownLabel } from "./breakdownLabel";
 
 export interface BreakdownProps {
   /** As linhas de decomposição de um `Money` (§3.0). */
@@ -36,7 +37,7 @@ export function Breakdown({ lines, className = "" }: BreakdownProps) {
           ].join(" ")}
         >
           <Body as="span" className="truncate">
-            {line.label}
+            {breakdownLabel(line.label)}
           </Body>
           <Mono
             variant="number"

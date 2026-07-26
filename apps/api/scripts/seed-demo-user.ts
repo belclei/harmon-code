@@ -42,7 +42,7 @@ async function main(): Promise<void> {
       },
     });
 
-    await prisma.account.create({
+    const account = await prisma.account.create({
       data: {
         userId: user.id,
         type: "checking",
@@ -82,6 +82,54 @@ async function main(): Promise<void> {
           colorToken: "--hm-sage-500",
         },
       ],
+    });
+
+    // Alguns lançamentos para o dashboard ter decomposição real (§6.9/§4.2):
+    // uma despesa confirmada (entra no saldo), uma agendada do mês (subtrai do
+    // Disponível Hoje) e uma série recorrente (subtrai enquanto pendente).
+    // Datas ancoradas em julho/2026 para casar com asOf de validação.
+    const utc = (y: number, m: number, d: number) =>
+      new Date(Date.UTC(y, m - 1, d));
+    await prisma.transaction.create({
+      data: {
+        userId: user.id,
+        accountId: account.id,
+        kind: "expense",
+        source: "manual",
+        description: "Mercado",
+        transactionDate: utc(2026, 7, 10),
+        currency: "BRL",
+        amountCents: 30_000,
+        amountBRLCents: 30_000,
+        isScheduled: false,
+      },
+    });
+    await prisma.transaction.create({
+      data: {
+        userId: user.id,
+        accountId: account.id,
+        kind: "expense",
+        source: "manual",
+        description: "Aluguel (agendado)",
+        transactionDate: utc(2026, 7, 30),
+        currency: "BRL",
+        amountCents: 120_000,
+        amountBRLCents: 120_000,
+        isScheduled: true,
+      },
+    });
+    await prisma.recurringTransaction.create({
+      data: {
+        userId: user.id,
+        accountId: account.id,
+        description: "Internet",
+        kind: "expense",
+        referenceAmountCents: 10_000,
+        referenceAmountBRLCents: 10_000,
+        currency: "BRL",
+        dayOfMonth: 28,
+        startDate: utc(2026, 1, 28),
+      },
     });
 
     console.log(`Demo user ready: ${EMAIL} / ${PASSWORD}`);
