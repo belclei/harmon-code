@@ -31,7 +31,12 @@ interface CategoryDto {
 }
 
 function todayYmd(): string {
-  return new Date().toISOString().slice(0, 10);
+  // Data-calendário de hoje em America/Sao_Paulo (zona canônica do produto,
+  // §0) — NUNCA `toISOString()` (UTC), que à noite no Brasil já virou amanhã e
+  // faria o lançamento nascer com data futura (fora do saldo/cheque especial).
+  return new Date().toLocaleDateString("en-CA", {
+    timeZone: "America/Sao_Paulo",
+  });
 }
 
 /** "12,34" / "12.34" → 1234 centavos. Retorna null se não for número válido. */

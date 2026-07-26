@@ -21,7 +21,10 @@ import { ApiError, apiFetchJson } from "../auth/api-client";
 import type { AccountDto, CardDto, RecurringDto } from "../auth/types";
 
 function todayYmd(): string {
-  return new Date().toISOString().slice(0, 10);
+  // Data-calendário de hoje em America/Sao_Paulo (zona canônica, §0) — não UTC.
+  return new Date().toLocaleDateString("en-CA", {
+    timeZone: "America/Sao_Paulo",
+  });
 }
 
 function reaisToCents(input: string): number | null {

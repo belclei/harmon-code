@@ -10,6 +10,15 @@
    internal file layout anywhere else, so its CSS entrypoint doesn't either. */
 @import "@harmon/ui/src/tokens/harmon-tokens.css";
 
+/* Tailwind v4 auto-detects sources in *this* project but skips node_modules,
+   so utility classes used only inside @harmon/ui components (e.g. the Select
+   chevron's `h-4 w-4`) were never generated — the components rendered
+   unstyled here (a huge chevron), even though Storybook styles them because
+   it scans the same package as first-party source. Point Tailwind at the UI
+   package's source explicitly. Path is relative to this file
+   (apps/web/src/styles → repo root → packages/ui/src). */
+@source "../../../../packages/ui/src";
+
 /* Same dark-mode attribute selector as packages/ui/src/styles/tailwind.css
    (US-1.6) — must come after every @import. */
 @custom-variant dark (&:where([data-theme="dark"], [data-theme="dark"] *));
