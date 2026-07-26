@@ -12,6 +12,7 @@ import {
   redirect,
 } from "@tanstack/react-router";
 import { AccountsPage } from "./routes/AccountsPage";
+import { DashboardPage } from "./routes/DashboardPage";
 import { LoginPage } from "./routes/LoginPage";
 import { RecurringPage } from "./routes/RecurringPage";
 import { TransactionsPage } from "./routes/TransactionsPage";
@@ -20,13 +21,13 @@ const rootRoute = createRootRoute({
   component: Outlet,
 });
 
-// "/" has no screen of its own yet — send it straight to the accounts
-// screen, which itself redirects to /login when there's no session.
+// "/" sends straight to the dashboard — the app's home once there's a
+// session (§6.9). The dashboard itself redirects to /login when there's none.
 const indexRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: "/",
   beforeLoad: () => {
-    throw redirect({ to: "/accounts" });
+    throw redirect({ to: "/dashboard" });
   },
 });
 
@@ -34,6 +35,12 @@ const loginRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: "/login",
   component: LoginPage,
+});
+
+const dashboardRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: "/dashboard",
+  component: DashboardPage,
 });
 
 const accountsRoute = createRoute({
@@ -57,6 +64,7 @@ const recurringRoute = createRoute({
 const routeTree = rootRoute.addChildren([
   indexRoute,
   loginRoute,
+  dashboardRoute,
   accountsRoute,
   transactionsRoute,
   recurringRoute,

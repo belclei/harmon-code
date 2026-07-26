@@ -5,6 +5,7 @@ import { Card } from "../Card/Card";
 import { Body } from "../Typography/Body";
 import { Mono } from "../Typography/Mono";
 import { formatMoney } from "../shared/formatMoney";
+import { Breakdown } from "./Breakdown";
 
 export interface InsightCardProps {
   /** "Disponível Hoje" | "Previsão fim do mês" | "Patrimônio Total" (§6.9) — any label, this component doesn't special-case the three. */
@@ -43,40 +44,7 @@ export function InsightCard({
       >
         {expanded ? "Ocultar detalhes" : "De onde vem esse número?"}
       </Button>
-      {expanded ? (
-        <ul className="mt-3 flex flex-col gap-1.5 border-t border-[var(--hm-border)] pt-3">
-          {money.breakdown.map((line, index) => (
-            <li
-              // BreakdownLine has no stable id (§3.0 of IMPLEMENTACAO.md) — label+index
-              // is safe here because the list is caller-supplied and re-renders in place,
-              // never reordered independently of its own data.
-              key={`${line.label}-${index}`}
-              className={[
-                "flex items-center justify-between gap-3 text-[.875rem]",
-                line.isEstimate
-                  ? "border-l-2 border-dashed border-[var(--hm-sand-500)] pl-2"
-                  : "",
-              ].join(" ")}
-            >
-              <Body as="span" className="truncate">
-                {line.label}
-              </Body>
-              <Mono
-                variant="number"
-                tone={
-                  line.isEstimate
-                    ? "estimate"
-                    : line.valueCents < 0
-                      ? "out"
-                      : "in"
-                }
-              >
-                {formatMoney(line.valueCents)}
-              </Mono>
-            </li>
-          ))}
-        </ul>
-      ) : null}
+      {expanded ? <Breakdown lines={money.breakdown} className="mt-3" /> : null}
     </Card>
   );
 }
