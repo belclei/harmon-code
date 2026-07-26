@@ -24,6 +24,11 @@ export interface AuthContextValue {
   isBooting: boolean;
   login: (email: string, password: string) => Promise<void>;
   logout: () => Promise<void>;
+  /** Re-fetches `/v1/me` and updates `user` — call after a settings mutation
+   * (name/birthDate/theme) since `user` here lives in this context's own
+   * state, not react-query's cache, so invalidating a query key alone
+   * wouldn't refresh what components read via `useAuth().user`. */
+  refreshUser: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextValue | null>(null);
@@ -76,9 +81,25 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setUser(null);
   }
 
+  async function refreshUser(): Promise<void> {
+    const me = await fetchMe();
+    setUser(me);
+  }
+
+  // Applies immediately (US-3.13) — packages/ui and this app's own
+  // tailwind.css both key the `dark:` variant off `[data-theme="dark"]`
+  // (not Tailwind's default `.dark` class, not the OS media query — see
+  // that file's comment), so persisting themePref to the DB alone does
+  // nothing visually until something writes the attribute back to the DOM.
+  // No user (logged out, e.g. /login) falls back to light, matching the
+  // app's behavior before this attribute existed at all.
+  useEffect(() => {
+    document.documentElement.dataset.theme = user?.themePref ?? "light";
+  }, [user?.themePref]);
+
   return (
     <AuthContext.Provider
-      value={{ accessToken, user, isBooting, login, logout }}
+      value={{ accessToken, user, isBooting, login, logout, refreshUser }}
     >
       {children}
     </AuthContext.Provider>

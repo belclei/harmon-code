@@ -55,6 +55,9 @@ export function DashboardPage() {
         <Link to="/recurring" className={NAV_LINK}>
           Recorrências
         </Link>
+        <Link to="/settings" className={NAV_LINK}>
+          Configurações
+        </Link>
       </nav>
 
       <h1 className="mb-6 text-xl font-bold text-[var(--hm-text)]">

@@ -50,6 +50,12 @@ export function AccountsPage() {
         >
           Recorrências
         </Link>
+        <Link
+          to="/settings"
+          className="text-[var(--hm-text-2)] hover:underline"
+        >
+          Configurações
+        </Link>
       </nav>
 
       <h1 className="mb-6 text-xl font-bold text-[var(--hm-text)]">

@@ -113,6 +113,7 @@ async function apiFetch(
     ...init,
     credentials: "include",
     headers: {
+      ...(init.body ? { "Content-Type": "application/json" } : {}),
       ...(init.headers ?? {}),
       ...(token ? { Authorization: `Bearer ${token}` } : {}),
     },

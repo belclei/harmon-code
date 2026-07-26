@@ -15,6 +15,7 @@ import { AccountsPage } from "./routes/AccountsPage";
 import { DashboardPage } from "./routes/DashboardPage";
 import { LoginPage } from "./routes/LoginPage";
 import { RecurringPage } from "./routes/RecurringPage";
+import { SettingsPage } from "./routes/SettingsPage";
 import { TransactionsPage } from "./routes/TransactionsPage";
 
 const rootRoute = createRootRoute({
@@ -66,6 +67,12 @@ const recurringRoute = createRoute({
   component: RecurringPage,
 });
 
+const settingsRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: "/settings",
+  component: SettingsPage,
+});
+
 const routeTree = rootRoute.addChildren([
   indexRoute,
   loginRoute,
@@ -73,6 +80,7 @@ const routeTree = rootRoute.addChildren([
   accountsRoute,
   transactionsRoute,
   recurringRoute,
+  settingsRoute,
 ]);
 
 export const router = createRouter({ routeTree });

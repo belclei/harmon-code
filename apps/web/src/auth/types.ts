@@ -10,6 +10,8 @@ export interface MeResponse {
   id: string;
   email: string;
   name: string;
+  birthDate: string;
+  hasPassword: boolean;
   // Judgment call: the spec doesn't enumerate role/avatarMode/themePref's
   // literal unions, and apps/web doesn't branch on their values anywhere
   // yet — kept as `string` rather than guessing at a union the backend

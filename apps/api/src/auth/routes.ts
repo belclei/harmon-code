@@ -243,6 +243,8 @@ export async function registerAuthRoutes(
         id: user.id,
         email: user.email,
         name: user.name,
+        birthDate: user.birthDate.toISOString().slice(0, 10),
+        hasPassword: user.passwordHash !== null,
         role: user.role,
         isBetaTester: user.isBetaTester,
         avatarMode: user.avatarMode,

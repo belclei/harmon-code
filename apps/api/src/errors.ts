@@ -85,3 +85,50 @@ export const INTERNAL = () =>
     500,
     "Algo deu errado do nosso lado. Já estamos vendo.",
   );
+// §6.13 — Configurações: troca de senha exige a senha atual correta.
+export const SETTINGS_WRONG_PASSWORD = () =>
+  new AppError("settings.wrong_password", 401, "Senha atual incorreta.");
+// §6.13 — conta Google-only (passwordHash nulo) não tem senha para trocar.
+export const SETTINGS_PASSWORD_NOT_SET = () =>
+  new AppError(
+    "settings.password_not_set",
+    422,
+    "Esta conta usa login via Google — não há senha para trocar.",
+  );
+// §6.13 — Zona de Risco: exige digitar "APAGAR" literal, sem exclusão de um clique.
+export const SETTINGS_DELETE_CONFIRMATION_MISMATCH = () =>
+  new AppError(
+    "settings.delete_confirmation_mismatch",
+    400,
+    'Digite "APAGAR" para confirmar.',
+  );
+// §7.1 — admin não pode remover a si mesmo do papel se for o último admin.
+export const ADMIN_LAST_ADMIN = () =>
+  new AppError(
+    "admin.last_admin",
+    422,
+    "Não é possível remover o último administrador.",
+  );
+export const ADMIN_FORBIDDEN = () =>
+  new AppError("admin.forbidden", 403, "Você não tem acesso a esta área.");
+// §6.10 — compartilhamento: só o dono pode alterar permissão/revogar.
+export const SHARE_NOT_OWNER = () =>
+  new AppError(
+    "share.not_owner",
+    403,
+    "Só o dono pode alterar o compartilhamento deste item.",
+  );
+// §6.10 — ação de portador/settle exige conexão aceita entre os dois usuários.
+export const CONNECTION_NOT_ACCEPTED = () =>
+  new AppError(
+    "connection.not_accepted",
+    409,
+    "Vocês ainda não estão conectados.",
+  );
+// §6.1 — cadastro via link expirado.
+export const AUTH_TOKEN_EXPIRED = () =>
+  new AppError(
+    "auth.token_expired",
+    410,
+    "Seu link de cadastro expirou. Solicite o reenvio.",
+  );

@@ -23,6 +23,7 @@ import { registerInstitutionRoutes } from "./institutions/routes.js";
 import prismaPlugin from "./plugins/prisma.js";
 import redisPlugin from "./plugins/redis.js";
 import { registerRecurringTransactionRoutes } from "./recurring-transactions/routes.js";
+import { registerSettingsRoutes } from "./settings/routes.js";
 import { registerTransactionRoutes } from "./transactions/routes.js";
 
 declare module "fastify" {
@@ -56,6 +57,7 @@ export async function buildServer(envOverride?: Env): Promise<FastifyInstance> {
   await registerTransactionRoutes(fastify);
   await registerRecurringTransactionRoutes(fastify);
   await registerInsightRoutes(fastify);
+  await registerSettingsRoutes(fastify);
 
   // Invalidação do cache de insights (§5.6/§7.8): qualquer escrita autenticada
   // (não-GET, 2xx, com userId) aposenta o cache do usuário incrementando sua
