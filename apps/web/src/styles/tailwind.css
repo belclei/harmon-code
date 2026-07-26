@@ -1,0 +1,26 @@
+/* Must be the very first rule — mirrors packages/ui/src/styles/tailwind.css's
+   identical constraint (CSS requires @import to precede all other rules). */
+@import url("https://fonts.googleapis.com/css2?family=Cantarell:ital,wght@0,400;0,700;1,400&family=Red+Hat+Mono:wght@400;500;700&display=swap");
+
+@import "tailwindcss";
+
+/* Same token file packages/ui bundles (packages/ui/src/tokens/harmon-tokens.css),
+   reached through the @harmon/ui workspace package rather than a relative
+   ../../../packages/ui path — apps/web never reaches into @harmon/ui's
+   internal file layout anywhere else, so its CSS entrypoint doesn't either. */
+@import "@harmon/ui/src/tokens/harmon-tokens.css";
+
+/* Same dark-mode attribute selector as packages/ui/src/styles/tailwind.css
+   (US-1.6) — must come after every @import. */
+@custom-variant dark (&:where([data-theme="dark"], [data-theme="dark"] *));
+
+@theme inline {
+  --font-sans: var(--hm-font-sans);
+  --font-mono: var(--hm-font-mono);
+}
+
+body {
+  background: var(--hm-bg);
+  color: var(--hm-text);
+  font-family: var(--hm-font-sans);
+}

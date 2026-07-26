@@ -6,14 +6,18 @@ import {
 } from "@fastify/type-provider-zod";
 // apps/api/src/server.ts
 import Fastify, { type FastifyError, type FastifyInstance } from "fastify";
+import { registerAccountRoutes } from "./accounts/routes.js";
 import {
   type GoogleIdTokenVerifier,
   createGoogleIdTokenVerifier,
 } from "./auth/google.js";
 import { registerAuthRoutes } from "./auth/routes.js";
+import { registerCardRoutes } from "./cards/routes.js";
+import { registerCategoryRoutes } from "./categories/routes.js";
 import { registerResendWebhook } from "./email/webhook.js";
 import { type Env, loadEnv } from "./env.js";
 import { AppError, INTERNAL, VALIDATION_FAILED } from "./errors.js";
+import { registerInstitutionRoutes } from "./institutions/routes.js";
 import prismaPlugin from "./plugins/prisma.js";
 import redisPlugin from "./plugins/redis.js";
 
@@ -41,6 +45,10 @@ export async function buildServer(envOverride?: Env): Promise<FastifyInstance> {
   await fastify.register(cookie);
   await registerAuthRoutes(fastify);
   await registerResendWebhook(fastify);
+  await registerInstitutionRoutes(fastify);
+  await registerAccountRoutes(fastify);
+  await registerCardRoutes(fastify);
+  await registerCategoryRoutes(fastify);
 
   fastify.get("/health", async () => ({ status: "ok" }));
   fastify.get("/ready", async (_request, reply) => {
