@@ -13,6 +13,8 @@ import {
 } from "@tanstack/react-router";
 import { AccountsPage } from "./routes/AccountsPage";
 import { LoginPage } from "./routes/LoginPage";
+import { RecurringPage } from "./routes/RecurringPage";
+import { TransactionsPage } from "./routes/TransactionsPage";
 
 const rootRoute = createRootRoute({
   component: Outlet,
@@ -40,10 +42,24 @@ const accountsRoute = createRoute({
   component: AccountsPage,
 });
 
+const transactionsRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: "/transactions",
+  component: TransactionsPage,
+});
+
+const recurringRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: "/recurring",
+  component: RecurringPage,
+});
+
 const routeTree = rootRoute.addChildren([
   indexRoute,
   loginRoute,
   accountsRoute,
+  transactionsRoute,
+  recurringRoute,
 ]);
 
 export const router = createRouter({ routeTree });

@@ -37,6 +37,50 @@ export interface AccountDto {
   isActive: boolean;
 }
 
+export type TxKind = "income" | "expense" | "transfer";
+export type TxSource = "manual" | "import";
+export type TxDirection = "out" | "in";
+
+export interface TransactionDto {
+  id: string;
+  kind: TxKind;
+  source: TxSource;
+  description: string;
+  transactionDate: string;
+  accountId: string | null;
+  creditCardId: string | null;
+  categoryId: string | null;
+  currency: string;
+  amountCents: number;
+  amountBRLCents: number;
+  isScheduled: boolean;
+  transferPairId: string | null;
+  transferDirection: TxDirection | null;
+  installmentGroupId: string | null;
+  installmentNumber: number | null;
+  installmentTotal: number | null;
+  installmentPurchaseAmountCents: number | null;
+  recurringTransactionId: string | null;
+  createdAt: string;
+}
+
+export interface RecurringDto {
+  id: string;
+  description: string;
+  kind: "income" | "expense";
+  accountId: string | null;
+  creditCardId: string | null;
+  categoryId: string | null;
+  referenceAmountCents: number;
+  referenceAmountBRLCents: number;
+  currency: string;
+  dayOfMonth: number;
+  isVariableAmount: boolean;
+  isActive: boolean;
+  startDate: string;
+  endDate: string | null;
+}
+
 export type InvoiceStatus = "open" | "closed_awaiting_payment";
 
 export interface CardDto {

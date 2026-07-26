@@ -7,7 +7,8 @@
   "scripts": {
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
-    "dev": "tsx watch src/index.ts"
+    "dev": "tsx watch src/index.ts",
+    "job:fulfillment": "tsx src/jobs/run-fulfillment.ts"
   },
   "dependencies": {
     "@fastify/cookie": "^11.0.1",

@@ -15,18 +15,23 @@ interface ApiErrorBody {
   code: string;
   message: string;
   details?: ApiErrorDetail[];
+  // Structured payload for errors that carry numbers rather than a field list
+  // (ex.: account.overdraft_confirmation_required — §2.3).
+  data?: Record<string, unknown>;
 }
 
 /** Thrown by every helper below on a non-2xx response. */
 export class ApiError extends Error {
   readonly code: string;
   readonly details?: ApiErrorDetail[];
+  readonly data?: Record<string, unknown>;
 
   constructor(body: ApiErrorBody) {
     super(body.message);
     this.name = "ApiError";
     this.code = body.code;
     this.details = body.details;
+    this.data = body.data;
   }
 }
 

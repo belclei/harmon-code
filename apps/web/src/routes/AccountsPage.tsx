@@ -1,7 +1,7 @@
 // apps/web/src/routes/AccountsPage.tsx
 import { AccountCard, CreditCardCard } from "@harmon/ui";
 import { useQuery } from "@tanstack/react-query";
-import { Navigate } from "@tanstack/react-router";
+import { Link, Navigate } from "@tanstack/react-router";
 import { useAuth } from "../auth/AuthContext";
 import { apiFetchJson } from "../auth/api-client";
 import type { AccountDto, CardDto } from "../auth/types";
@@ -30,6 +30,22 @@ export function AccountsPage() {
 
   return (
     <div className="mx-auto max-w-4xl px-4 py-8">
+      <nav className="mb-6 flex gap-4 text-sm">
+        <span className="font-semibold text-[var(--hm-text)]">Contas</span>
+        <Link
+          to="/transactions"
+          className="text-[var(--hm-text-2)] hover:underline"
+        >
+          Transações
+        </Link>
+        <Link
+          to="/recurring"
+          className="text-[var(--hm-text-2)] hover:underline"
+        >
+          Recorrências
+        </Link>
+      </nav>
+
       <h1 className="mb-6 text-xl font-bold text-[var(--hm-text)]">
         Contas e cartões
       </h1>
