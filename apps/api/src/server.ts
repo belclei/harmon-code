@@ -17,6 +17,8 @@ import { registerCategoryRoutes } from "./categories/routes.js";
 import { registerResendWebhook } from "./email/webhook.js";
 import { type Env, loadEnv } from "./env.js";
 import { AppError, INTERNAL, VALIDATION_FAILED } from "./errors.js";
+import { bumpInsightsGen } from "./insights/cache.js";
+import { registerInsightRoutes } from "./insights/routes.js";
 import { registerInstitutionRoutes } from "./institutions/routes.js";
 import prismaPlugin from "./plugins/prisma.js";
 import redisPlugin from "./plugins/redis.js";
@@ -53,6 +55,23 @@ export async function buildServer(envOverride?: Env): Promise<FastifyInstance> {
   await registerCategoryRoutes(fastify);
   await registerTransactionRoutes(fastify);
   await registerRecurringTransactionRoutes(fastify);
+  await registerInsightRoutes(fastify);
+
+  // Invalidação do cache de insights (§5.6/§7.8): qualquer escrita autenticada
+  // (não-GET, 2xx, com userId) aposenta o cache do usuário incrementando sua
+  // geração. Centralizado aqui — nenhuma rota de escrita precisa lembrar de
+  // invalidar. request.userId é setado pelo preHandler requireUser das rotas
+  // autenticadas; rotas públicas (webhook) não têm userId e não disparam.
+  fastify.addHook("onResponse", async (request, reply) => {
+    if (
+      request.method !== "GET" &&
+      request.userId &&
+      reply.statusCode >= 200 &&
+      reply.statusCode < 300
+    ) {
+      await bumpInsightsGen(fastify.redis, request.userId);
+    }
+  });
 
   fastify.get("/health", async () => ({ status: "ok" }));
   fastify.get("/ready", async (_request, reply) => {
