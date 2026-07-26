@@ -21,8 +21,13 @@ const rootRoute = createRootRoute({
   component: Outlet,
 });
 
-// "/" sends straight to the dashboard — the app's home once there's a
-// session (§6.9). The dashboard itself redirects to /login when there's none.
+// The real home is the Timeline (§6.12) — it's both the activation surface
+// when empty (§6.11) and the history when full; the dashboard is the separate
+// "Análise" screen reached from the Timeline's side panel (§6.9). The Timeline
+// doesn't exist yet, so "/" lands on the dashboard provisionally; repoint this
+// to the Timeline route once it's built (Sprint 10, pulled partly into Sprint 7
+// for the activation cards). The target itself redirects to /login when there's
+// no session.
 const indexRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: "/",
