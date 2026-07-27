@@ -1,6 +1,7 @@
 import type { FastifyInstance } from "fastify";
 // apps/api/src/auth/routes.ts
 import { z } from "zod";
+import { assertUsable, findByToken } from "../access/tokens.js";
 import { AUTH_INVALID_CREDENTIALS, AUTH_TOKEN_INVALID } from "../errors.js";
 import { resolveFlags } from "../flags/resolve.js";
 import { isUserActive } from "./active-user.js";
@@ -26,7 +27,10 @@ const LoginBody = z.object({
   password: z.string().min(1),
 });
 
-const GoogleAuthBody = z.object({ idToken: z.string().min(1) });
+const GoogleAuthBody = z.object({
+  idToken: z.string().min(1),
+  token: z.string().min(1).optional(),
+});
 
 export async function registerAuthRoutes(
   fastify: FastifyInstance,
@@ -170,27 +174,74 @@ export async function registerAuthRoutes(
       config: { rateLimit: {} },
     },
     async (request, reply) => {
-      const { idToken } = request.body as z.infer<typeof GoogleAuthBody>;
+      const { idToken, token } = request.body as z.infer<typeof GoogleAuthBody>;
       const identity = await fastify.googleVerifier(idToken);
 
-      // SECURITY (Épico 8): this upsert auto-links an existing password-based
-      // account to a Google identity via matching email, with no user
-      // confirmation step. Defensible today because no password-registration
-      // route exists yet (unreachable) — but re-evaluate before Épico 8's
-      // registration flow ships and makes this reachable. See BACKLOG.md
-      // Sprint 2 closure note.
-      const user = await fastify.prisma.user.upsert({
+      const existing = await fastify.prisma.user.findUnique({
         where: { email: identity.email },
-        update: { googleId: identity.googleId, lastLoginAt: new Date() },
-        create: {
-          email: identity.email,
-          name: identity.name,
-          googleId: identity.googleId,
-          birthDate: new Date(0), // placeholder — real birthDate collection is a registration-flow concern (Épico 8, out of scope here); Google login for an already-seeded user (belclei) never hits `create`.
-        },
       });
-      // Same opacity as login: a disabled/soft-deleted account must not be
-      // able to authenticate via Google either.
+
+      let user: Awaited<ReturnType<typeof fastify.prisma.user.findUniqueOrThrow>>;
+      if (existing) {
+        // Login for an already-registered identity — no invite required.
+        // Account-linking-by-email decision unchanged (ARQUITETURA.md §6.1,
+        // 25/07/2026): Google's email_verified claim is already the proof
+        // of ownership.
+        user = await fastify.prisma.user.update({
+          where: { id: existing.id },
+          data: {
+            googleId: identity.googleId,
+            googleAvatarUrl: identity.picture,
+            lastLoginAt: new Date(),
+          },
+        });
+      } else {
+        // New account via Google now goes through the same invite/waitlist
+        // gate as POST /v1/auth/register (ARQUITETURA.md §6.1, 26/07/2026)
+        // — closes the admin-approval bypass flagged in BACKLOG.md §13.
+        if (!token) {
+          throw AUTH_TOKEN_INVALID();
+        }
+        const found = await findByToken(fastify, token);
+        if (!found) throw AUTH_TOKEN_INVALID();
+        assertUsable(found);
+
+        const inviteEmail =
+          found.kind === "waitlist" ? found.entry.email : found.entry.inviteeEmail;
+        // The token only proves an approved slot for a specific e-mail — it
+        // must match the Google identity actually authenticating, or
+        // anyone holding a valid token could register under a different
+        // Google account than the one that was approved.
+        if (inviteEmail !== identity.email) {
+          throw AUTH_TOKEN_INVALID();
+        }
+
+        user = await fastify.prisma.user.create({
+          data: {
+            email: identity.email,
+            name: identity.name,
+            googleId: identity.googleId,
+            googleAvatarUrl: identity.picture,
+            // Google doesn't hand us a birthDate — same placeholder as
+            // before; the profile-completion Alert (Task 7) is what closes
+            // this gap now instead of a blocking screen.
+            birthDate: new Date(0),
+          },
+        });
+
+        if (found.kind === "waitlist") {
+          await fastify.prisma.waitlistEntry.update({
+            where: { id: found.entry.id },
+            data: { status: "registered", registeredUserId: user.id },
+          });
+        } else {
+          await fastify.prisma.invite.update({
+            where: { id: found.entry.id },
+            data: { status: "registered", registeredUserId: user.id },
+          });
+        }
+      }
+
       if (!isUserActive(user)) {
         throw AUTH_INVALID_CREDENTIALS();
       }

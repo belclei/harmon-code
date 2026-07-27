@@ -4,6 +4,7 @@ import { afterAll, afterEach, beforeAll, describe, expect, it } from "vitest";
 import { resetTestDb } from "../../test/db.js";
 import { buildServer } from "../server.js";
 import { hashPassword } from "./password.js";
+import { hashToken } from "./refresh-tokens.js";
 
 const TEST_ENV = {
   DATABASE_URL:
@@ -471,11 +472,51 @@ describe("POST /v1/auth/logout", () => {
 });
 
 describe("POST /v1/auth/google", () => {
-  it("creates a Google-only account (null passwordHash) on first login", async () => {
+  async function approvedWaitlistToken(email: string) {
+    const raw = `raw-google-token-${Math.random().toString(36).slice(2)}`;
+    await server.prisma.waitlistEntry.create({
+      data: {
+        name: "Convidado Google",
+        email,
+        status: "approved",
+        registrationTokenHash: hashToken(raw),
+        tokenExpiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
+      },
+    });
+    return raw;
+  }
+
+  it("creates a Google-only account (null passwordHash) on first login, given a valid invite token", async () => {
     server.googleVerifier = async () => ({
       googleId: "google-sub-123",
       email: "google-user@harmon.dev",
       name: "Google User",
+      picture: "https://lh3.googleusercontent.com/a/google-user",
+    });
+    const raw = await approvedWaitlistToken("google-user@harmon.dev");
+
+    const response = await server.inject({
+      method: "POST",
+      url: "/v1/auth/google",
+      payload: { idToken: "fake-token-verified-by-injected-mock", token: raw },
+    });
+
+    expect(response.statusCode).toBe(200);
+    const user = await server.prisma.user.findUniqueOrThrow({
+      where: { email: "google-user@harmon.dev" },
+    });
+    expect(user.passwordHash).toBeNull();
+    expect(user.googleId).toBe("google-sub-123");
+    expect(user.googleAvatarUrl).toBe(
+      "https://lh3.googleusercontent.com/a/google-user",
+    );
+  });
+
+  it("rejects Google signup for a new account with no token", async () => {
+    server.googleVerifier = async () => ({
+      googleId: "google-sub-no-token",
+      email: "no-token@harmon.dev",
+      name: "No Token",
       picture: null,
     });
 
@@ -485,15 +526,38 @@ describe("POST /v1/auth/google", () => {
       payload: { idToken: "fake-token-verified-by-injected-mock" },
     });
 
-    expect(response.statusCode).toBe(200);
-    const user = await server.prisma.user.findUniqueOrThrow({
-      where: { email: "google-user@harmon.dev" },
+    expect(response.statusCode).toBe(400);
+    expect(response.json().code).toBe("auth.token_invalid");
+    const count = await server.prisma.user.count({
+      where: { email: "no-token@harmon.dev" },
     });
-    expect(user.passwordHash).toBeNull();
-    expect(user.googleId).toBe("google-sub-123");
+    expect(count).toBe(0);
   });
 
-  it("logs in an existing Google user without duplicating the row", async () => {
+  it("rejects Google signup when the invite's e-mail doesn't match the Google identity", async () => {
+    server.googleVerifier = async () => ({
+      googleId: "google-sub-mismatch",
+      email: "actual-google-account@harmon.dev",
+      name: "Mismatch",
+      picture: null,
+    });
+    const raw = await approvedWaitlistToken("invited-address@harmon.dev");
+
+    const response = await server.inject({
+      method: "POST",
+      url: "/v1/auth/google",
+      payload: { idToken: "fake-token-verified-by-injected-mock", token: raw },
+    });
+
+    expect(response.statusCode).toBe(400);
+    expect(response.json().code).toBe("auth.token_invalid");
+    const count = await server.prisma.user.count({
+      where: { email: "actual-google-account@harmon.dev" },
+    });
+    expect(count).toBe(0);
+  });
+
+  it("logs in an existing Google user without duplicating the row, and without needing a token", async () => {
     server.googleVerifier = async () => ({
       googleId: "google-sub-456",
       email: "google-existing@harmon.dev",
@@ -503,14 +567,18 @@ describe("POST /v1/auth/google", () => {
     await server.inject({
       method: "POST",
       url: "/v1/auth/google",
-      payload: { idToken: "t1" },
+      payload: {
+        idToken: "t1",
+        token: await approvedWaitlistToken("google-existing@harmon.dev"),
+      },
     });
-    await server.inject({
+    const second = await server.inject({
       method: "POST",
       url: "/v1/auth/google",
       payload: { idToken: "t2" },
     });
 
+    expect(second.statusCode).toBe(200);
     const count = await server.prisma.user.count({
       where: { email: "google-existing@harmon.dev" },
     });
@@ -518,28 +586,25 @@ describe("POST /v1/auth/google", () => {
   });
 
   it("rate-limits the 6th request from the same IP within the window", async () => {
-    // Unlike /v1/auth/login, there's no e-mail in the request body to key
-    // on, so this exercises the keyGenerator's `request.ip` fallback
-    // (rate-limit.ts) — every `server.inject` call here shares the same
-    // (fake) client IP.
     server.googleVerifier = async () => ({
       googleId: "google-sub-ratelimit",
       email: "google-ratelimit@harmon.dev",
       name: "Google Ratelimit",
       picture: null,
     });
+    const raw = await approvedWaitlistToken("google-ratelimit@harmon.dev");
     await server.redis.flushall();
     for (let i = 0; i < 5; i++) {
       await server.inject({
         method: "POST",
         url: "/v1/auth/google",
-        payload: { idToken: "fake-token-verified-by-injected-mock" },
+        payload: { idToken: "fake-token-verified-by-injected-mock", token: raw },
       });
     }
     const sixth = await server.inject({
       method: "POST",
       url: "/v1/auth/google",
-      payload: { idToken: "fake-token-verified-by-injected-mock" },
+      payload: { idToken: "fake-token-verified-by-injected-mock", token: raw },
     });
     expect(sixth.statusCode).toBe(429);
     expect(sixth.json().code).toBe("auth.rate_limited");
