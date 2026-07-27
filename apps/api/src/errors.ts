@@ -118,6 +118,13 @@ export const SHARE_NOT_OWNER = () =>
     403,
     "Só o dono pode alterar o compartilhamento deste item.",
   );
+// §6.10 — item compartilhado com permission=view: pode ver, não pode editar.
+export const SHARE_VIEW_ONLY = () =>
+  new AppError(
+    "share.view_only",
+    403,
+    "Você só tem permissão de visualização neste item.",
+  );
 // §6.10 — ação de portador/settle exige conexão aceita entre os dois usuários.
 export const CONNECTION_NOT_ACCEPTED = () =>
   new AppError(

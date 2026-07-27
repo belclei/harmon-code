@@ -14,6 +14,7 @@ import {
 import { registerAuthRoutes } from "./auth/routes.js";
 import { registerCardRoutes } from "./cards/routes.js";
 import { registerCategoryRoutes } from "./categories/routes.js";
+import { registerConnectionRoutes } from "./connections/routes.js";
 import { registerResendWebhook } from "./email/webhook.js";
 import { type Env, loadEnv } from "./env.js";
 import { AppError, INTERNAL, VALIDATION_FAILED } from "./errors.js";
@@ -22,8 +23,10 @@ import { registerInsightRoutes } from "./insights/routes.js";
 import { registerInstitutionRoutes } from "./institutions/routes.js";
 import prismaPlugin from "./plugins/prisma.js";
 import redisPlugin from "./plugins/redis.js";
+import { registerPortadorRoutes } from "./portador/routes.js";
 import { registerRecurringTransactionRoutes } from "./recurring-transactions/routes.js";
 import { registerSettingsRoutes } from "./settings/routes.js";
+import { registerShareRoutes } from "./shares/routes.js";
 import { registerTimelineRoutes } from "./timeline/routes.js";
 import { registerTransactionRoutes } from "./transactions/routes.js";
 
@@ -60,6 +63,9 @@ export async function buildServer(envOverride?: Env): Promise<FastifyInstance> {
   await registerInsightRoutes(fastify);
   await registerSettingsRoutes(fastify);
   await registerTimelineRoutes(fastify);
+  await registerConnectionRoutes(fastify);
+  await registerShareRoutes(fastify);
+  await registerPortadorRoutes(fastify);
 
   // Invalidação do cache de insights (§5.6/§7.8): qualquer escrita autenticada
   // (não-GET, 2xx, com userId) aposenta o cache do usuário incrementando sua

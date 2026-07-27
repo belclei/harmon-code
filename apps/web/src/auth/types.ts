@@ -134,3 +134,45 @@ export interface TimelinePageDto {
   days: TimelineDayDto[];
   nextCursor: string | null;
 }
+
+export type ConnectionStatus = "pending" | "accepted" | "rejected";
+
+export interface ConnectionDto {
+  id: string;
+  status: ConnectionStatus;
+  isRequester: boolean;
+  counterpartUserId: string;
+  counterpartName: string;
+  counterpartEmail: string;
+  createdAt: string;
+  respondedAt: string | null;
+  /** > 0 a meu favor ("a receber"), < 0 eu devo ("a acertar") — nunca linguagem de cobrança na UI. */
+  settlementBalanceCents: number;
+}
+
+export type SharePermission = "view" | "edit";
+export type ShareItemType = "account" | "credit_card";
+
+export interface ShareDto {
+  id: string;
+  ownerUserId: string;
+  sharedWithUserId: string;
+  itemType: ShareItemType;
+  accountId: string | null;
+  creditCardId: string | null;
+  permission: SharePermission;
+  isOwner: boolean;
+  createdAt: string;
+}
+
+export interface PortadorPendingDto {
+  id: string;
+  description: string;
+  transactionDate: string;
+  kind: TxKind;
+  amountCents: number;
+  amountBRLCents: number;
+  currency: string;
+  ownerUserId: string;
+  ownerName: string;
+}

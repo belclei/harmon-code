@@ -144,6 +144,12 @@ export function SettingsPage() {
         >
           Contas
         </Link>
+        <Link
+          to="/connections"
+          className="text-[var(--hm-text-2)] hover:underline"
+        >
+          Conexões
+        </Link>
         <span className="font-semibold text-[var(--hm-text)]">
           Configurações
         </span>

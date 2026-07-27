@@ -341,6 +341,12 @@ export function AccountsPage() {
           Recorrências
         </Link>
         <Link
+          to="/connections"
+          className="text-[var(--hm-text-2)] hover:underline"
+        >
+          Conexões
+        </Link>
+        <Link
           to="/settings"
           className="text-[var(--hm-text-2)] hover:underline"
         >

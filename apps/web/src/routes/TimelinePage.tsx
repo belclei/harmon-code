@@ -349,6 +349,9 @@ export function TimelinePage() {
         <Link to="/recurring" className={NAV_LINK}>
           Recorrências
         </Link>
+        <Link to="/connections" className={NAV_LINK}>
+          Conexões
+        </Link>
         <Link to="/settings" className={NAV_LINK}>
           Configurações
         </Link>

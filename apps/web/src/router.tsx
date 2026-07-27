@@ -12,6 +12,7 @@ import {
   redirect,
 } from "@tanstack/react-router";
 import { AccountsPage } from "./routes/AccountsPage";
+import { ConnectionsPage } from "./routes/ConnectionsPage";
 import { DashboardPage } from "./routes/DashboardPage";
 import { LoginPage } from "./routes/LoginPage";
 import { RecurringPage } from "./routes/RecurringPage";
@@ -78,6 +79,12 @@ const settingsRoute = createRoute({
   component: SettingsPage,
 });
 
+const connectionsRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: "/connections",
+  component: ConnectionsPage,
+});
+
 const routeTree = rootRoute.addChildren([
   indexRoute,
   loginRoute,
@@ -87,6 +94,7 @@ const routeTree = rootRoute.addChildren([
   transactionsRoute,
   recurringRoute,
   settingsRoute,
+  connectionsRoute,
 ]);
 
 export const router = createRouter({ routeTree });

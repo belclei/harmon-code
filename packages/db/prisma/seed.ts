@@ -311,10 +311,11 @@ async function seedFeatureFlags() {
     },
   });
 
-  // IMPLEMENTACAO.md §5.5: a feature `connections.portador` está desenhada
-  // para nascer em `beta` quando implementada (Sprint 11) — não off→on.
-  // Hoje (Sprint 1) a feature ainda não existe, então a flag começa `off`;
-  // a transição correta na entrega é off -> beta (nunca off -> on direto).
+  // IMPLEMENTACAO.md §5.5: a feature `connections.portador` nasce em `beta`
+  // agora que está implementada (Sprint 11) — a transição off->beta prevista
+  // pelo comentário original deste seed. `update: {}` preserva o estado de
+  // um ambiente já rodando (um admin pode ter promovido para `on`); só o
+  // `create` de um banco novo usa este valor.
   await prisma.featureFlag.upsert({
     where: { key: "connections.portador" },
     update: {},
@@ -322,7 +323,7 @@ async function seedFeatureFlags() {
       key: "connections.portador",
       description:
         "Atribuição de transações a um conectado (portador) e fluxo de acerto entre contas conectadas.",
-      state: "off",
+      state: "beta",
       rolloutPercent: 100,
     },
   });

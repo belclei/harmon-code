@@ -301,6 +301,12 @@ model Transaction {
   importedDocumentId             String?
   portadorUserId                 String? // atribuída a um conectado (§6.10)
   portadorSettled                Boolean  @default(false)
+  // Emenda 27/07/2026 (Sprint 11, US-6.3, IMPLEMENTACAO.md §1.4) — nulo na
+  // transação original; aponta para a original quando ESTA linha é o
+  // "espelho" criado ao aceitar uma atribuição de portador. Sem isso,
+  // GET /v1/portador/pending não tinha como saber que uma atribuição já
+  // fora aceita.
+  portadorMirrorOfTransactionId  String?
   createdAt                      DateTime @default(now())
   updatedAt                      DateTime @updatedAt
 

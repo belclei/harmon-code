@@ -1,10 +1,46 @@
 // apps/api/src/accounts/routes.ts
 // BACKLOG.md US-3.1 — GET/POST /v1/accounts, PATCH/DELETE /v1/accounts/:id.
+// BACKLOG.md US-6.2 (Sprint 11) — PATCH also allows a connected user holding
+// a permission=edit SharedItem grant on this account, not just the owner.
+// Delete stays owner-only regardless of share permission (§6.10: "tudo de
+// view + criar/editar... exceto apagar").
+import type { Account } from "@harmon/db";
 import type { FastifyInstance } from "fastify";
 import { z } from "zod";
 import { requireUser } from "../auth/authenticate.js";
-import { NOT_FOUND, VALIDATION_FAILED } from "../errors.js";
+import { NOT_FOUND, SHARE_VIEW_ONLY, VALIDATION_FAILED } from "../errors.js";
 import { toAccountResponse } from "./serialize.js";
+
+type EditAccess =
+  | { kind: "can_edit"; account: Account }
+  | { kind: "view_only" }
+  | { kind: "none" };
+
+/** Owner always has edit access; a connected user needs a permission=edit
+ * SharedItem grant — permission=view (or no share at all) doesn't reach the
+ * account row at all, so "not found" vs. "view only" is resolved purely
+ * from the share/ownership rows, never leaking the account's existence to a
+ * user with no relationship to it at all. */
+async function resolveEditAccess(
+  fastify: FastifyInstance,
+  id: string,
+  userId: string,
+): Promise<EditAccess> {
+  const owned = await fastify.prisma.account.findFirst({
+    where: { id, userId },
+  });
+  if (owned) return { kind: "can_edit", account: owned };
+
+  const share = await fastify.prisma.sharedItem.findFirst({
+    where: { accountId: id, sharedWithUserId: userId, itemType: "account" },
+  });
+  if (!share) return { kind: "none" };
+  if (share.permission !== "edit") return { kind: "view_only" };
+
+  const account = await fastify.prisma.account.findUnique({ where: { id } });
+  if (!account) return { kind: "none" };
+  return { kind: "can_edit", account };
+}
 
 const AccountType = z.enum(["checking", "savings", "cash"]);
 
@@ -152,12 +188,14 @@ export async function registerAccountRoutes(
       const { id } = request.params as { id: string };
       const body = request.body as z.infer<typeof UpdateAccountBody>;
 
-      const existing = await fastify.prisma.account.findFirst({
-        where: { id, userId },
-      });
-      if (!existing) {
+      const access = await resolveEditAccess(fastify, id, userId);
+      if (access.kind === "none") {
         throw NOT_FOUND();
       }
+      if (access.kind === "view_only") {
+        throw SHARE_VIEW_ONLY();
+      }
+      const existing = access.account;
       if (existing.type === "cash" && body.overdraftLimitCents !== undefined) {
         throw VALIDATION_FAILED([
           {
