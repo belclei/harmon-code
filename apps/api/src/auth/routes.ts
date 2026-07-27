@@ -1,4 +1,4 @@
-import type { FastifyInstance, FastifyReply } from "fastify";
+import type { FastifyInstance } from "fastify";
 // apps/api/src/auth/routes.ts
 import { z } from "zod";
 import { AUTH_INVALID_CREDENTIALS, AUTH_TOKEN_INVALID } from "../errors.js";
@@ -13,24 +13,13 @@ import {
 import { verifyPassword } from "./password.js";
 import { registerAuthRateLimit } from "./rate-limit.js";
 import {
+  REFRESH_COOKIE_NAME,
   hashToken,
   issueRefreshTokenFamily,
   revokeRefreshFamily,
   rotateRefreshToken,
+  setRefreshCookie,
 } from "./refresh-tokens.js";
-
-const REFRESH_COOKIE_NAME = "refreshToken";
-const REFRESH_COOKIE_MAX_AGE_SECONDS = 30 * 24 * 60 * 60;
-
-function setRefreshCookie(reply: FastifyReply, token: string): void {
-  reply.setCookie(REFRESH_COOKIE_NAME, token, {
-    httpOnly: true,
-    secure: true,
-    sameSite: "strict",
-    path: "/v1/auth",
-    maxAge: REFRESH_COOKIE_MAX_AGE_SECONDS,
-  });
-}
 
 const LoginBody = z.object({
   email: z.string().email(),

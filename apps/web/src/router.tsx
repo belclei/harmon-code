@@ -17,9 +17,11 @@ import { ConnectionsPage } from "./routes/ConnectionsPage";
 import { DashboardPage } from "./routes/DashboardPage";
 import { LoginPage } from "./routes/LoginPage";
 import { RecurringPage } from "./routes/RecurringPage";
+import { RegisterPage } from "./routes/RegisterPage";
 import { SettingsPage } from "./routes/SettingsPage";
 import { TimelinePage } from "./routes/TimelinePage";
 import { TransactionsPage } from "./routes/TransactionsPage";
+import { WaitlistPage } from "./routes/WaitlistPage";
 
 const rootRoute = createRootRoute({
   component: Outlet,
@@ -92,6 +94,18 @@ const adminRoute = createRoute({
   component: AdminPage,
 });
 
+const waitlistRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: "/waitlist",
+  component: WaitlistPage,
+});
+
+const registerRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: "/register",
+  component: RegisterPage,
+});
+
 const routeTree = rootRoute.addChildren([
   indexRoute,
   loginRoute,
@@ -103,6 +117,8 @@ const routeTree = rootRoute.addChildren([
   settingsRoute,
   connectionsRoute,
   adminRoute,
+  waitlistRoute,
+  registerRoute,
 ]);
 
 export const router = createRouter({ routeTree });

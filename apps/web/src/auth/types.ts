@@ -213,3 +213,18 @@ export interface AdminUserDto {
   cardCount: number;
   transactionCount: number;
 }
+
+export type InviteStatus =
+  | "awaiting_approval"
+  | "approved"
+  | "registered"
+  | "rejected"
+  | "expired";
+
+export interface MyInviteDto {
+  id: string;
+  inviteeName: string;
+  inviteeEmail: string;
+  status: InviteStatus;
+  createdAt: string;
+}

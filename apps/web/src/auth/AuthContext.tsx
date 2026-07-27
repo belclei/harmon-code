@@ -12,6 +12,7 @@ import {
   fetchMe,
   refreshAccessToken,
 } from "./api-client";
+import { setAccessToken } from "./token-store";
 import type { MeResponse } from "./types";
 
 export interface AuthContextValue {
@@ -29,6 +30,10 @@ export interface AuthContextValue {
    * state, not react-query's cache, so invalidating a query key alone
    * wouldn't refresh what components read via `useAuth().user`. */
   refreshUser: () => Promise<void>;
+  /** Adopts an access token obtained outside of login() (US-8.3 — the
+   * registration endpoint returns one directly, same as login, but arrives
+   * via a plain fetch call from RegisterPage rather than the login() flow). */
+  adoptSession: (accessToken: string) => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextValue | null>(null);
@@ -86,6 +91,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setUser(me);
   }
 
+  async function adoptSession(newAccessToken: string): Promise<void> {
+    setAccessToken(newAccessToken);
+    setAccessTokenState(newAccessToken);
+    const me = await fetchMe();
+    setUser(me);
+  }
+
   // Applies immediately (US-3.13) — packages/ui and this app's own
   // tailwind.css both key the `dark:` variant off `[data-theme="dark"]`
   // (not Tailwind's default `.dark` class, not the OS media query — see
@@ -99,7 +111,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   return (
     <AuthContext.Provider
-      value={{ accessToken, user, isBooting, login, logout, refreshUser }}
+      value={{
+        accessToken,
+        user,
+        isBooting,
+        login,
+        logout,
+        refreshUser,
+        adoptSession,
+      }}
     >
       {children}
     </AuthContext.Provider>

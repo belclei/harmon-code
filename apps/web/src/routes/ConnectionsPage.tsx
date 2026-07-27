@@ -23,6 +23,7 @@ import type {
   AccountDto,
   CardDto,
   ConnectionDto,
+  MyInviteDto,
   PortadorPendingDto,
   ShareDto,
 } from "../auth/types";
@@ -84,6 +85,78 @@ function NewConnectionForm({ onCreated }: { onCreated: () => void }) {
       <div>
         <Button type="submit" loading={createMutation.isPending}>
           Conectar
+        </Button>
+      </div>
+    </form>
+  );
+}
+
+const INVITE_STATUS_LABEL: Record<MyInviteDto["status"], string> = {
+  awaiting_approval: "Aguardando aprovação",
+  approved: "Aprovado — aguardando cadastro",
+  registered: "Cadastrado",
+  rejected: "Recusado",
+  expired: "Expirado",
+};
+
+function NewInviteForm({ onCreated }: { onCreated: () => void }) {
+  const [inviteeName, setInviteeName] = useState("");
+  const [inviteeEmail, setInviteeEmail] = useState("");
+  const [formError, setFormError] = useState<string | null>(null);
+
+  const createMutation = useMutation({
+    mutationFn: () =>
+      apiFetchJson("/invites", {
+        method: "POST",
+        body: JSON.stringify({ inviteeName, inviteeEmail }),
+      }),
+    onSuccess: () => {
+      setInviteeName("");
+      setInviteeEmail("");
+      setFormError(null);
+      onCreated();
+    },
+    onError: (error: unknown) => {
+      setFormError(
+        error instanceof ApiError
+          ? error.message
+          : "Não foi possível convidar.",
+      );
+    },
+  });
+
+  function onSubmit(event: FormEvent) {
+    event.preventDefault();
+    createMutation.mutate();
+  }
+
+  return (
+    <form
+      onSubmit={onSubmit}
+      className="mb-6 flex flex-col gap-3 rounded-[var(--hm-r-lg)] border border-[var(--hm-border)] p-4"
+    >
+      <Input
+        label="Nome de quem você quer convidar"
+        value={inviteeName}
+        onChange={(event) => setInviteeName(event.target.value)}
+      />
+      <Input
+        type="email"
+        label="E-mail"
+        hint="Um administrador precisa aprovar antes do link ser enviado."
+        value={inviteeEmail}
+        onChange={(event) => setInviteeEmail(event.target.value)}
+      />
+      {formError ? (
+        <Alert variant="error" layout="inline" title={formError} />
+      ) : null}
+      <div>
+        <Button
+          type="submit"
+          disabled={!inviteeName || !inviteeEmail}
+          loading={createMutation.isPending}
+        >
+          Convidar
         </Button>
       </div>
     </form>
@@ -390,6 +463,11 @@ export function ConnectionsPage() {
     queryFn: () => apiFetchJson<PortadorPendingDto[]>("/portador/pending"),
     enabled: hasSession,
   });
+  const invitesQuery = useQuery({
+    queryKey: ["invites"],
+    queryFn: () => apiFetchJson<MyInviteDto[]>("/invites"),
+    enabled: hasSession,
+  });
   const sharesQuery = useQuery({
     queryKey: ["shares"],
     queryFn: () => apiFetchJson<ShareDto[]>("/shares"),
@@ -616,6 +694,37 @@ export function ConnectionsPage() {
           </div>
         </section>
       ) : null}
+
+      <section className="mb-8">
+        <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-[var(--hm-text-2)]">
+          Convidar para o Harmon
+        </h2>
+        <NewInviteForm
+          onCreated={() =>
+            queryClient.invalidateQueries({ queryKey: ["invites"] })
+          }
+        />
+        {invitesQuery.data && invitesQuery.data.length > 0 ? (
+          <div className="flex flex-col gap-2">
+            {invitesQuery.data.map((invite) => (
+              <div
+                key={invite.id}
+                className="flex items-center justify-between rounded-[var(--hm-r-lg)] border border-[var(--hm-border)] p-4"
+              >
+                <div>
+                  <p className="text-[var(--hm-text)]">{invite.inviteeName}</p>
+                  <p className="text-sm text-[var(--hm-text-2)]">
+                    {invite.inviteeEmail}
+                  </p>
+                </div>
+                <p className="text-sm text-[var(--hm-text-2)]">
+                  {INVITE_STATUS_LABEL[invite.status]}
+                </p>
+              </div>
+            ))}
+          </div>
+        ) : null}
+      </section>
 
       <section>
         <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-[var(--hm-text-2)]">

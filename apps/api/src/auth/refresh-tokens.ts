@@ -1,8 +1,25 @@
 // apps/api/src/auth/refresh-tokens.ts
 import { createHash, randomBytes, randomUUID } from "node:crypto";
 import type { PrismaClient } from "@harmon/db";
+import type { FastifyReply } from "fastify";
 
 const REFRESH_TOKEN_TTL_MS = 30 * 24 * 60 * 60 * 1000; // 30 days
+
+export const REFRESH_COOKIE_NAME = "refreshToken";
+const REFRESH_COOKIE_MAX_AGE_SECONDS = 30 * 24 * 60 * 60;
+
+/** Shared by every flow that starts a session (login, register) — the
+ * cookie's security flags live in exactly one place so a future fix to
+ * them can't miss a call site. */
+export function setRefreshCookie(reply: FastifyReply, token: string): void {
+  reply.setCookie(REFRESH_COOKIE_NAME, token, {
+    httpOnly: true,
+    secure: true,
+    sameSite: "strict",
+    path: "/v1/auth",
+    maxAge: REFRESH_COOKIE_MAX_AGE_SECONDS,
+  });
+}
 
 export class RefreshTokenReuseError extends Error {
   constructor() {

@@ -6,6 +6,7 @@ import {
 } from "@fastify/type-provider-zod";
 // apps/api/src/server.ts
 import Fastify, { type FastifyError, type FastifyInstance } from "fastify";
+import { registerAccessRoutes } from "./access/routes.js";
 import { registerAccountRoutes } from "./accounts/routes.js";
 import { registerAdminRoutes } from "./admin/routes.js";
 import {
@@ -22,6 +23,7 @@ import { AppError, INTERNAL, VALIDATION_FAILED } from "./errors.js";
 import { bumpInsightsGen } from "./insights/cache.js";
 import { registerInsightRoutes } from "./insights/routes.js";
 import { registerInstitutionRoutes } from "./institutions/routes.js";
+import { registerInviteRoutes } from "./invites/routes.js";
 import prismaPlugin from "./plugins/prisma.js";
 import redisPlugin from "./plugins/redis.js";
 import { registerPortadorRoutes } from "./portador/routes.js";
@@ -68,6 +70,8 @@ export async function buildServer(envOverride?: Env): Promise<FastifyInstance> {
   await registerShareRoutes(fastify);
   await registerPortadorRoutes(fastify);
   await registerAdminRoutes(fastify);
+  await registerInviteRoutes(fastify);
+  await registerAccessRoutes(fastify);
 
   // Invalidação do cache de insights (§5.6/§7.8): qualquer escrita autenticada
   // (não-GET, 2xx, com userId) aposenta o cache do usuário incrementando sua
