@@ -2,7 +2,15 @@
 // BACKLOG.md US-3.13 (dados pessoais/senha/tema) e US-3.14 (zona de risco).
 // US-3.15 (exportação JSON/CSV) fica de fora — bloqueada por decisão de
 // design pendente em ARQUITETURA.md §6.13 (ver BACKLOG.md ~linha 323).
-import { Alert, Button, Dialog, Input, Switch } from "@harmon/ui";
+import {
+  Alert,
+  Avatar,
+  Button,
+  Dialog,
+  Input,
+  RadioGroup,
+  Switch,
+} from "@harmon/ui";
 import { useMutation } from "@tanstack/react-query";
 import { Link, Navigate } from "@tanstack/react-router";
 import { type FormEvent, useState } from "react";
@@ -40,6 +48,17 @@ export function SettingsPage() {
       setPersonalError(
         error instanceof ApiError ? error.message : "Não foi possível salvar.",
       );
+    },
+  });
+
+  const avatarMutation = useMutation({
+    mutationFn: (avatarMode: string) =>
+      apiFetchJson("/me/avatar", {
+        method: "PATCH",
+        body: JSON.stringify({ avatarMode }),
+      }),
+    onSuccess: async () => {
+      await refreshUser();
     },
   });
 
@@ -192,6 +211,30 @@ export function SettingsPage() {
             </Button>
           </div>
         </form>
+      </section>
+
+      <section className="mb-8" aria-labelledby="avatar">
+        <h2
+          id="avatar"
+          className="mb-3 text-sm font-semibold uppercase tracking-wide text-[var(--hm-text-2)]"
+        >
+          Avatar
+        </h2>
+        <div className="flex items-center gap-4">
+          <Avatar urls={user.avatarUrls} alt={`Avatar de ${user.name}`} size={56} />
+          <RadioGroup
+            label="Fonte do avatar"
+            value={user.avatarMode}
+            disabled={avatarMutation.isPending}
+            onChange={(value) => avatarMutation.mutate(value)}
+            options={[
+              { value: "auto", label: "Automático (Google → Gravatar → Dicebear)" },
+              { value: "google", label: "Foto do Google", disabled: !user.hasGoogle },
+              { value: "gravatar", label: "Gravatar" },
+              { value: "dicebear", label: "Dicebear" },
+            ]}
+          />
+        </div>
       </section>
 
       <section className="mb-8" aria-labelledby="aparencia">
