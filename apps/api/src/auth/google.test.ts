@@ -53,7 +53,9 @@ describe("createGoogleIdTokenVerifier", () => {
     const verify = createGoogleIdTokenVerifier(CLIENT_ID);
     const identity = await verify("fake-id-token");
 
-    expect(identity.picture).toBe("https://lh3.googleusercontent.com/a/example");
+    expect(identity.picture).toBe(
+      "https://lh3.googleusercontent.com/a/example",
+    );
   });
 
   it("rejects when the email is not verified", async () => {

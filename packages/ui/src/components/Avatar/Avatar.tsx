@@ -25,7 +25,9 @@ export function Avatar({ urls, alt, size = 40, className = "" }: AvatarProps) {
       width={size}
       height={size}
       className={["rounded-full object-cover", className].join(" ")}
-      onError={() => setIndex((current) => Math.min(current + 1, urls.length - 1))}
+      onError={() =>
+        setIndex((current) => Math.min(current + 1, urls.length - 1))
+      }
     />
   );
 }

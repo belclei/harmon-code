@@ -253,15 +253,26 @@ export function SettingsPage() {
           Avatar
         </h2>
         <div className="flex items-center gap-4">
-          <Avatar urls={user.avatarUrls} alt={`Avatar de ${user.name}`} size={56} />
+          <Avatar
+            urls={user.avatarUrls}
+            alt={`Avatar de ${user.name}`}
+            size={56}
+          />
           <RadioGroup
             label="Fonte do avatar"
             value={user.avatarMode}
             disabled={avatarMutation.isPending}
             onChange={(value) => avatarMutation.mutate(value)}
             options={[
-              { value: "auto", label: "Automático (Google → Gravatar → Dicebear)" },
-              { value: "google", label: "Foto do Google", disabled: !user.hasGoogle },
+              {
+                value: "auto",
+                label: "Automático (Google → Gravatar → Dicebear)",
+              },
+              {
+                value: "google",
+                label: "Foto do Google",
+                disabled: !user.hasGoogle,
+              },
               { value: "gravatar", label: "Gravatar" },
               { value: "dicebear", label: "Dicebear" },
             ]}

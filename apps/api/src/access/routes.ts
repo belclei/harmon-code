@@ -19,11 +19,8 @@ import {
   issueRefreshTokenFamily,
   setRefreshCookie,
 } from "../auth/refresh-tokens.js";
-import {
-  AUTH_TOKEN_INVALID,
-  VALIDATION_FAILED,
-} from "../errors.js";
-import { findByToken, assertUsable } from "./tokens.js";
+import { AUTH_TOKEN_INVALID, VALIDATION_FAILED } from "../errors.js";
+import { assertUsable, findByToken } from "./tokens.js";
 
 const WaitlistBody = z
   .object({
