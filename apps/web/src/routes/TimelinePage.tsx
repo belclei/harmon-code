@@ -355,6 +355,11 @@ export function TimelinePage() {
         <Link to="/settings" className={NAV_LINK}>
           Configurações
         </Link>
+        {user.role === "admin" ? (
+          <Link to="/admin" className={NAV_LINK}>
+            Admin
+          </Link>
+        ) : null}
       </nav>
 
       {alertedEntities.length > 0 ? (

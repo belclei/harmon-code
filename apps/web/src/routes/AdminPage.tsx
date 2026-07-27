@@ -1,0 +1,257 @@
+// apps/web/src/routes/AdminPage.tsx
+// BACKLOG.md US-7.1/US-7.2 — painéis Acessos e Usuários. role=user é
+// bloqueado na UI (espelha o 403 admin.forbidden do backend); nunca mostra
+// valor financeiro, só contagens (§6.2).
+import { Badge, Button, EmptyState, Switch } from "@harmon/ui";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { Link, Navigate } from "@tanstack/react-router";
+import { useAuth } from "../auth/AuthContext";
+import { apiFetchJson } from "../auth/api-client";
+import type { AdminAccessDto, AdminUserDto } from "../auth/types";
+
+const NAV_LINK = "text-[var(--hm-text-2)] hover:underline";
+
+export function AdminPage() {
+  const { isBooting, user } = useAuth();
+  const hasSession = !isBooting && Boolean(user);
+  const isAdmin = user?.role === "admin";
+  const queryClient = useQueryClient();
+
+  const accessQuery = useQuery({
+    queryKey: ["admin-access"],
+    queryFn: () => apiFetchJson<AdminAccessDto>("/admin/access"),
+    enabled: hasSession && isAdmin,
+  });
+  const usersQuery = useQuery({
+    queryKey: ["admin-users"],
+    queryFn: () => apiFetchJson<AdminUserDto[]>("/admin/users"),
+    enabled: hasSession && isAdmin,
+  });
+
+  const invalidateAccess = () =>
+    queryClient.invalidateQueries({ queryKey: ["admin-access"] });
+  const invalidateUsers = () =>
+    queryClient.invalidateQueries({ queryKey: ["admin-users"] });
+
+  const approveWaitlistMutation = useMutation({
+    mutationFn: (id: string) =>
+      apiFetchJson(`/admin/access/waitlist/${id}/approve`, { method: "POST" }),
+    onSuccess: invalidateAccess,
+  });
+  const rejectWaitlistMutation = useMutation({
+    mutationFn: (id: string) =>
+      apiFetchJson(`/admin/access/waitlist/${id}/reject`, { method: "POST" }),
+    onSuccess: invalidateAccess,
+  });
+  const approveInviteMutation = useMutation({
+    mutationFn: (id: string) =>
+      apiFetchJson(`/admin/access/invites/${id}/approve`, { method: "POST" }),
+    onSuccess: invalidateAccess,
+  });
+  const rejectInviteMutation = useMutation({
+    mutationFn: (id: string) =>
+      apiFetchJson(`/admin/access/invites/${id}/reject`, { method: "POST" }),
+    onSuccess: invalidateAccess,
+  });
+
+  const roleMutation = useMutation({
+    mutationFn: ({ id, role }: { id: string; role: "user" | "admin" }) =>
+      apiFetchJson(`/admin/users/${id}/role`, {
+        method: "POST",
+        body: JSON.stringify({ role }),
+      }),
+    onSuccess: invalidateUsers,
+  });
+  const betaMutation = useMutation({
+    mutationFn: ({ id, isBetaTester }: { id: string; isBetaTester: boolean }) =>
+      apiFetchJson(`/admin/users/${id}/beta`, {
+        method: "POST",
+        body: JSON.stringify({ isBetaTester }),
+      }),
+    onSuccess: invalidateUsers,
+  });
+  const disableMutation = useMutation({
+    mutationFn: ({ id, disabled }: { id: string; disabled: boolean }) =>
+      apiFetchJson(`/admin/users/${id}/disable`, {
+        method: "POST",
+        body: JSON.stringify({ disabled }),
+      }),
+    onSuccess: invalidateUsers,
+  });
+
+  if (isBooting) {
+    return <p className="p-6 text-[var(--hm-text-2)]">Carregando…</p>;
+  }
+  if (!user) {
+    return <Navigate to="/login" />;
+  }
+  if (!isAdmin) {
+    return <Navigate to="/timeline" />;
+  }
+
+  const waitlist = accessQuery.data?.waitlist ?? [];
+  const invites = accessQuery.data?.invites ?? [];
+  const users = usersQuery.data ?? [];
+
+  return (
+    <div className="mx-auto max-w-5xl px-4 py-8">
+      <nav className="mb-6 flex gap-4 text-sm">
+        <Link to="/timeline" className={NAV_LINK}>
+          Timeline
+        </Link>
+        <span className="font-semibold text-[var(--hm-text)]">Admin</span>
+      </nav>
+
+      <h1 className="mb-6 text-xl font-bold text-[var(--hm-text)]">
+        Painel administrativo
+      </h1>
+
+      <section className="mb-10">
+        <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-[var(--hm-text-2)]">
+          Acessos
+        </h2>
+        {waitlist.length === 0 && invites.length === 0 ? (
+          <EmptyState
+            title="Nada pendente"
+            description="Fila de acesso e convites aguardando aprovação aparecem aqui."
+          />
+        ) : (
+          <div className="flex flex-col gap-2">
+            {waitlist.map((entry) => (
+              <div
+                key={entry.id}
+                className="flex items-center justify-between rounded-[var(--hm-r-lg)] border border-[var(--hm-border)] p-4"
+              >
+                <div>
+                  <p className="text-[var(--hm-text)]">
+                    {entry.name}{" "}
+                    <Badge kind="status" status="pending">
+                      Fila de acesso
+                    </Badge>
+                  </p>
+                  <p className="text-sm text-[var(--hm-text-2)]">
+                    {entry.email}
+                  </p>
+                </div>
+                <div className="flex gap-2">
+                  <Button
+                    variant="secondary"
+                    loading={rejectWaitlistMutation.isPending}
+                    onClick={() => rejectWaitlistMutation.mutate(entry.id)}
+                  >
+                    Recusar
+                  </Button>
+                  <Button
+                    loading={approveWaitlistMutation.isPending}
+                    onClick={() => approveWaitlistMutation.mutate(entry.id)}
+                  >
+                    Aprovar
+                  </Button>
+                </div>
+              </div>
+            ))}
+            {invites.map((invite) => (
+              <div
+                key={invite.id}
+                className="flex items-center justify-between rounded-[var(--hm-r-lg)] border border-[var(--hm-border)] p-4"
+              >
+                <div>
+                  <p className="text-[var(--hm-text)]">
+                    {invite.inviteeName}{" "}
+                    <Badge kind="status" status="pending">
+                      Convite
+                    </Badge>
+                  </p>
+                  <p className="text-sm text-[var(--hm-text-2)]">
+                    {invite.inviteeEmail}
+                  </p>
+                </div>
+                <div className="flex gap-2">
+                  <Button
+                    variant="secondary"
+                    loading={rejectInviteMutation.isPending}
+                    onClick={() => rejectInviteMutation.mutate(invite.id)}
+                  >
+                    Recusar
+                  </Button>
+                  <Button
+                    loading={approveInviteMutation.isPending}
+                    onClick={() => approveInviteMutation.mutate(invite.id)}
+                  >
+                    Aprovar
+                  </Button>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </section>
+
+      <section>
+        <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-[var(--hm-text-2)]">
+          Usuários
+        </h2>
+        <div className="flex flex-col gap-2">
+          {users.map((u) => (
+            <div
+              key={u.id}
+              className="flex flex-col gap-3 rounded-[var(--hm-r-lg)] border border-[var(--hm-border)] p-4 sm:flex-row sm:items-center sm:justify-between"
+            >
+              <div>
+                <p className="text-[var(--hm-text)]">
+                  {u.name}{" "}
+                  <Badge
+                    kind="status"
+                    status={u.status === "active" ? "active" : "inactive"}
+                  >
+                    {u.role === "admin" ? "Admin" : "Usuário"}
+                  </Badge>
+                </p>
+                <p className="text-sm text-[var(--hm-text-2)]">
+                  {u.email} · {u.accountCount} contas · {u.cardCount} cartões ·{" "}
+                  {u.transactionCount} transações
+                </p>
+              </div>
+              <div className="flex flex-wrap items-center gap-4">
+                <Switch
+                  label="Beta"
+                  checked={u.isBetaTester}
+                  disabled={betaMutation.isPending}
+                  onChange={(checked) =>
+                    betaMutation.mutate({ id: u.id, isBetaTester: checked })
+                  }
+                />
+                <Button
+                  variant="secondary"
+                  disabled={u.id === user.id && u.role === "admin"}
+                  loading={roleMutation.isPending}
+                  onClick={() =>
+                    roleMutation.mutate({
+                      id: u.id,
+                      role: u.role === "admin" ? "user" : "admin",
+                    })
+                  }
+                >
+                  {u.role === "admin" ? "Rebaixar" : "Promover"}
+                </Button>
+                <Button
+                  variant="secondary"
+                  disabled={u.id === user.id}
+                  loading={disableMutation.isPending}
+                  onClick={() =>
+                    disableMutation.mutate({
+                      id: u.id,
+                      disabled: u.status === "active",
+                    })
+                  }
+                >
+                  {u.status === "active" ? "Desabilitar" : "Reabilitar"}
+                </Button>
+              </div>
+            </div>
+          ))}
+        </div>
+      </section>
+    </div>
+  );
+}

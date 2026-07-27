@@ -176,3 +176,40 @@ export interface PortadorPendingDto {
   ownerUserId: string;
   ownerName: string;
 }
+
+export interface AdminWaitlistDto {
+  id: string;
+  name: string;
+  email: string;
+  createdAt: string;
+}
+
+export interface AdminInviteDto {
+  id: string;
+  inviterUserId: string;
+  inviteeName: string;
+  inviteeEmail: string;
+  createdAt: string;
+}
+
+export interface AdminAccessDto {
+  waitlist: AdminWaitlistDto[];
+  invites: AdminInviteDto[];
+}
+
+export type UserRole = "user" | "admin";
+export type UserStatus = "active" | "disabled";
+
+export interface AdminUserDto {
+  id: string;
+  name: string;
+  email: string;
+  role: UserRole;
+  isBetaTester: boolean;
+  status: UserStatus;
+  createdAt: string;
+  lastLoginAt: string | null;
+  accountCount: number;
+  cardCount: number;
+  transactionCount: number;
+}

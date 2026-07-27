@@ -7,6 +7,7 @@ import {
 // apps/api/src/server.ts
 import Fastify, { type FastifyError, type FastifyInstance } from "fastify";
 import { registerAccountRoutes } from "./accounts/routes.js";
+import { registerAdminRoutes } from "./admin/routes.js";
 import {
   type GoogleIdTokenVerifier,
   createGoogleIdTokenVerifier,
@@ -66,6 +67,7 @@ export async function buildServer(envOverride?: Env): Promise<FastifyInstance> {
   await registerConnectionRoutes(fastify);
   await registerShareRoutes(fastify);
   await registerPortadorRoutes(fastify);
+  await registerAdminRoutes(fastify);
 
   // Invalidação do cache de insights (§5.6/§7.8): qualquer escrita autenticada
   // (não-GET, 2xx, com userId) aposenta o cache do usuário incrementando sua
