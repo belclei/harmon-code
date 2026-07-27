@@ -41,6 +41,8 @@ export function SettingsPage() {
 
   const [exportError, setExportError] = useState<string | null>(null);
 
+  const [avatarError, setAvatarError] = useState<string | null>(null);
+
   const exportMutation = useMutation({
     mutationFn: downloadMyDataExport,
     onError: (error: unknown) => {
@@ -75,7 +77,15 @@ export function SettingsPage() {
         body: JSON.stringify({ avatarMode }),
       }),
     onSuccess: async () => {
+      setAvatarError(null);
       await refreshUser();
+    },
+    onError: (error: unknown) => {
+      setAvatarError(
+        error instanceof ApiError
+          ? error.message
+          : "Não foi possível atualizar o avatar.",
+      );
     },
   });
 
@@ -257,6 +267,9 @@ export function SettingsPage() {
             ]}
           />
         </div>
+        {avatarError ? (
+          <Alert variant="error" layout="inline" title={avatarError} />
+        ) : null}
       </section>
 
       <section className="mb-8" aria-labelledby="aparencia">

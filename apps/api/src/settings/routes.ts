@@ -264,6 +264,14 @@ export async function registerSettingsRoutes(
           where: {
             OR: [{ requesterUserId: userId }, { addresseeUserId: userId }],
           },
+          select: {
+            id: true,
+            requesterUserId: true,
+            addresseeUserId: true,
+            status: true,
+            respondedAt: true,
+            createdAt: true,
+          },
         }),
       ]);
 

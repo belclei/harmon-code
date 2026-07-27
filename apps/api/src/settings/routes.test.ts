@@ -372,4 +372,32 @@ describe("GET /v1/me/export", () => {
 
     expect(response.json().accounts).toEqual([]);
   });
+
+  it("does not leak connectionTokenHash for the user's connections", async () => {
+    const { userId, accessToken } = await authedUser();
+    const other = await authedUser();
+    await server.prisma.userConnection.create({
+      data: {
+        requesterUserId: userId,
+        addresseeUserId: other.userId,
+        connectionTokenHash: "some-secret-hash",
+      },
+    });
+
+    const response = await server.inject({
+      method: "GET",
+      url: "/v1/me/export",
+      headers: { authorization: `Bearer ${accessToken}` },
+    });
+
+    expect(response.statusCode).toBe(200);
+    const body = response.json();
+    expect(body.connections).toHaveLength(1);
+    expect(body.connections[0]).not.toHaveProperty("connectionTokenHash");
+    expect(body.connections[0]).toMatchObject({
+      requesterUserId: userId,
+      addresseeUserId: other.userId,
+      status: "pending",
+    });
+  });
 });
