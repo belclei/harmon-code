@@ -5,6 +5,7 @@ export interface GoogleIdentity {
   googleId: string;
   email: string;
   name: string;
+  picture: string | null;
 }
 
 export type GoogleIdTokenVerifier = (
@@ -24,6 +25,11 @@ export function createGoogleIdTokenVerifier(
     if (!payload.email_verified) {
       throw new Error("Google id_token email not verified");
     }
-    return { googleId: payload.sub, email: payload.email, name: payload.name };
+    return {
+      googleId: payload.sub,
+      email: payload.email,
+      name: payload.name,
+      picture: payload.picture ?? null,
+    };
   };
 }
