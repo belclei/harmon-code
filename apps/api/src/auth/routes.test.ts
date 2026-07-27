@@ -650,6 +650,50 @@ describe("GET /v1/me", () => {
     expect(body.email).toBe("me-test@harmon.dev");
     expect(body.role).toBe("user");
     expect(body.flags).toEqual({ "imports.pipeline": true });
+    expect(me.json().hasGoogle).toBe(false);
+    expect(me.json().hasCompleteProfile).toBe(true);
+    expect(me.json().avatarUrls.length).toBeGreaterThan(0);
+    expect(me.json().avatarUrls[me.json().avatarUrls.length - 1]).toContain(
+      "api.dicebear.com",
+    );
+  });
+
+  it("reports hasCompleteProfile=false for a placeholder birthDate", async () => {
+    await server.prisma.user.create({
+      data: {
+        email: "placeholder-birthdate@harmon.dev",
+        name: "Placeholder",
+        birthDate: new Date(0),
+        googleId: "google-sub-placeholder",
+      },
+    });
+    // The "POST /v1/auth/google" describe block above deliberately exhausts
+    // this same IP-keyed rate-limit bucket in its own rate-limit test and
+    // never resets it (the Redis-backed limiter, unlike Postgres, isn't
+    // reset by the afterEach hook) — flush here so this test's own call
+    // isn't collateral damage from running after that one.
+    await server.redis.flushall();
+    server.googleVerifier = async () => ({
+      googleId: "google-sub-placeholder",
+      email: "placeholder-birthdate@harmon.dev",
+      name: "Placeholder",
+      picture: null,
+    });
+    const googleLogin = await server.inject({
+      method: "POST",
+      url: "/v1/auth/google",
+      payload: { idToken: "fake" },
+    });
+    const accessToken = googleLogin.json().accessToken;
+
+    const me = await server.inject({
+      method: "GET",
+      url: "/v1/me",
+      headers: { authorization: `Bearer ${accessToken}` },
+    });
+
+    expect(me.json().hasCompleteProfile).toBe(false);
+    expect(me.json().hasGoogle).toBe(true);
   });
 
   it("rejects a request with no Authorization header at all", async () => {

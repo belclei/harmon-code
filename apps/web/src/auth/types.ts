@@ -12,6 +12,8 @@ export interface MeResponse {
   name: string;
   birthDate: string;
   hasPassword: boolean;
+  hasGoogle: boolean;
+  hasCompleteProfile: boolean;
   // Judgment call: the spec doesn't enumerate role/avatarMode/themePref's
   // literal unions, and apps/web doesn't branch on their values anywhere
   // yet — kept as `string` rather than guessing at a union the backend
@@ -19,6 +21,7 @@ export interface MeResponse {
   role: string;
   isBetaTester: boolean;
   avatarMode: string;
+  avatarUrls: string[];
   themePref: string;
   flags: Record<string, boolean>;
 }

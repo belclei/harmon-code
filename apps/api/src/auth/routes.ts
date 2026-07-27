@@ -5,6 +5,7 @@ import { assertUsable, findByToken } from "../access/tokens.js";
 import { AUTH_INVALID_CREDENTIALS, AUTH_TOKEN_INVALID } from "../errors.js";
 import { resolveFlags } from "../flags/resolve.js";
 import { isUserActive } from "./active-user.js";
+import { computeAvatarUrls } from "./avatar.js";
 import { requireUser } from "./authenticate.js";
 import {
   type AccessTokenPayload,
@@ -285,9 +286,12 @@ export async function registerAuthRoutes(
         name: user.name,
         birthDate: user.birthDate.toISOString().slice(0, 10),
         hasPassword: user.passwordHash !== null,
+        hasGoogle: user.googleId !== null,
+        hasCompleteProfile: user.birthDate.getTime() !== 0,
         role: user.role,
         isBetaTester: user.isBetaTester,
         avatarMode: user.avatarMode,
+        avatarUrls: computeAvatarUrls(user),
         themePref: user.themePref,
         flags,
       };
