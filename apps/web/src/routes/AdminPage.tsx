@@ -7,7 +7,20 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Link, Navigate } from "@tanstack/react-router";
 import { useAuth } from "../auth/AuthContext";
 import { apiFetchJson } from "../auth/api-client";
-import type { AdminAccessDto, AdminUserDto } from "../auth/types";
+import type {
+  AdminAccessDto,
+  AdminHealthDto,
+  AdminUsageDto,
+  AdminUserDto,
+} from "../auth/types";
+
+const NOT_AVAILABLE_LABEL: Record<string, string> = {
+  jobQueue: "Fila de jobs",
+  importErrors: "Erros de importação",
+  apiP95Ms: "Latência p95 da API",
+  deepSeekCostCents: "Custo estimado DeepSeek",
+  resendDeliverability: "Deliverability do Resend",
+};
 
 const NAV_LINK = "text-[var(--hm-text-2)] hover:underline";
 
@@ -25,6 +38,16 @@ export function AdminPage() {
   const usersQuery = useQuery({
     queryKey: ["admin-users"],
     queryFn: () => apiFetchJson<AdminUserDto[]>("/admin/users"),
+    enabled: hasSession && isAdmin,
+  });
+  const usageQuery = useQuery({
+    queryKey: ["admin-usage"],
+    queryFn: () => apiFetchJson<AdminUsageDto>("/admin/usage"),
+    enabled: hasSession && isAdmin,
+  });
+  const healthQuery = useQuery({
+    queryKey: ["admin-health"],
+    queryFn: () => apiFetchJson<AdminHealthDto>("/admin/health"),
     enabled: hasSession && isAdmin,
   });
 
@@ -251,6 +274,112 @@ export function AdminPage() {
             </div>
           ))}
         </div>
+      </section>
+
+      <section className="mt-10">
+        <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-[var(--hm-text-2)]">
+          Frequência de uso
+        </h2>
+        {usageQuery.data ? (
+          <div className="flex flex-col gap-4">
+            <div className="grid grid-cols-3 gap-4">
+              <div className="rounded-[var(--hm-r-lg)] border border-[var(--hm-border)] p-4">
+                <p className="text-xs uppercase tracking-wide text-[var(--hm-text-2)]">
+                  DAU
+                </p>
+                <p className="text-lg font-semibold text-[var(--hm-text)]">
+                  {usageQuery.data.dau}
+                </p>
+              </div>
+              <div className="rounded-[var(--hm-r-lg)] border border-[var(--hm-border)] p-4">
+                <p className="text-xs uppercase tracking-wide text-[var(--hm-text-2)]">
+                  WAU
+                </p>
+                <p className="text-lg font-semibold text-[var(--hm-text)]">
+                  {usageQuery.data.wau}
+                </p>
+              </div>
+              <div className="rounded-[var(--hm-r-lg)] border border-[var(--hm-border)] p-4">
+                <p className="text-xs uppercase tracking-wide text-[var(--hm-text-2)]">
+                  MAU
+                </p>
+                <p className="text-lg font-semibold text-[var(--hm-text)]">
+                  {usageQuery.data.mau}
+                </p>
+              </div>
+            </div>
+            <div className="rounded-[var(--hm-r-lg)] border border-[var(--hm-border)] p-4">
+              <p className="mb-2 text-xs uppercase tracking-wide text-[var(--hm-text-2)]">
+                Retenção
+              </p>
+              <p className="text-sm text-[var(--hm-text)]">
+                D1: {usageQuery.data.retention.d1}% · D7:{" "}
+                {usageQuery.data.retention.d7}% · D30:{" "}
+                {usageQuery.data.retention.d30}%
+              </p>
+            </div>
+            <div className="rounded-[var(--hm-r-lg)] border border-[var(--hm-border)] p-4">
+              <p className="mb-2 text-xs uppercase tracking-wide text-[var(--hm-text-2)]">
+                Funil de ativação ({usageQuery.data.activationFunnel.totalUsers}{" "}
+                usuários)
+              </p>
+              <p className="text-sm text-[var(--hm-text)]">
+                Carteira: {usageQuery.data.activationFunnel.wallet} · Contas:{" "}
+                {usageQuery.data.activationFunnel.accounts} · Cartões:{" "}
+                {usageQuery.data.activationFunnel.cards} · Completou os 3:{" "}
+                {usageQuery.data.activationFunnel.allThree}
+              </p>
+            </div>
+          </div>
+        ) : null}
+      </section>
+
+      <section className="mt-10">
+        <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-[var(--hm-text-2)]">
+          Saúde do sistema
+        </h2>
+        {healthQuery.data ? (
+          <div className="flex flex-col gap-4">
+            <div className="grid grid-cols-2 gap-4">
+              <div className="rounded-[var(--hm-r-lg)] border border-[var(--hm-border)] p-4">
+                <p className="text-xs uppercase tracking-wide text-[var(--hm-text-2)]">
+                  Banco de dados
+                </p>
+                <Badge
+                  kind="status"
+                  status={
+                    healthQuery.data.database === "ok" ? "active" : "alert"
+                  }
+                >
+                  {healthQuery.data.database === "ok" ? "OK" : "Erro"}
+                </Badge>
+              </div>
+              <div className="rounded-[var(--hm-r-lg)] border border-[var(--hm-border)] p-4">
+                <p className="text-xs uppercase tracking-wide text-[var(--hm-text-2)]">
+                  Redis
+                </p>
+                <Badge
+                  kind="status"
+                  status={healthQuery.data.redis === "ok" ? "active" : "alert"}
+                >
+                  {healthQuery.data.redis === "ok" ? "OK" : "Erro"}
+                </Badge>
+              </div>
+            </div>
+            {healthQuery.data.notAvailable.length > 0 ? (
+              <div className="rounded-[var(--hm-r-lg)] border border-[var(--hm-border)] p-4">
+                <p className="mb-2 text-xs uppercase tracking-wide text-[var(--hm-text-2)]">
+                  Ainda não disponível
+                </p>
+                <p className="text-sm text-[var(--hm-text-2)]">
+                  {healthQuery.data.notAvailable
+                    .map((key) => NOT_AVAILABLE_LABEL[key] ?? key)
+                    .join(" · ")}
+                </p>
+              </div>
+            ) : null}
+          </div>
+        ) : null}
       </section>
     </div>
   );

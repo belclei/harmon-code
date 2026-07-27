@@ -9,6 +9,7 @@ import Fastify, { type FastifyError, type FastifyInstance } from "fastify";
 import { registerAccessRoutes } from "./access/routes.js";
 import { registerAccountRoutes } from "./accounts/routes.js";
 import { registerAdminRoutes } from "./admin/routes.js";
+import { registerAdminUsageHealthRoutes } from "./admin/usage-health-routes.js";
 import {
   type GoogleIdTokenVerifier,
   createGoogleIdTokenVerifier,
@@ -70,6 +71,7 @@ export async function buildServer(envOverride?: Env): Promise<FastifyInstance> {
   await registerShareRoutes(fastify);
   await registerPortadorRoutes(fastify);
   await registerAdminRoutes(fastify);
+  await registerAdminUsageHealthRoutes(fastify);
   await registerInviteRoutes(fastify);
   await registerAccessRoutes(fastify);
 

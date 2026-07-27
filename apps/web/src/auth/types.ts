@@ -228,3 +228,23 @@ export interface MyInviteDto {
   status: InviteStatus;
   createdAt: string;
 }
+
+export interface AdminUsageDto {
+  dau: number;
+  wau: number;
+  mau: number;
+  retention: { d1: number; d7: number; d30: number };
+  activationFunnel: {
+    totalUsers: number;
+    wallet: number;
+    accounts: number;
+    cards: number;
+    allThree: number;
+  };
+}
+
+export interface AdminHealthDto {
+  database: "ok" | "error";
+  redis: "ok" | "error";
+  notAvailable: string[];
+}

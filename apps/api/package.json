@@ -9,7 +9,8 @@
     "test": "vitest run",
     "dev": "tsx watch src/index.ts",
     "job:fulfillment": "tsx src/jobs/run-fulfillment.ts",
-    "job:invoice-events": "tsx src/jobs/run-invoice-events.ts"
+    "job:invoice-events": "tsx src/jobs/run-invoice-events.ts",
+    "job:usage-rollup": "tsx src/jobs/run-usage-rollup.ts"
   },
   "dependencies": {
     "@fastify/cookie": "^11.0.1",
