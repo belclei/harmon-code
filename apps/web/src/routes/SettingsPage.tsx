@@ -1,7 +1,6 @@
 // apps/web/src/routes/SettingsPage.tsx
-// BACKLOG.md US-3.13 (dados pessoais/senha/tema) e US-3.14 (zona de risco).
-// US-3.15 (exportação JSON/CSV) fica de fora — bloqueada por decisão de
-// design pendente em ARQUITETURA.md §6.13 (ver BACKLOG.md ~linha 323).
+// BACKLOG.md US-3.13 (dados pessoais/senha/tema), US-3.14 (zona de risco) e
+// US-3.15 (exportação de dados — JSON apenas; CSV segue fora de escopo).
 import {
   Alert,
   Avatar,
@@ -15,7 +14,12 @@ import { useMutation } from "@tanstack/react-query";
 import { Link, Navigate } from "@tanstack/react-router";
 import { type FormEvent, useState } from "react";
 import { useAuth } from "../auth/AuthContext";
-import { ApiError, apiFetchJson, logout } from "../auth/api-client";
+import {
+  ApiError,
+  apiFetchJson,
+  downloadMyDataExport,
+  logout,
+} from "../auth/api-client";
 
 export function SettingsPage() {
   const { isBooting, user, refreshUser } = useAuth();
@@ -34,6 +38,19 @@ export function SettingsPage() {
   const [deleteOpen, setDeleteOpen] = useState(false);
   const [deleteConfirmation, setDeleteConfirmation] = useState("");
   const [deleteError, setDeleteError] = useState<string | null>(null);
+
+  const [exportError, setExportError] = useState<string | null>(null);
+
+  const exportMutation = useMutation({
+    mutationFn: downloadMyDataExport,
+    onError: (error: unknown) => {
+      setExportError(
+        error instanceof ApiError
+          ? error.message
+          : "Não foi possível exportar.",
+      );
+    },
+  });
 
   const personalMutation = useMutation({
     mutationFn: (body: { name?: string; birthDate?: string }) =>
@@ -313,6 +330,21 @@ export function SettingsPage() {
         >
           Zona de risco
         </h2>
+        <Alert
+          variant="info"
+          title="Exportar meus dados"
+          description="Baixa um arquivo JSON com suas contas, cartões, transações, recorrências e conexões."
+          actions={[
+            {
+              label: "Exportar dados",
+              onClick: () => exportMutation.mutate(),
+              variant: "secondary",
+            },
+          ]}
+        />
+        {exportError ? (
+          <Alert variant="error" layout="inline" title={exportError} />
+        ) : null}
         <Alert
           variant="warning"
           title="Apagar conta"

@@ -139,3 +139,22 @@ export async function apiFetchJson<T>(
 export function fetchMe(): Promise<MeResponse> {
   return apiFetchJson<MeResponse>("/me");
 }
+
+/**
+ * US-3.15 — triggers a browser download of the user's data export. Not a
+ * plain `<a href>` because the endpoint needs the auth header that
+ * `apiFetchJson` already knows how to attach (including the one-shot
+ * refresh retry on a stale access token).
+ */
+export async function downloadMyDataExport(): Promise<void> {
+  const data = await apiFetchJson<Record<string, unknown>>("/me/export");
+  const blob = new Blob([JSON.stringify(data, null, 2)], {
+    type: "application/json",
+  });
+  const url = URL.createObjectURL(blob);
+  const anchor = document.createElement("a");
+  anchor.href = url;
+  anchor.download = "harmon-exportacao.json";
+  anchor.click();
+  URL.revokeObjectURL(url);
+}
