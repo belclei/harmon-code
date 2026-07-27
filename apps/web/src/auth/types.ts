@@ -23,6 +23,14 @@ export interface MeResponse {
   flags: Record<string, boolean>;
 }
 
+export interface InstitutionDto {
+  id: string;
+  name: string;
+  compeCode: string;
+  logoAsset: string;
+  logoUrl?: string;
+}
+
 export type AccountType = "checking" | "savings" | "cash";
 
 export interface AccountDto {

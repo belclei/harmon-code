@@ -23,6 +23,7 @@ import type {
   TransactionDto,
   TxKind,
 } from "../auth/types";
+import { reaisToCentsPositive } from "../lib/money";
 
 interface CategoryDto {
   id: string;
@@ -37,14 +38,6 @@ function todayYmd(): string {
   return new Date().toLocaleDateString("en-CA", {
     timeZone: "America/Sao_Paulo",
   });
-}
-
-/** "12,34" / "12.34" → 1234 centavos. Retorna null se não for número válido. */
-function reaisToCents(input: string): number | null {
-  const normalized = input.trim().replace(/\./g, "").replace(",", ".");
-  const value = Number(normalized);
-  if (!Number.isFinite(value) || value <= 0) return null;
-  return Math.round(value * 100);
 }
 
 interface CreatePayload {
@@ -202,7 +195,7 @@ export function TransactionsPage() {
   }
 
   function buildPayload(): CreatePayload | null {
-    const cents = reaisToCents(amount);
+    const cents = reaisToCentsPositive(amount);
     if (!description.trim()) {
       setFormError("Descreva a transação.");
       return null;

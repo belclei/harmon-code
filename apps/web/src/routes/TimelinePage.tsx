@@ -5,9 +5,11 @@
 // /v1/cards (que já expõem isOverLimit/balanceCents/usedCents) — não existe
 // endpoint próprio para eles (ver comentário em timeline/routes.ts no backend).
 import {
+  Alert,
   Badge,
   Button,
   EmptyState,
+  Input,
   Skeleton,
   TimelineAlertBanner,
   TimelineEventRow,
@@ -21,15 +23,16 @@ import {
   useQueryClient,
 } from "@tanstack/react-query";
 import { Link, Navigate } from "@tanstack/react-router";
-import { useMemo, useState } from "react";
+import { type FormEvent, type ReactNode, useMemo, useState } from "react";
 import { useAuth } from "../auth/AuthContext";
-import { apiFetchJson } from "../auth/api-client";
+import { ApiError, apiFetchJson } from "../auth/api-client";
 import type {
   AccountDto,
   CardDto,
   TimelinePageDto,
   TransactionDto,
 } from "../auth/types";
+import { reaisToCentsOrZero } from "../lib/money";
 
 const NAV_LINK = "text-[var(--hm-text-2)] hover:underline";
 
@@ -94,6 +97,87 @@ function TimelineSkeleton() {
   );
 }
 
+function ActivationCardShell({
+  title,
+  description,
+  children,
+}: {
+  title: string;
+  description: string;
+  children?: ReactNode;
+}) {
+  return (
+    <div className="rounded-[var(--hm-r-lg)] border border-[var(--hm-border)] p-4">
+      <h3 className="mb-1 text-base font-semibold text-[var(--hm-text)]">
+        {title}
+      </h3>
+      <p className="mb-3 text-sm text-[var(--hm-text-2)]">{description}</p>
+      {children}
+    </div>
+  );
+}
+
+/** US-4.1's simplest card: no institution, so it's a real inline action
+ * instead of a link out — creating it here rather than pointing at
+ * AccountsPage's form is the one exception, since a wallet is just an
+ * amount, not worth a screen change for. */
+function WalletActivationCard({ onCreated }: { onCreated: () => void }) {
+  const [amount, setAmount] = useState("");
+  const [formError, setFormError] = useState<string | null>(null);
+
+  const createMutation = useMutation({
+    mutationFn: (openingBalanceCents: number) =>
+      apiFetchJson("/accounts", {
+        method: "POST",
+        body: JSON.stringify({ type: "cash", openingBalanceCents }),
+      }),
+    onSuccess: onCreated,
+    onError: (error: unknown) => {
+      setFormError(
+        error instanceof ApiError
+          ? error.message
+          : "Não foi possível registrar a carteira.",
+      );
+    },
+  });
+
+  function onSubmit(event: FormEvent) {
+    event.preventDefault();
+    const cents = reaisToCentsOrZero(amount);
+    if (cents === null) {
+      setFormError("Informe um valor válido.");
+      return;
+    }
+    setFormError(null);
+    createMutation.mutate(cents);
+  }
+
+  return (
+    <ActivationCardShell
+      title="Carteira"
+      description="Quanto de dinheiro físico você tem hoje?"
+    >
+      <form onSubmit={onSubmit} className="flex flex-col gap-2">
+        <Input
+          money
+          label="Valor"
+          affix="R$"
+          value={amount}
+          onChange={(event) => setAmount(event.target.value)}
+        />
+        {formError ? (
+          <Alert variant="error" layout="inline" title={formError} />
+        ) : null}
+        <div>
+          <Button type="submit" loading={createMutation.isPending}>
+            Adicionar
+          </Button>
+        </div>
+      </form>
+    </ActivationCardShell>
+  );
+}
+
 export function TimelinePage() {
   const { isBooting, user } = useAuth();
   const hasSession = !isBooting && Boolean(user);
@@ -140,6 +224,35 @@ export function TimelinePage() {
     queryFn: () => apiFetchJson<CardDto[]>("/cards"),
     enabled: hasSession,
   });
+
+  // US-4.1 — while any of the 3 items is missing, the Timeline shows
+  // activation cards for just the missing ones instead of the feed (never a
+  // linear wizard: each card is independent, any order, and the ones already
+  // done simply aren't rendered). Only once all 3 exist does the real
+  // day-grouped feed take over. Loading is treated as "not pending yet" —
+  // rendering activation cards for a beat while accounts/cards are still in
+  // flight would flash them for a returning user who already has data.
+  const accountsLoaded = accountsQuery.isSuccess;
+  const cardsLoaded = cardsQuery.isSuccess;
+  const hasWallet = (accountsQuery.data ?? []).some((a) => a.type === "cash");
+  const hasBankAccount = (accountsQuery.data ?? []).some(
+    (a) => a.type !== "cash",
+  );
+  const hasCard = (cardsQuery.data ?? []).length > 0;
+  const pendingActivation =
+    accountsLoaded && cardsLoaded
+      ? (
+          [
+            !hasWallet && "wallet",
+            !hasBankAccount && "accounts",
+            !hasCard && "cards",
+          ] as const
+        ).filter((v): v is "wallet" | "accounts" | "cards" => v !== false)
+      : [];
+  const activationDoneCount =
+    accountsLoaded && cardsLoaded
+      ? Number(hasWallet) + Number(hasBankAccount) + Number(hasCard)
+      : 0;
 
   const chips: Chip[] = useMemo(
     () => [
@@ -253,96 +366,141 @@ export function TimelinePage() {
             Timeline
           </h1>
 
-          {chips.length > 0 ? (
-            <div className="mb-4 flex flex-wrap gap-2">
-              {chips.map((chip) => {
-                const hidden = hiddenChipIds.has(chip.id);
-                return (
-                  <button
-                    key={chip.id}
-                    type="button"
-                    onClick={() =>
-                      setHiddenChipIds((prev) => {
-                        const next = new Set(prev);
-                        if (next.has(chip.id)) next.delete(chip.id);
-                        else next.add(chip.id);
-                        return next;
+          {pendingActivation.length > 0 ? (
+            <div>
+              <p className="mb-4 text-sm text-[var(--hm-text-2)]">
+                {activationDoneCount} de 3 concluídos
+              </p>
+              <div className="flex flex-col gap-4">
+                {pendingActivation.includes("wallet") ? (
+                  <WalletActivationCard
+                    onCreated={() =>
+                      queryClient.invalidateQueries({
+                        queryKey: ["accounts"],
                       })
                     }
+                  />
+                ) : null}
+                {pendingActivation.includes("accounts") ? (
+                  <ActivationCardShell
+                    title="Contas"
+                    description="Adicione as contas de banco onde seu dinheiro vive — corrente ou poupança."
                   >
-                    <Badge
-                      kind="status"
-                      status={hidden ? "inactive" : "active"}
-                    >
-                      {chip.label}
-                    </Badge>
-                  </button>
-                );
-              })}
-              {hasActiveFilter ? (
-                <p className="text-xs text-[var(--hm-text-2)]">
-                  {chips.length - hiddenChipIds.size} de {chips.length}{" "}
-                  contas/cartões visíveis
+                    <Link to="/accounts">
+                      <Button type="button">Adicionar contas</Button>
+                    </Link>
+                  </ActivationCardShell>
+                ) : null}
+                {pendingActivation.includes("cards") ? (
+                  <ActivationCardShell
+                    title="Cartões"
+                    description="Adicione seus cartões de crédito — limite, fechamento e vencimento."
+                  >
+                    <Link to="/accounts">
+                      <Button type="button">Adicionar cartões</Button>
+                    </Link>
+                  </ActivationCardShell>
+                ) : null}
+              </div>
+            </div>
+          ) : (
+            <>
+              {chips.length > 0 ? (
+                <div className="mb-4 flex flex-wrap gap-2">
+                  {chips.map((chip) => {
+                    const hidden = hiddenChipIds.has(chip.id);
+                    return (
+                      <button
+                        key={chip.id}
+                        type="button"
+                        onClick={() =>
+                          setHiddenChipIds((prev) => {
+                            const next = new Set(prev);
+                            if (next.has(chip.id)) next.delete(chip.id);
+                            else next.add(chip.id);
+                            return next;
+                          })
+                        }
+                      >
+                        <Badge
+                          kind="status"
+                          status={hidden ? "inactive" : "active"}
+                        >
+                          {chip.label}
+                        </Badge>
+                      </button>
+                    );
+                  })}
+                  {hasActiveFilter ? (
+                    <p className="text-xs text-[var(--hm-text-2)]">
+                      {chips.length - hiddenChipIds.size} de {chips.length}{" "}
+                      contas/cartões visíveis
+                    </p>
+                  ) : null}
+                </div>
+              ) : null}
+
+              {timelineQuery.isLoading ? <TimelineSkeleton /> : null}
+              {timelineQuery.isError ? (
+                <p
+                  role="alert"
+                  className="text-[var(--hm-clay-600)] dark:text-[var(--hm-clay-300)]"
+                >
+                  Não foi possível carregar a timeline.
                 </p>
               ) : null}
-            </div>
-          ) : null}
+              {!timelineQuery.isLoading && days.length === 0 ? (
+                <EmptyState
+                  title="Nada por aqui ainda"
+                  description="Suas contas, cartões e transações vão aparecer aqui conforme você usar o Harmon."
+                />
+              ) : null}
 
-          {timelineQuery.isLoading ? <TimelineSkeleton /> : null}
-          {timelineQuery.isError ? (
-            <p
-              role="alert"
-              className="text-[var(--hm-clay-600)] dark:text-[var(--hm-clay-300)]"
-            >
-              Não foi possível carregar a timeline.
-            </p>
-          ) : null}
-          {!timelineQuery.isLoading && days.length === 0 ? (
-            <EmptyState
-              title="Nada por aqui ainda"
-              description="Suas contas, cartões e transações vão aparecer aqui conforme você usar o Harmon."
-            />
-          ) : null}
+              <div className="flex flex-col gap-6">
+                {days.map((day) => (
+                  <section key={day.date}>
+                    <h2 className="mb-2 text-sm font-semibold uppercase tracking-wide text-[var(--hm-text-2)]">
+                      {day.date}
+                    </h2>
+                    <div className="flex flex-col gap-2">
+                      {day.items.map((item) =>
+                        item.itemType === "transaction" ? (
+                          transactionRowProps(
+                            item.transaction,
+                            scheduledHandlers,
+                          )
+                        ) : (
+                          <TimelineEventRow
+                            key={item.id}
+                            // DomainEvent.type/payload are untyped String/Json
+                            // at the DB boundary (§6 catalog) —
+                            // TimelineEventRow owns the actual type union, so
+                            // this cast is the API contract's boundary, not a
+                            // real type escape.
+                            type={item.type as DomainEventType}
+                            payload={item.payload}
+                            createdAt={item.createdAt}
+                          />
+                        ),
+                      )}
+                    </div>
+                  </section>
+                ))}
+              </div>
 
-          <div className="flex flex-col gap-6">
-            {days.map((day) => (
-              <section key={day.date}>
-                <h2 className="mb-2 text-sm font-semibold uppercase tracking-wide text-[var(--hm-text-2)]">
-                  {day.date}
-                </h2>
-                <div className="flex flex-col gap-2">
-                  {day.items.map((item) =>
-                    item.itemType === "transaction" ? (
-                      transactionRowProps(item.transaction, scheduledHandlers)
-                    ) : (
-                      <TimelineEventRow
-                        key={item.id}
-                        // DomainEvent.type/payload are untyped String/Json at
-                        // the DB boundary (§6 catalog) — TimelineEventRow owns
-                        // the actual type union, so this cast is the API
-                        // contract's boundary, not a real type escape.
-                        type={item.type as DomainEventType}
-                        payload={item.payload}
-                        createdAt={item.createdAt}
-                      />
-                    ),
-                  )}
+              {timelineQuery.hasNextPage ? (
+                <div className="mt-6">
+                  <Button
+                    variant="secondary"
+                    loading={timelineQuery.isFetchingNextPage}
+                    onClick={() => timelineQuery.fetchNextPage()}
+                  >
+                    Carregar mais
+                  </Button>
                 </div>
-              </section>
-            ))}
-          </div>
-
-          {timelineQuery.hasNextPage ? (
-            <div className="mt-6">
-              <Button
-                variant="secondary"
-                loading={timelineQuery.isFetchingNextPage}
-                onClick={() => timelineQuery.fetchNextPage()}
-              >
-                Carregar mais
-              </Button>
-            </div>
-          ) : null}
+              ) : null}
+            </>
+          )}
         </div>
 
         <aside className="flex flex-col gap-4">
