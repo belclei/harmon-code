@@ -10,6 +10,7 @@ import {
   Button,
   EmptyState,
   Input,
+  ProfileIncompleteAlert,
   Skeleton,
   TimelineAlertBanner,
   TimelineEventRow,
@@ -22,7 +23,7 @@ import {
   useQuery,
   useQueryClient,
 } from "@tanstack/react-query";
-import { Link, Navigate } from "@tanstack/react-router";
+import { Link, Navigate, useNavigate } from "@tanstack/react-router";
 import { type FormEvent, type ReactNode, useMemo, useState } from "react";
 import { useAuth } from "../auth/AuthContext";
 import { ApiError, apiFetchJson } from "../auth/api-client";
@@ -180,6 +181,7 @@ function WalletActivationCard({ onCreated }: { onCreated: () => void }) {
 
 export function TimelinePage() {
   const { isBooting, user } = useAuth();
+  const navigate = useNavigate();
   const hasSession = !isBooting && Boolean(user);
   const [hiddenChipIds, setHiddenChipIds] = useState<Set<string>>(new Set());
   const queryClient = useQueryClient();
@@ -361,6 +363,14 @@ export function TimelinePage() {
           </Link>
         ) : null}
       </nav>
+
+      {!user.hasCompleteProfile ? (
+        <div className="mb-6">
+          <ProfileIncompleteAlert
+            onGoToSettings={() => navigate({ to: "/settings" })}
+          />
+        </div>
+      ) : null}
 
       {alertedEntities.length > 0 ? (
         <div className="mb-6">
