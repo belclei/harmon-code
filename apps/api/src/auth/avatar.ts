@@ -41,7 +41,9 @@ export function computeAvatarUrls(user: AvatarSource): string[] {
     case "gravatar":
       return [gravatar, dicebear];
     case "google":
-      return user.googleAvatarUrl ? [user.googleAvatarUrl, dicebear] : [dicebear];
+      return user.googleAvatarUrl
+        ? [user.googleAvatarUrl, dicebear]
+        : [dicebear];
     default:
       return [
         ...(user.googleAvatarUrl ? [user.googleAvatarUrl] : []),

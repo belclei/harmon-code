@@ -82,6 +82,25 @@ export async function login(email: string, password: string): Promise<string> {
   return data.accessToken;
 }
 
+/** `token` is the invite/waitlist token (US-8.3 style) — only required when
+ * the Google identity has no existing account yet; the API rejects new
+ * signups without one (§6.1 invite gate). Login for an existing account
+ * ignores it. */
+export async function loginWithGoogle(
+  idToken: string,
+  token?: string,
+): Promise<string> {
+  const res = await fetch(`${BASE}/auth/google`, {
+    method: "POST",
+    credentials: "include",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ idToken, token }),
+  });
+  const data = await toJsonOrThrow<{ accessToken: string }>(res);
+  setAccessToken(data.accessToken);
+  return data.accessToken;
+}
+
 export async function logout(): Promise<void> {
   const token = getAccessToken();
   try {

@@ -53,3 +53,21 @@ jobs:
         run: npm run boundaries
       - name: Tests
         run: npm test
+
+  deploy:
+    needs: quality
+    if: github.ref == 'refs/heads/master' && github.event_name == 'push'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Deploy to Hostinger VPS
+        uses: appleboy/ssh-action@v1
+        with:
+          host: ${{ secrets.DEPLOY_HOST }}
+          username: ${{ secrets.DEPLOY_USER }}
+          key: ${{ secrets.DEPLOY_SSH_KEY }}
+          script: |
+            set -e
+            cd ${{ secrets.DEPLOY_PATH }}
+            git pull origin master
+            docker compose -f docker-compose.prod.yml --env-file .env.prod up -d --build
+            docker image prune -f

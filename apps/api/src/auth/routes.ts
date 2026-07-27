@@ -5,8 +5,8 @@ import { assertUsable, findByToken } from "../access/tokens.js";
 import { AUTH_INVALID_CREDENTIALS, AUTH_TOKEN_INVALID } from "../errors.js";
 import { resolveFlags } from "../flags/resolve.js";
 import { isUserActive } from "./active-user.js";
-import { computeAvatarUrls } from "./avatar.js";
 import { requireUser } from "./authenticate.js";
+import { computeAvatarUrls } from "./avatar.js";
 import {
   type AccessTokenPayload,
   signAccessToken,
@@ -182,7 +182,9 @@ export async function registerAuthRoutes(
         where: { email: identity.email },
       });
 
-      let user: Awaited<ReturnType<typeof fastify.prisma.user.findUniqueOrThrow>>;
+      let user: Awaited<
+        ReturnType<typeof fastify.prisma.user.findUniqueOrThrow>
+      >;
       if (existing) {
         // Login for an already-registered identity — no invite required.
         // Account-linking-by-email decision unchanged (ARQUITETURA.md §6.1,
@@ -208,7 +210,9 @@ export async function registerAuthRoutes(
         assertUsable(found);
 
         const inviteEmail =
-          found.kind === "waitlist" ? found.entry.email : found.entry.inviteeEmail;
+          found.kind === "waitlist"
+            ? found.entry.email
+            : found.entry.inviteeEmail;
         // The token only proves an approved slot for a specific e-mail — it
         // must match the Google identity actually authenticating, or
         // anyone holding a valid token could register under a different

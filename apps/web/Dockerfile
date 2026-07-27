@@ -5,6 +5,12 @@ FROM node:20-alpine AS build
 
 WORKDIR /app
 
+# Vite bakes VITE_* vars into the bundle at build time, unlike the API's
+# GOOGLE_CLIENT_ID which is read at container runtime — same value, has to
+# reach the app via a build arg instead of just `environment:` in compose.
+ARG VITE_GOOGLE_CLIENT_ID
+ENV VITE_GOOGLE_CLIENT_ID=$VITE_GOOGLE_CLIENT_ID
+
 COPY package.json package-lock.json ./
 COPY apps/api/package.json apps/api/package.json
 COPY apps/web/package.json apps/web/package.json

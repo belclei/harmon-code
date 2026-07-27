@@ -598,7 +598,10 @@ describe("POST /v1/auth/google", () => {
       await server.inject({
         method: "POST",
         url: "/v1/auth/google",
-        payload: { idToken: "fake-token-verified-by-injected-mock", token: raw },
+        payload: {
+          idToken: "fake-token-verified-by-injected-mock",
+          token: raw,
+        },
       });
     }
     const sixth = await server.inject({
