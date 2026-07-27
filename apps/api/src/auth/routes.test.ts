@@ -476,6 +476,7 @@ describe("POST /v1/auth/google", () => {
       googleId: "google-sub-123",
       email: "google-user@harmon.dev",
       name: "Google User",
+      picture: null,
     });
 
     const response = await server.inject({
@@ -497,6 +498,7 @@ describe("POST /v1/auth/google", () => {
       googleId: "google-sub-456",
       email: "google-existing@harmon.dev",
       name: "Google Existing",
+      picture: null,
     });
     await server.inject({
       method: "POST",
@@ -524,6 +526,7 @@ describe("POST /v1/auth/google", () => {
       googleId: "google-sub-ratelimit",
       email: "google-ratelimit@harmon.dev",
       name: "Google Ratelimit",
+      picture: null,
     });
     await server.redis.flushall();
     for (let i = 0; i < 5; i++) {
