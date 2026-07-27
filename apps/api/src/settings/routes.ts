@@ -13,10 +13,12 @@
 import type { FastifyInstance } from "fastify";
 import { z } from "zod";
 import { requireUser } from "../auth/authenticate.js";
+import { computeAvatarUrls } from "../auth/avatar.js";
 import { hashPassword, verifyPassword } from "../auth/password.js";
 import {
   NOT_FOUND,
   SETTINGS_DELETE_CONFIRMATION_MISMATCH,
+  SETTINGS_GOOGLE_NOT_LINKED,
   SETTINGS_PASSWORD_NOT_SET,
   SETTINGS_WRONG_PASSWORD,
 } from "../errors.js";
@@ -34,6 +36,10 @@ const UpdatePersonalBody = z
 
 const UpdateThemeBody = z
   .object({ themePref: z.enum(["light", "dark"]) })
+  .strict();
+
+const UpdateAvatarBody = z
+  .object({ avatarMode: z.enum(["auto", "dicebear", "gravatar", "google"]) })
   .strict();
 
 const ChangePasswordBody = z
@@ -88,6 +94,33 @@ export async function registerSettingsRoutes(
       });
 
       return { themePref: user.themePref };
+    },
+  );
+
+  fastify.patch(
+    "/v1/me/avatar",
+    { schema: { body: UpdateAvatarBody }, preHandler: requireUser(fastify) },
+    async (request) => {
+      // biome-ignore lint/style/noNonNullAssertion: set by requireUser() preHandler, which runs before this handler and throws if auth fails
+      const userId = request.userId!;
+      const body = request.body as z.infer<typeof UpdateAvatarBody>;
+
+      const existing = await fastify.prisma.user.findUniqueOrThrow({
+        where: { id: userId },
+      });
+      if (body.avatarMode === "google" && !existing.googleId) {
+        throw SETTINGS_GOOGLE_NOT_LINKED();
+      }
+
+      const user = await fastify.prisma.user.update({
+        where: { id: userId },
+        data: { avatarMode: body.avatarMode },
+      });
+
+      return {
+        avatarMode: user.avatarMode,
+        avatarUrls: computeAvatarUrls(user),
+      };
     },
   );
 

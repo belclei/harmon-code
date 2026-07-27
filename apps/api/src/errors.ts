@@ -102,6 +102,13 @@ export const SETTINGS_DELETE_CONFIRMATION_MISMATCH = () =>
     400,
     'Digite "APAGAR" para confirmar.',
   );
+// §6.1 — só pode escolher "google" como avatar se a conta tiver googleId.
+export const SETTINGS_GOOGLE_NOT_LINKED = () =>
+  new AppError(
+    "settings.google_not_linked",
+    422,
+    "Esta conta não está vinculada ao Google.",
+  );
 // §7.1 — admin não pode remover a si mesmo do papel se for o último admin.
 export const ADMIN_LAST_ADMIN = () =>
   new AppError(

@@ -87,6 +87,42 @@ describe("PATCH /v1/me/theme", () => {
   });
 });
 
+describe("PATCH /v1/me/avatar", () => {
+  it("updates avatarMode and returns the resolved avatarUrls", async () => {
+    const { userId, accessToken } = await authedUser();
+
+    const response = await server.inject({
+      method: "PATCH",
+      url: "/v1/me/avatar",
+      headers: { authorization: `Bearer ${accessToken}` },
+      payload: { avatarMode: "dicebear" },
+    });
+
+    expect(response.statusCode).toBe(200);
+    expect(response.json().avatarMode).toBe("dicebear");
+    expect(response.json().avatarUrls).toHaveLength(1);
+
+    const user = await server.prisma.user.findUniqueOrThrow({
+      where: { id: userId },
+    });
+    expect(user.avatarMode).toBe("dicebear");
+  });
+
+  it("rejects avatarMode=google when the account has no googleId", async () => {
+    const { accessToken } = await authedUser();
+
+    const response = await server.inject({
+      method: "PATCH",
+      url: "/v1/me/avatar",
+      headers: { authorization: `Bearer ${accessToken}` },
+      payload: { avatarMode: "google" },
+    });
+
+    expect(response.statusCode).toBe(422);
+    expect(response.json().code).toBe("settings.google_not_linked");
+  });
+});
+
 describe("POST /v1/me/password", () => {
   async function authedUserWithPassword(plain: string) {
     const passwordHash = await hashPassword(plain);
