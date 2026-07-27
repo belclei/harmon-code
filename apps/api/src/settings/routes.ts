@@ -1,15 +1,9 @@
 // apps/api/src/settings/routes.ts
-// BACKLOG.md US-3.13 (dados pessoais/senha/tema) e US-3.14 (zona de risco).
-//
-// Escopo deliberadamente menor que ARQUITETURA.md §6.13 lista: o campo
-// "e-mail" fica de fora do PATCH de dados pessoais. A spec diz que trocar
-// o e-mail "dispara fluxo de confirmação (§7.4)", mas §7.4 é a seção de
-// segurança geral — não existe ali (nem em nenhum outro lugar) um contrato
-// concreto para esse fluxo (copy do e-mail de confirmação, prazo do token,
-// se o e-mail antigo é notificado, schema para armazenar o e-mail pendente).
-// Por Definition of Ready (BACKLOG.md §0): "se uma história precisar de uma
-// decisão que os dois não tomaram, é bug — escalar, não inventar aqui".
-// Registrado para decisão do usuário; ver fechamento do Sprint 6b.
+// BACKLOG.md US-3.13 (dados pessoais/senha/tema/avatar) e US-3.14 (zona de
+// risco). E-mail é permanentemente somente-leitura — decisão 26/07/2026
+// (ARQUITETURA.md §6.13): evita o custo de um fluxo de confirmação
+// dedicado para um caso de uso raro; suporte via banco/godmode cobre a
+// exceção. Não há PATCH para este campo, deliberadamente.
 import type { FastifyInstance } from "fastify";
 import { z } from "zod";
 import { requireUser } from "../auth/authenticate.js";

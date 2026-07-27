@@ -198,7 +198,12 @@ export function SettingsPage() {
             value={birthDate}
             onChange={(event) => setBirthDate(event.target.value)}
           />
-          <Input label="E-mail" value={user.email} disabled />
+          <Input
+            label="E-mail"
+            value={user.email}
+            disabled
+            hint="Não é possível trocar o e-mail da conta."
+          />
           {personalError ? (
             <Alert variant="error" layout="inline" title={personalError} />
           ) : null}
