@@ -24,8 +24,10 @@ enum Role {
 }
 
 enum AvatarMode {
+  auto
   dicebear
   gravatar
+  google
 }
 
 enum ThemePref {
@@ -45,9 +47,10 @@ model User {
   birthDate             DateTime   @db.Date
   passwordHash          String? // nulo em conta Google-only (§6.1)
   googleId              String?    @unique
+  googleAvatarUrl       String? // §6.1 (26/07/2026) — foto de perfil do Google, capturada/atualizada a cada login via Google; não é a fonte da verdade permanente (pode ficar defasada se o usuário nunca mais logar via Google), só um cache de exibição
   role                  Role       @default(user)
   isBetaTester          Boolean    @default(false)
-  avatarMode            AvatarMode @default(dicebear)
+  avatarMode            AvatarMode @default(auto)
   themePref             ThemePref  @default(light)
   status                UserStatus @default(active)
   onboardingCompletedAt DateTime?
