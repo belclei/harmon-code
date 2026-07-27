@@ -32,6 +32,12 @@ export function AccountsPage() {
     <div className="mx-auto max-w-4xl px-4 py-8">
       <nav className="mb-6 flex gap-4 text-sm">
         <Link
+          to="/timeline"
+          className="text-[var(--hm-text-2)] hover:underline"
+        >
+          Timeline
+        </Link>
+        <Link
           to="/dashboard"
           className="text-[var(--hm-text-2)] hover:underline"
         >

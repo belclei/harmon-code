@@ -39,6 +39,49 @@ async function createInstitution() {
   });
 }
 
+describe("GET /v1/cards", () => {
+  it("reflects real usedCents/isOverLimit from the card's transactions (Sprint 10 fix — used to always be usedCents=0)", async () => {
+    const { accessToken, userId } = await authedUser();
+    const institution = await createInstitution();
+    const card = await server.prisma.creditCard.create({
+      data: {
+        userId,
+        institutionId: institution.id,
+        limitCents: 10_000,
+        closingDay: 10,
+        dueDay: 20,
+      },
+    });
+    // Dated "today" (not a fixed past date, unlike the /invoice tests below
+    // which pin an explicit `ref=YYYY-MM`) so it always lands inside
+    // cardInvoiceStatus's real "currently open" period regardless of when
+    // this test runs.
+    await server.prisma.transaction.create({
+      data: {
+        userId,
+        creditCardId: card.id,
+        kind: "expense",
+        description: "Acima do limite",
+        transactionDate: new Date(),
+        amountCents: 15_000,
+        amountBRLCents: 15_000,
+      },
+    });
+
+    const response = await server.inject({
+      method: "GET",
+      url: "/v1/cards",
+      headers: { authorization: `Bearer ${accessToken}` },
+    });
+
+    expect(response.statusCode).toBe(200);
+    const body = response.json();
+    expect(body).toHaveLength(1);
+    expect(body[0].usedCents).toBe(15_000);
+    expect(body[0].isOverLimit).toBe(true);
+  });
+});
+
 describe("POST /v1/cards", () => {
   it("accepts closingDay=31 without clamping at creation time", async () => {
     const { accessToken } = await authedUser();

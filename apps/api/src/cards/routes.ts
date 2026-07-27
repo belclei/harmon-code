@@ -55,6 +55,19 @@ export async function registerCardRoutes(
         where: { id: { in: [...new Set(cards.map((c) => c.institutionId))] } },
       });
       const institutionById = new Map(institutions.map((i) => [i.id, i]));
+      // usedCents/isOverLimit derive from this card's transactions (§2.1,
+      // same pattern as accounts/routes.ts) — batch-fetch and group by
+      // creditCardId instead of a per-card query.
+      const txs = await fastify.prisma.transaction.findMany({
+        where: { userId, creditCardId: { not: null } },
+      });
+      const txByCard = new Map<string, typeof txs>();
+      for (const tx of txs) {
+        if (!tx.creditCardId) continue;
+        const list = txByCard.get(tx.creditCardId) ?? [];
+        list.push(tx);
+        txByCard.set(tx.creditCardId, list);
+      }
       return cards.map((card) => {
         const institution = institutionById.get(card.institutionId);
         if (!institution) {
@@ -63,7 +76,7 @@ export async function registerCardRoutes(
           // integrity issue, not a client-facing "not found".
           throw INTERNAL();
         }
-        return toCardResponse(card, institution);
+        return toCardResponse(card, institution, txByCard.get(card.id) ?? []);
       });
     },
   );
@@ -164,7 +177,10 @@ export async function registerCardRoutes(
       if (!institution) {
         throw INTERNAL();
       }
-      return toCardResponse(card, institution);
+      const transactions = await fastify.prisma.transaction.findMany({
+        where: { creditCardId: card.id },
+      });
+      return toCardResponse(card, institution, transactions);
     },
   );
 

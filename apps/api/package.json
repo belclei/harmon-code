@@ -8,7 +8,8 @@
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
     "dev": "tsx watch src/index.ts",
-    "job:fulfillment": "tsx src/jobs/run-fulfillment.ts"
+    "job:fulfillment": "tsx src/jobs/run-fulfillment.ts",
+    "job:invoice-events": "tsx src/jobs/run-invoice-events.ts"
   },
   "dependencies": {
     "@fastify/cookie": "^11.0.1",

@@ -16,6 +16,7 @@ import { DashboardPage } from "./routes/DashboardPage";
 import { LoginPage } from "./routes/LoginPage";
 import { RecurringPage } from "./routes/RecurringPage";
 import { SettingsPage } from "./routes/SettingsPage";
+import { TimelinePage } from "./routes/TimelinePage";
 import { TransactionsPage } from "./routes/TransactionsPage";
 
 const rootRoute = createRootRoute({
@@ -23,18 +24,22 @@ const rootRoute = createRootRoute({
 });
 
 // The real home is the Timeline (§6.12) — it's both the activation surface
-// when empty (§6.11) and the history when full; the dashboard is the separate
-// "Análise" screen reached from the Timeline's side panel (§6.9). The Timeline
-// doesn't exist yet, so "/" lands on the dashboard provisionally; repoint this
-// to the Timeline route once it's built (Sprint 10, pulled partly into Sprint 7
-// for the activation cards). The target itself redirects to /login when there's
-// no session.
+// when empty (§6.11, arriving Sprint 7) and the history when full; the
+// dashboard is the separate "Análise" screen reached from the Timeline's
+// side panel (§6.9). Built in Sprint 10 — "/" now lands here instead of
+// /dashboard. The target itself redirects to /login when there's no session.
 const indexRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: "/",
   beforeLoad: () => {
-    throw redirect({ to: "/dashboard" });
+    throw redirect({ to: "/timeline" });
   },
+});
+
+const timelineRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: "/timeline",
+  component: TimelinePage,
 });
 
 const loginRoute = createRoute({
@@ -76,6 +81,7 @@ const settingsRoute = createRoute({
 const routeTree = rootRoute.addChildren([
   indexRoute,
   loginRoute,
+  timelineRoute,
   dashboardRoute,
   accountsRoute,
   transactionsRoute,

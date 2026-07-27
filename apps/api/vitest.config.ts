@@ -11,6 +11,18 @@ export default defineConfig({
     // teardown wipe fixtures another file is mid-test with. Sequential file
     // execution is the correct fix, not a workaround: these are integration
     // tests against shared external state, not pure unit tests.
+    //
+    // `fileParallelism: false` alone was not enough (found Sprint 10, growing
+    // the suite past ~180 tests made the flakiness reproducible): Vitest's
+    // default `forks` pool still spawns multiple worker processes and only
+    // schedules *files* onto them one at a time, which still let two worker
+    // processes hold live connections into the same shared Postgres/Redis
+    // concurrently across a file boundary. Pinning to a single fork removes
+    // the worker-process boundary entirely — confirmed fixing an
+    // intermittent ~15% test failure rate (500s/401s/wrong-array-length,
+    // never the same tests twice) that individual per-file runs never showed.
     fileParallelism: false,
+    pool: "forks",
+    poolOptions: { forks: { singleFork: true } },
   },
 });

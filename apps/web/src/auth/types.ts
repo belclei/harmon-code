@@ -98,5 +98,31 @@ export interface CardDto {
   currency: string;
   isActive: boolean;
   usedCents: number;
+  isOverLimit: boolean;
   invoiceStatus: InvoiceStatus;
+}
+
+export interface TimelineEventDto {
+  itemType: "event";
+  id: string;
+  type: string;
+  payload: Record<string, unknown>;
+  createdAt: string;
+}
+
+export interface TimelineTransactionDto {
+  itemType: "transaction";
+  transaction: TransactionDto;
+}
+
+export type TimelineItemDto = TimelineEventDto | TimelineTransactionDto;
+
+export interface TimelineDayDto {
+  date: string;
+  items: TimelineItemDto[];
+}
+
+export interface TimelinePageDto {
+  days: TimelineDayDto[];
+  nextCursor: string | null;
 }

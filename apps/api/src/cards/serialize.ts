@@ -1,5 +1,5 @@
 // apps/api/src/cards/serialize.ts
-import type { CreditCard, Institution } from "@harmon/db";
+import type { CreditCard, Institution, Transaction } from "@harmon/db";
 import { institutionLogoUrl } from "../institutions/logo-url.js";
 import { cardInvoiceStatus } from "./invoice-status.js";
 
@@ -16,16 +16,23 @@ export interface CardResponse {
   currency: string;
   isActive: boolean;
   usedCents: number;
+  isOverLimit: boolean;
   invoiceStatus: "open" | "closed_awaiting_payment";
 }
 
-// Sprint 4 has no transaction-creation endpoint yet (US-3.5, Sprint 5), so
-// `transactions` is always [] today for freshly-listed cards — usedCents will
-// be 0 until then. Wired to the real core function now so it's correct the
-// moment transactions exist.
+// `transactions` must be pre-scoped to this card by the caller (§6.1's
+// ownership rule) — mirrors accounts/serialize.ts's toAccountResponse.
+// Bug fixed here (Sprint 10, US-6.1): every caller in cards/routes.ts used
+// to call this with no transactions argument at all, so `usedCents` was
+// silently 0 for every card since the moment transactions started existing
+// in Sprint 5 — this file's own outdated comment predicted the wiring would
+// happen "the moment transactions exist" and nobody came back to do it.
+// isOverLimit is new in this sprint: the Timeline alert banner (§6.12) needs
+// it server-side the same way accounts already expose it.
 export function toCardResponse(
   card: CreditCard,
   institution: Institution,
+  transactions: Transaction[] = [],
 ): CardResponse {
   const { usedCents, invoiceStatus } = cardInvoiceStatus(
     {
@@ -35,7 +42,14 @@ export function toCardResponse(
       autoDebitAccountId: card.autoDebitAccountId,
       isActive: card.isActive,
     },
-    [],
+    transactions.map((tx) => ({
+      id: tx.id,
+      kind: tx.kind,
+      amountBRLCents: tx.amountBRLCents,
+      transactionDate: tx.transactionDate,
+      isScheduled: tx.isScheduled,
+      recurringTransactionId: tx.recurringTransactionId,
+    })),
   );
 
   return {
@@ -51,6 +65,7 @@ export function toCardResponse(
     currency: card.currency,
     isActive: card.isActive,
     usedCents,
+    isOverLimit: usedCents > card.limitCents,
     invoiceStatus,
   };
 }

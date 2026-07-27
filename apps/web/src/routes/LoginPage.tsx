@@ -21,7 +21,9 @@ export function LoginPage() {
     setFieldErrors({});
     try {
       await login(email, password);
-      await navigate({ to: "/accounts" });
+      // Timeline is the real home (§6.12) — both the activation surface
+      // when empty and the financial history when full; not /accounts.
+      await navigate({ to: "/timeline" });
     } catch (error) {
       if (error instanceof ApiError) {
         if (error.details?.length) {

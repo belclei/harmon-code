@@ -45,6 +45,9 @@ export function DashboardPage() {
   return (
     <div className="mx-auto max-w-4xl px-4 py-8">
       <nav className="mb-6 flex gap-4 text-sm">
+        <Link to="/timeline" className={NAV_LINK}>
+          Timeline
+        </Link>
         <span className="font-semibold text-[var(--hm-text)]">Dashboard</span>
         <Link to="/accounts" className={NAV_LINK}>
           Contas
