@@ -241,4 +241,40 @@ export async function registerSettingsRoutes(
       return { ok: true };
     },
   );
+
+  fastify.get(
+    "/v1/me/export",
+    { preHandler: requireUser(fastify) },
+    async (request) => {
+      // biome-ignore lint/style/noNonNullAssertion: set by requireUser() preHandler, which runs before this handler and throws if auth fails
+      const userId = request.userId!;
+
+      const [
+        accounts,
+        cards,
+        transactions,
+        recurringTransactions,
+        connections,
+      ] = await Promise.all([
+        fastify.prisma.account.findMany({ where: { userId } }),
+        fastify.prisma.creditCard.findMany({ where: { userId } }),
+        fastify.prisma.transaction.findMany({ where: { userId } }),
+        fastify.prisma.recurringTransaction.findMany({ where: { userId } }),
+        fastify.prisma.userConnection.findMany({
+          where: {
+            OR: [{ requesterUserId: userId }, { addresseeUserId: userId }],
+          },
+        }),
+      ]);
+
+      return {
+        exportedAt: new Date().toISOString(),
+        accounts,
+        cards,
+        transactions,
+        recurringTransactions,
+        connections,
+      };
+    },
+  );
 }

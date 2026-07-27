@@ -314,3 +314,62 @@ describe("POST /v1/me/delete", () => {
     void userId;
   });
 });
+
+describe("GET /v1/me/export", () => {
+  it("returns the user's accounts, cards, transactions, recurring transactions, and connections as JSON", async () => {
+    const { userId, accessToken } = await authedUser();
+    const account = await server.prisma.account.create({
+      data: { userId, type: "cash", currency: "BRL" },
+    });
+    await server.prisma.transaction.create({
+      data: {
+        userId,
+        accountId: account.id,
+        kind: "expense",
+        description: "Mercado",
+        transactionDate: new Date("2026-07-01"),
+        amountCents: 5000,
+        amountBRLCents: 5000,
+      },
+    });
+
+    const response = await server.inject({
+      method: "GET",
+      url: "/v1/me/export",
+      headers: { authorization: `Bearer ${accessToken}` },
+    });
+
+    expect(response.statusCode).toBe(200);
+    const body = response.json();
+    expect(body.accounts).toHaveLength(1);
+    expect(body.transactions).toHaveLength(1);
+    expect(body.cards).toEqual([]);
+    expect(body.recurringTransactions).toEqual([]);
+    expect(body.connections).toEqual([]);
+    expect(typeof body.exportedAt).toBe("string");
+  });
+
+  it("requires authentication", async () => {
+    const response = await server.inject({
+      method: "GET",
+      url: "/v1/me/export",
+    });
+    expect(response.statusCode).toBe(400);
+  });
+
+  it("only returns the requesting user's own data", async () => {
+    const { accessToken } = await authedUser();
+    const other = await authedUser();
+    await server.prisma.account.create({
+      data: { userId: other.userId, type: "cash", currency: "BRL" },
+    });
+
+    const response = await server.inject({
+      method: "GET",
+      url: "/v1/me/export",
+      headers: { authorization: `Bearer ${accessToken}` },
+    });
+
+    expect(response.json().accounts).toEqual([]);
+  });
+});
