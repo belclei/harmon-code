@@ -16,15 +16,14 @@ import { z } from "zod";
 import { signAccessToken } from "../auth/jwt.js";
 import { hashPassword } from "../auth/password.js";
 import {
-  hashToken,
   issueRefreshTokenFamily,
   setRefreshCookie,
 } from "../auth/refresh-tokens.js";
 import {
-  AUTH_TOKEN_EXPIRED,
   AUTH_TOKEN_INVALID,
   VALIDATION_FAILED,
 } from "../errors.js";
+import { findByToken, assertUsable } from "./tokens.js";
 
 const WaitlistBody = z
   .object({
@@ -52,30 +51,6 @@ const RegisterBody = z
     password: z.string().min(8),
   })
   .strict();
-
-async function findByToken(fastify: FastifyInstance, token: string) {
-  const tokenHash = hashToken(token);
-  const waitlist = await fastify.prisma.waitlistEntry.findFirst({
-    where: { registrationTokenHash: tokenHash },
-  });
-  if (waitlist) return { kind: "waitlist" as const, entry: waitlist };
-  const invite = await fastify.prisma.invite.findFirst({
-    where: { registrationTokenHash: tokenHash },
-  });
-  if (invite) return { kind: "invite" as const, entry: invite };
-  return null;
-}
-
-function assertUsable(
-  found: NonNullable<Awaited<ReturnType<typeof findByToken>>>,
-): void {
-  if (found.entry.status !== "approved") {
-    throw AUTH_TOKEN_INVALID();
-  }
-  if (!found.entry.tokenExpiresAt || found.entry.tokenExpiresAt < new Date()) {
-    throw AUTH_TOKEN_EXPIRED();
-  }
-}
 
 export async function registerAccessRoutes(
   fastify: FastifyInstance,
