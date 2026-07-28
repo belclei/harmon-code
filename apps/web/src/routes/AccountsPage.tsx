@@ -11,6 +11,7 @@ import {
   Button,
   CreditCardCard,
   Dialog,
+  formatMoney,
   Input,
   Segmented,
   Select,
@@ -33,6 +34,15 @@ const ACCOUNT_TYPE_OPTIONS = [
   { value: "savings", label: "Poupança" },
   { value: "cash", label: "Carteira" },
 ];
+
+function resolveAutoDebitLabel(
+  card: CardDto,
+  accountsById: Map<string, AccountDto>,
+): string | undefined {
+  if (!card.autoDebitAccountId) return undefined;
+  const account = accountsById.get(card.autoDebitAccountId);
+  return account ? account.name || account.institutionName : undefined;
+}
 
 function NewAccountDialog({
   open,
@@ -329,13 +339,25 @@ export function AccountsPage() {
   const invalidateCards = () =>
     queryClient.invalidateQueries({ queryKey: ["cards"] });
 
+  const accountsById = new Map(
+    (accountsQuery.data ?? []).map((account) => [account.id, account]),
+  );
+  const netBalanceCents = (accountsQuery.data ?? [])
+    .filter((account) => account.isActive)
+    .reduce((sum, account) => sum + account.balanceCents, 0);
+
   return (
     <div className="mx-auto max-w-4xl px-4 py-8">
-      <div className="mb-6 flex items-center justify-between">
-        <h1 className="text-xl font-bold text-[var(--hm-text)]">
-          Contas e cartões
-        </h1>
-        <div className="flex gap-2">
+      <div className="mb-6 flex items-start justify-between gap-6">
+        <div>
+          <p className="m-0 mb-2 text-[.6875rem] tracking-[.16em] text-[var(--hm-text-2)] uppercase">
+            Onde seu dinheiro está
+          </p>
+          <h1 className="m-0 text-xl font-bold text-[var(--hm-text)]">
+            Contas e cartões
+          </h1>
+        </div>
+        <div className="flex flex-none gap-2">
           <Button type="button" onClick={() => setAccountDialogOpen(true)}>
             Nova conta
           </Button>
@@ -359,9 +381,9 @@ export function AccountsPage() {
         onCreated={invalidateCards}
       />
 
-      <section className="mb-8">
-        <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-[var(--hm-text-2)]">
-          Contas
+      <section className="mb-9">
+        <h2 className="mb-3.5 text-[.6875rem] tracking-[.16em] text-[var(--hm-text-2)] uppercase">
+          Contas · saldo líquido {formatMoney(netBalanceCents)}
         </h2>
         {accountsQuery.isLoading ? (
           <p className="text-[var(--hm-text-2)]">Carregando…</p>
@@ -375,7 +397,7 @@ export function AccountsPage() {
           </p>
         ) : null}
         {accountsQuery.data ? (
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          <div className="grid gap-3">
             {accountsQuery.data.map((account) => (
               <AccountCard
                 key={account.id}
@@ -384,6 +406,7 @@ export function AccountsPage() {
                 name={account.name}
                 type={account.type}
                 balanceCents={account.balanceCents}
+                overdraftLimitCents={account.overdraftLimitCents}
                 isActive={account.isActive}
                 overLimit={account.isOverLimit}
               />
@@ -393,8 +416,8 @@ export function AccountsPage() {
       </section>
 
       <section>
-        <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-[var(--hm-text-2)]">
-          Cartões
+        <h2 className="mb-3.5 text-[.6875rem] tracking-[.16em] text-[var(--hm-text-2)] uppercase">
+          Cartões de crédito
         </h2>
         {cardsQuery.isLoading ? (
           <p className="text-[var(--hm-text-2)]">Carregando…</p>
@@ -408,7 +431,7 @@ export function AccountsPage() {
           </p>
         ) : null}
         {cardsQuery.data ? (
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          <div className="grid gap-3">
             {cardsQuery.data.map((card) => (
               <CreditCardCard
                 key={card.id}
@@ -418,6 +441,12 @@ export function AccountsPage() {
                 usedCents={card.usedCents}
                 limitCents={card.limitCents}
                 invoiceStatus={card.invoiceStatus}
+                closingDay={card.closingDay}
+                dueDay={card.dueDay}
+                autoDebitAccountLabel={resolveAutoDebitLabel(
+                  card,
+                  accountsById,
+                )}
               />
             ))}
           </div>
