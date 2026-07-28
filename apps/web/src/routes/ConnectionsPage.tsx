@@ -15,7 +15,7 @@ import {
   formatMoney,
 } from "@harmon/ui";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { Link, Navigate } from "@tanstack/react-router";
+import { Navigate } from "@tanstack/react-router";
 import { type FormEvent, useState } from "react";
 import { useAuth } from "../auth/AuthContext";
 import { ApiError, apiFetchJson } from "../auth/api-client";
@@ -27,8 +27,6 @@ import type {
   PortadorPendingDto,
   ShareDto,
 } from "../auth/types";
-
-const NAV_LINK = "text-[var(--hm-text-2)] hover:underline";
 
 function settlementCopy(cents: number, counterpartName: string): string {
   if (cents === 0) return `Contas em dia com ${counterpartName}`;
@@ -528,22 +526,6 @@ export function ConnectionsPage() {
 
   return (
     <div className="mx-auto max-w-4xl px-4 py-8">
-      <nav className="mb-6 flex gap-4 text-sm">
-        <Link to="/timeline" className={NAV_LINK}>
-          Timeline
-        </Link>
-        <Link to="/dashboard" className={NAV_LINK}>
-          Análise
-        </Link>
-        <Link to="/accounts" className={NAV_LINK}>
-          Contas
-        </Link>
-        <span className="font-semibold text-[var(--hm-text)]">Conexões</span>
-        <Link to="/settings" className={NAV_LINK}>
-          Configurações
-        </Link>
-      </nav>
-
       <h1 className="mb-6 text-xl font-bold text-[var(--hm-text)]">Conexões</h1>
 
       <section className="mb-8">
