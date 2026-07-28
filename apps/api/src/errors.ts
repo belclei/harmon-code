@@ -146,3 +146,13 @@ export const AUTH_TOKEN_EXPIRED = () =>
     410,
     "Seu link de cadastro expirou. Solicite o reenvio.",
   );
+// BACKLOG.md §13 "Portador — aceite duplicado": a original mantém
+// portadorUserId indefinidamente por design (§1.4 emenda) — sem este guard,
+// aceitar a mesma atribuição duas vezes criava dois espelhos (dinheiro
+// duplicado na conta do assignee).
+export const PORTADOR_ALREADY_ACCEPTED = () =>
+  new AppError(
+    "portador.already_accepted",
+    409,
+    "Esta atribuição já foi aceita.",
+  );
