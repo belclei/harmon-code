@@ -11,6 +11,7 @@ import {
   createRouter,
   redirect,
 } from "@tanstack/react-router";
+import { AppLayout } from "./components/AppLayout";
 import { AccountsPage } from "./routes/AccountsPage";
 import { AdminPage } from "./routes/AdminPage";
 import { ConnectionsPage } from "./routes/ConnectionsPage";
@@ -40,8 +41,17 @@ const indexRoute = createRoute({
   },
 });
 
-const timelineRoute = createRoute({
+// Wraps the sidebar shell (design_handoff_harmon README "Shell do app")
+// around every route that needs it. Login/register/waitlist stay outside —
+// full-screen, no nav — per the same doc's screen list.
+const appLayoutRoute = createRoute({
   getParentRoute: () => rootRoute,
+  id: "app-layout",
+  component: AppLayout,
+});
+
+const timelineRoute = createRoute({
+  getParentRoute: () => appLayoutRoute,
   path: "/timeline",
   component: TimelinePage,
 });
@@ -53,17 +63,19 @@ const loginRoute = createRoute({
 });
 
 const dashboardRoute = createRoute({
-  getParentRoute: () => rootRoute,
+  getParentRoute: () => appLayoutRoute,
   path: "/dashboard",
   component: DashboardPage,
 });
 
 const accountsRoute = createRoute({
-  getParentRoute: () => rootRoute,
+  getParentRoute: () => appLayoutRoute,
   path: "/accounts",
   component: AccountsPage,
 });
 
+// Not part of the sidebar's nav (superseded by Timeline, per US-6.1) — kept
+// reachable by direct URL but outside AppLayout, standalone like login/register.
 const transactionsRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: "/transactions",
@@ -71,25 +83,25 @@ const transactionsRoute = createRoute({
 });
 
 const recurringRoute = createRoute({
-  getParentRoute: () => rootRoute,
+  getParentRoute: () => appLayoutRoute,
   path: "/recurring",
   component: RecurringPage,
 });
 
 const settingsRoute = createRoute({
-  getParentRoute: () => rootRoute,
+  getParentRoute: () => appLayoutRoute,
   path: "/settings",
   component: SettingsPage,
 });
 
 const connectionsRoute = createRoute({
-  getParentRoute: () => rootRoute,
+  getParentRoute: () => appLayoutRoute,
   path: "/connections",
   component: ConnectionsPage,
 });
 
 const adminRoute = createRoute({
-  getParentRoute: () => rootRoute,
+  getParentRoute: () => appLayoutRoute,
   path: "/admin",
   component: AdminPage,
 });
@@ -109,16 +121,18 @@ const registerRoute = createRoute({
 const routeTree = rootRoute.addChildren([
   indexRoute,
   loginRoute,
-  timelineRoute,
-  dashboardRoute,
-  accountsRoute,
   transactionsRoute,
-  recurringRoute,
-  settingsRoute,
-  connectionsRoute,
-  adminRoute,
   waitlistRoute,
   registerRoute,
+  appLayoutRoute.addChildren([
+    timelineRoute,
+    dashboardRoute,
+    accountsRoute,
+    recurringRoute,
+    settingsRoute,
+    connectionsRoute,
+    adminRoute,
+  ]),
 ]);
 
 export const router = createRouter({ routeTree });

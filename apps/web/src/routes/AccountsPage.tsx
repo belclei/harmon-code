@@ -10,12 +10,13 @@ import {
   Alert,
   Button,
   CreditCardCard,
+  Dialog,
   Input,
   Segmented,
   Select,
 } from "@harmon/ui";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { Link, Navigate } from "@tanstack/react-router";
+import { Navigate } from "@tanstack/react-router";
 import { type FormEvent, useState } from "react";
 import { useAuth } from "../auth/AuthContext";
 import { ApiError, apiFetchJson } from "../auth/api-client";
@@ -33,10 +34,14 @@ const ACCOUNT_TYPE_OPTIONS = [
   { value: "cash", label: "Carteira" },
 ];
 
-function NewAccountForm({
+function NewAccountDialog({
+  open,
+  onClose,
   institutions,
   onCreated,
 }: {
+  open: boolean;
+  onClose: () => void;
   institutions: InstitutionDto[];
   onCreated: () => void;
 }) {
@@ -60,6 +65,7 @@ function NewAccountForm({
       setInstitutionId(null);
       setFormError(null);
       onCreated();
+      onClose();
     },
     onError: (error: unknown) => {
       setFormError(
@@ -94,62 +100,68 @@ function NewAccountForm({
   }
 
   return (
-    <form
-      onSubmit={onSubmit}
-      className="mb-6 grid gap-3 rounded-[var(--hm-r-lg)] border border-[var(--hm-border)] p-4"
-    >
-      <Segmented
-        label="Tipo"
-        options={ACCOUNT_TYPE_OPTIONS}
-        value={type}
-        onChange={(value) => setType(value as AccountType)}
-      />
-      {type !== "cash" ? (
-        <Select
-          label="Instituição"
-          options={institutions.map((i) => ({ value: i.id, label: i.name }))}
-          value={institutionId}
-          onChange={setInstitutionId}
+    <Dialog open={open} onClose={onClose} title="Nova conta">
+      <form onSubmit={onSubmit} className="grid gap-3">
+        <Segmented
+          label="Tipo"
+          options={ACCOUNT_TYPE_OPTIONS}
+          value={type}
+          onChange={(value) => setType(value as AccountType)}
         />
-      ) : null}
-      <Input
-        label="Apelido (opcional)"
-        value={name}
-        onChange={(event) => setName(event.target.value)}
-      />
-      <Input
-        money
-        label="Saldo inicial"
-        affix="R$"
-        value={openingBalance}
-        onChange={(event) => setOpeningBalance(event.target.value)}
-      />
-      {type !== "cash" ? (
+        {type !== "cash" ? (
+          <Select
+            label="Instituição"
+            options={institutions.map((i) => ({ value: i.id, label: i.name }))}
+            value={institutionId}
+            onChange={setInstitutionId}
+          />
+        ) : null}
+        <Input
+          label="Apelido (opcional)"
+          value={name}
+          onChange={(event) => setName(event.target.value)}
+        />
         <Input
           money
-          label="Limite de cheque especial"
+          label="Saldo inicial"
           affix="R$"
-          value={overdraftLimit}
-          onChange={(event) => setOverdraftLimit(event.target.value)}
+          value={openingBalance}
+          onChange={(event) => setOpeningBalance(event.target.value)}
         />
-      ) : null}
-      {formError ? (
-        <Alert variant="error" layout="inline" title={formError} />
-      ) : null}
-      <div>
-        <Button type="submit" loading={createMutation.isPending}>
-          Adicionar conta
-        </Button>
-      </div>
-    </form>
+        {type !== "cash" ? (
+          <Input
+            money
+            label="Limite de cheque especial"
+            affix="R$"
+            value={overdraftLimit}
+            onChange={(event) => setOverdraftLimit(event.target.value)}
+          />
+        ) : null}
+        {formError ? (
+          <Alert variant="error" layout="inline" title={formError} />
+        ) : null}
+        <div className="flex justify-end gap-2.5">
+          <Button type="button" variant="secondary" onClick={onClose}>
+            Cancelar
+          </Button>
+          <Button type="submit" loading={createMutation.isPending}>
+            Adicionar conta
+          </Button>
+        </div>
+      </form>
+    </Dialog>
   );
 }
 
-function NewCardForm({
+function NewCardDialog({
+  open,
+  onClose,
   institutions,
   accounts,
   onCreated,
 }: {
+  open: boolean;
+  onClose: () => void;
   institutions: InstitutionDto[];
   accounts: AccountDto[];
   onCreated: () => void;
@@ -177,6 +189,7 @@ function NewCardForm({
       setAutoDebitAccountId(null);
       setFormError(null);
       onCreated();
+      onClose();
     },
     onError: (error: unknown) => {
       setFormError(
@@ -220,62 +233,64 @@ function NewCardForm({
   }
 
   return (
-    <form
-      onSubmit={onSubmit}
-      className="mb-6 grid gap-3 rounded-[var(--hm-r-lg)] border border-[var(--hm-border)] p-4"
-    >
-      <Select
-        label="Instituição"
-        options={institutions.map((i) => ({ value: i.id, label: i.name }))}
-        value={institutionId}
-        onChange={setInstitutionId}
-      />
-      <Input
-        label="Apelido (opcional)"
-        value={name}
-        onChange={(event) => setName(event.target.value)}
-      />
-      <Input
-        money
-        label="Limite"
-        affix="R$"
-        value={limit}
-        onChange={(event) => setLimit(event.target.value)}
-      />
-      <div className="grid grid-cols-2 gap-3">
-        <Input
-          type="number"
-          label="Dia de fechamento"
-          value={closingDay}
-          onChange={(event) => setClosingDay(event.target.value)}
-        />
-        <Input
-          type="number"
-          label="Dia de vencimento"
-          value={dueDay}
-          onChange={(event) => setDueDay(event.target.value)}
-        />
-      </div>
-      {accounts.length > 0 ? (
+    <Dialog open={open} onClose={onClose} title="Novo cartão">
+      <form onSubmit={onSubmit} className="grid gap-3">
         <Select
-          label="Débito automático (opcional)"
-          options={accounts.map((a) => ({
-            value: a.id,
-            label: a.name || a.institutionName,
-          }))}
-          value={autoDebitAccountId}
-          onChange={setAutoDebitAccountId}
+          label="Instituição"
+          options={institutions.map((i) => ({ value: i.id, label: i.name }))}
+          value={institutionId}
+          onChange={setInstitutionId}
         />
-      ) : null}
-      {formError ? (
-        <Alert variant="error" layout="inline" title={formError} />
-      ) : null}
-      <div>
-        <Button type="submit" loading={createMutation.isPending}>
-          Adicionar cartão
-        </Button>
-      </div>
-    </form>
+        <Input
+          label="Apelido (opcional)"
+          value={name}
+          onChange={(event) => setName(event.target.value)}
+        />
+        <Input
+          money
+          label="Limite"
+          affix="R$"
+          value={limit}
+          onChange={(event) => setLimit(event.target.value)}
+        />
+        <div className="grid grid-cols-2 gap-3">
+          <Input
+            type="number"
+            label="Dia de fechamento"
+            value={closingDay}
+            onChange={(event) => setClosingDay(event.target.value)}
+          />
+          <Input
+            type="number"
+            label="Dia de vencimento"
+            value={dueDay}
+            onChange={(event) => setDueDay(event.target.value)}
+          />
+        </div>
+        {accounts.length > 0 ? (
+          <Select
+            label="Débito automático (opcional)"
+            options={accounts.map((a) => ({
+              value: a.id,
+              label: a.name || a.institutionName,
+            }))}
+            value={autoDebitAccountId}
+            onChange={setAutoDebitAccountId}
+          />
+        ) : null}
+        {formError ? (
+          <Alert variant="error" layout="inline" title={formError} />
+        ) : null}
+        <div className="flex justify-end gap-2.5">
+          <Button type="button" variant="secondary" onClick={onClose}>
+            Cancelar
+          </Button>
+          <Button type="submit" loading={createMutation.isPending}>
+            Adicionar cartão
+          </Button>
+        </div>
+      </form>
+    </Dialog>
   );
 }
 
@@ -283,6 +298,8 @@ export function AccountsPage() {
   const { isBooting, user } = useAuth();
   const hasSession = !isBooting && Boolean(user);
   const queryClient = useQueryClient();
+  const [accountDialogOpen, setAccountDialogOpen] = useState(false);
+  const [cardDialogOpen, setCardDialogOpen] = useState(false);
 
   const accountsQuery = useQuery({
     queryKey: ["accounts"],
@@ -314,58 +331,38 @@ export function AccountsPage() {
 
   return (
     <div className="mx-auto max-w-4xl px-4 py-8">
-      <nav className="mb-6 flex gap-4 text-sm">
-        <Link
-          to="/timeline"
-          className="text-[var(--hm-text-2)] hover:underline"
-        >
-          Timeline
-        </Link>
-        <Link
-          to="/dashboard"
-          className="text-[var(--hm-text-2)] hover:underline"
-        >
-          Dashboard
-        </Link>
-        <span className="font-semibold text-[var(--hm-text)]">Contas</span>
-        <Link
-          to="/transactions"
-          className="text-[var(--hm-text-2)] hover:underline"
-        >
-          Transações
-        </Link>
-        <Link
-          to="/recurring"
-          className="text-[var(--hm-text-2)] hover:underline"
-        >
-          Recorrências
-        </Link>
-        <Link
-          to="/connections"
-          className="text-[var(--hm-text-2)] hover:underline"
-        >
-          Conexões
-        </Link>
-        <Link
-          to="/settings"
-          className="text-[var(--hm-text-2)] hover:underline"
-        >
-          Configurações
-        </Link>
-      </nav>
+      <div className="mb-6 flex items-center justify-between">
+        <h1 className="text-xl font-bold text-[var(--hm-text)]">
+          Contas e cartões
+        </h1>
+        <div className="flex gap-2">
+          <Button type="button" onClick={() => setAccountDialogOpen(true)}>
+            Nova conta
+          </Button>
+          <Button type="button" onClick={() => setCardDialogOpen(true)}>
+            Novo cartão
+          </Button>
+        </div>
+      </div>
 
-      <h1 className="mb-6 text-xl font-bold text-[var(--hm-text)]">
-        Contas e cartões
-      </h1>
+      <NewAccountDialog
+        open={accountDialogOpen}
+        onClose={() => setAccountDialogOpen(false)}
+        institutions={institutionsQuery.data ?? []}
+        onCreated={invalidateAccounts}
+      />
+      <NewCardDialog
+        open={cardDialogOpen}
+        onClose={() => setCardDialogOpen(false)}
+        institutions={institutionsQuery.data ?? []}
+        accounts={accountsQuery.data ?? []}
+        onCreated={invalidateCards}
+      />
 
       <section className="mb-8">
         <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-[var(--hm-text-2)]">
           Contas
         </h2>
-        <NewAccountForm
-          institutions={institutionsQuery.data ?? []}
-          onCreated={invalidateAccounts}
-        />
         {accountsQuery.isLoading ? (
           <p className="text-[var(--hm-text-2)]">Carregando…</p>
         ) : null}
@@ -399,11 +396,6 @@ export function AccountsPage() {
         <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-[var(--hm-text-2)]">
           Cartões
         </h2>
-        <NewCardForm
-          institutions={institutionsQuery.data ?? []}
-          accounts={accountsQuery.data ?? []}
-          onCreated={invalidateCards}
-        />
         {cardsQuery.isLoading ? (
           <p className="text-[var(--hm-text-2)]">Carregando…</p>
         ) : null}

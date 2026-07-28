@@ -6,12 +6,10 @@
 // zerados); a ativação (Timeline vazia, §6.11) é a Sprint 7, não esta tela.
 import { Skeleton } from "@harmon/ui";
 import { useQuery } from "@tanstack/react-query";
-import { Link, Navigate } from "@tanstack/react-router";
+import { Navigate } from "@tanstack/react-router";
 import { useAuth } from "../auth/AuthContext";
 import { apiFetchJson } from "../auth/api-client";
 import { type DashboardInsights, DashboardView } from "./DashboardView";
-
-const NAV_LINK = "text-[var(--hm-text-2)] hover:underline";
 
 function DashboardSkeleton() {
   return (
@@ -44,28 +42,6 @@ export function DashboardPage() {
 
   return (
     <div className="mx-auto max-w-4xl px-4 py-8">
-      <nav className="mb-6 flex gap-4 text-sm">
-        <Link to="/timeline" className={NAV_LINK}>
-          Timeline
-        </Link>
-        <span className="font-semibold text-[var(--hm-text)]">Dashboard</span>
-        <Link to="/accounts" className={NAV_LINK}>
-          Contas
-        </Link>
-        <Link to="/transactions" className={NAV_LINK}>
-          Transações
-        </Link>
-        <Link to="/recurring" className={NAV_LINK}>
-          Recorrências
-        </Link>
-        <Link to="/connections" className={NAV_LINK}>
-          Conexões
-        </Link>
-        <Link to="/settings" className={NAV_LINK}>
-          Configurações
-        </Link>
-      </nav>
-
       <h1 className="mb-6 text-xl font-bold text-[var(--hm-text)]">
         Seu dinheiro hoje
       </h1>

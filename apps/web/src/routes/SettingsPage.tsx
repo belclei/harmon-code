@@ -11,7 +11,7 @@ import {
   Switch,
 } from "@harmon/ui";
 import { useMutation } from "@tanstack/react-query";
-import { Link, Navigate } from "@tanstack/react-router";
+import { Navigate } from "@tanstack/react-router";
 import { type FormEvent, useState } from "react";
 import { useAuth } from "../auth/AuthContext";
 import {
@@ -171,36 +171,6 @@ export function SettingsPage() {
 
   return (
     <div className="mx-auto max-w-2xl px-4 py-8">
-      <nav className="mb-6 flex gap-4 text-sm">
-        <Link
-          to="/timeline"
-          className="text-[var(--hm-text-2)] hover:underline"
-        >
-          Timeline
-        </Link>
-        <Link
-          to="/dashboard"
-          className="text-[var(--hm-text-2)] hover:underline"
-        >
-          Dashboard
-        </Link>
-        <Link
-          to="/accounts"
-          className="text-[var(--hm-text-2)] hover:underline"
-        >
-          Contas
-        </Link>
-        <Link
-          to="/connections"
-          className="text-[var(--hm-text-2)] hover:underline"
-        >
-          Conexões
-        </Link>
-        <span className="font-semibold text-[var(--hm-text)]">
-          Configurações
-        </span>
-      </nav>
-
       <h1 className="mb-6 text-xl font-bold text-[var(--hm-text)]">
         Configurações
       </h1>

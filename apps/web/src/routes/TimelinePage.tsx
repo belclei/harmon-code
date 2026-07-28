@@ -8,6 +8,7 @@ import {
   Alert,
   Badge,
   Button,
+  Dialog,
   EmptyState,
   Input,
   ProfileIncompleteAlert,
@@ -34,8 +35,6 @@ import type {
   TransactionDto,
 } from "../auth/types";
 import { reaisToCentsOrZero } from "../lib/money";
-
-const NAV_LINK = "text-[var(--hm-text-2)] hover:underline";
 
 interface Chip {
   id: string;
@@ -98,31 +97,18 @@ function TimelineSkeleton() {
   );
 }
 
-function ActivationCardShell({
-  title,
-  description,
-  children,
+/** US-4.1's simplest case: no institution, so it's a small Dialog instead
+ * of a trip to AccountsPage — a wallet is just an amount, not worth a
+ * screen change for. Opened from the "Carteira" activation Alert below. */
+function WalletDialog({
+  open,
+  onClose,
+  onCreated,
 }: {
-  title: string;
-  description: string;
-  children?: ReactNode;
+  open: boolean;
+  onClose: () => void;
+  onCreated: () => void;
 }) {
-  return (
-    <div className="rounded-[var(--hm-r-lg)] border border-[var(--hm-border)] p-4">
-      <h3 className="mb-1 text-base font-semibold text-[var(--hm-text)]">
-        {title}
-      </h3>
-      <p className="mb-3 text-sm text-[var(--hm-text-2)]">{description}</p>
-      {children}
-    </div>
-  );
-}
-
-/** US-4.1's simplest card: no institution, so it's a real inline action
- * instead of a link out — creating it here rather than pointing at
- * AccountsPage's form is the one exception, since a wallet is just an
- * amount, not worth a screen change for. */
-function WalletActivationCard({ onCreated }: { onCreated: () => void }) {
   const [amount, setAmount] = useState("");
   const [formError, setFormError] = useState<string | null>(null);
 
@@ -132,7 +118,10 @@ function WalletActivationCard({ onCreated }: { onCreated: () => void }) {
         method: "POST",
         body: JSON.stringify({ type: "cash", openingBalanceCents }),
       }),
-    onSuccess: onCreated,
+    onSuccess: () => {
+      onCreated();
+      onClose();
+    },
     onError: (error: unknown) => {
       setFormError(
         error instanceof ApiError
@@ -154,11 +143,11 @@ function WalletActivationCard({ onCreated }: { onCreated: () => void }) {
   }
 
   return (
-    <ActivationCardShell
-      title="Carteira"
-      description="Quanto de dinheiro físico você tem hoje?"
-    >
-      <form onSubmit={onSubmit} className="flex flex-col gap-2">
+    <Dialog open={open} onClose={onClose} title="Carteira">
+      <form onSubmit={onSubmit} className="flex flex-col gap-3">
+        <p className="text-[.9375rem] text-[var(--hm-text-2)]">
+          Quanto de dinheiro físico você tem hoje?
+        </p>
         <Input
           money
           label="Valor"
@@ -169,13 +158,16 @@ function WalletActivationCard({ onCreated }: { onCreated: () => void }) {
         {formError ? (
           <Alert variant="error" layout="inline" title={formError} />
         ) : null}
-        <div>
+        <div className="flex justify-end gap-2.5">
+          <Button type="button" variant="secondary" onClick={onClose}>
+            Cancelar
+          </Button>
           <Button type="submit" loading={createMutation.isPending}>
             Adicionar
           </Button>
         </div>
       </form>
-    </ActivationCardShell>
+    </Dialog>
   );
 }
 
@@ -184,6 +176,7 @@ export function TimelinePage() {
   const navigate = useNavigate();
   const hasSession = !isBooting && Boolean(user);
   const [hiddenChipIds, setHiddenChipIds] = useState<Set<string>>(new Set());
+  const [walletDialogOpen, setWalletDialogOpen] = useState(false);
   const queryClient = useQueryClient();
 
   const invalidateTimeline = () =>
@@ -337,33 +330,6 @@ export function TimelinePage() {
 
   return (
     <div className="mx-auto max-w-5xl px-4 py-8">
-      <nav className="mb-6 flex gap-4 text-sm">
-        <span className="font-semibold text-[var(--hm-text)]">Timeline</span>
-        <Link to="/dashboard" className={NAV_LINK}>
-          Análise
-        </Link>
-        <Link to="/accounts" className={NAV_LINK}>
-          Contas
-        </Link>
-        <Link to="/transactions" className={NAV_LINK}>
-          Transações
-        </Link>
-        <Link to="/recurring" className={NAV_LINK}>
-          Recorrências
-        </Link>
-        <Link to="/connections" className={NAV_LINK}>
-          Conexões
-        </Link>
-        <Link to="/settings" className={NAV_LINK}>
-          Configurações
-        </Link>
-        {user.role === "admin" ? (
-          <Link to="/admin" className={NAV_LINK}>
-            Admin
-          </Link>
-        ) : null}
-      </nav>
-
       {!user.hasCompleteProfile ? (
         <div className="mb-6">
           <ProfileIncompleteAlert
@@ -389,37 +355,54 @@ export function TimelinePage() {
               <p className="mb-4 text-sm text-[var(--hm-text-2)]">
                 {activationDoneCount} de 3 concluídos
               </p>
-              <div className="flex flex-col gap-4">
+              <div className="flex flex-col gap-3">
                 {pendingActivation.includes("wallet") ? (
-                  <WalletActivationCard
-                    onCreated={() =>
-                      queryClient.invalidateQueries({
-                        queryKey: ["accounts"],
-                      })
-                    }
+                  <Alert
+                    variant="warning"
+                    title="Carteira"
+                    description="Quanto de dinheiro físico você tem hoje?"
+                    actions={[
+                      {
+                        label: "Adicionar",
+                        onClick: () => setWalletDialogOpen(true),
+                      },
+                    ]}
                   />
                 ) : null}
                 {pendingActivation.includes("accounts") ? (
-                  <ActivationCardShell
+                  <Alert
+                    variant="warning"
                     title="Contas"
                     description="Adicione as contas de banco onde seu dinheiro vive — corrente ou poupança."
-                  >
-                    <Link to="/accounts">
-                      <Button type="button">Adicionar contas</Button>
-                    </Link>
-                  </ActivationCardShell>
+                    actions={[
+                      {
+                        label: "Adicionar contas",
+                        onClick: () => navigate({ to: "/accounts" }),
+                      },
+                    ]}
+                  />
                 ) : null}
                 {pendingActivation.includes("cards") ? (
-                  <ActivationCardShell
+                  <Alert
+                    variant="warning"
                     title="Cartões"
                     description="Adicione seus cartões de crédito — limite, fechamento e vencimento."
-                  >
-                    <Link to="/accounts">
-                      <Button type="button">Adicionar cartões</Button>
-                    </Link>
-                  </ActivationCardShell>
+                    actions={[
+                      {
+                        label: "Adicionar cartões",
+                        onClick: () => navigate({ to: "/accounts" }),
+                      },
+                    ]}
+                  />
                 ) : null}
               </div>
+              <WalletDialog
+                open={walletDialogOpen}
+                onClose={() => setWalletDialogOpen(false)}
+                onCreated={() =>
+                  queryClient.invalidateQueries({ queryKey: ["accounts"] })
+                }
+              />
             </div>
           ) : (
             <>
