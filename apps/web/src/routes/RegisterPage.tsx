@@ -2,12 +2,19 @@
 // BACKLOG.md US-8.3 — tela de cadastro via token (fila de acesso ou convite
 // aprovados). Pública — sem sessão. E-mail vem travado do token; mostra
 // quem convidou quando aplicável (§6.1).
+//
+// BACKLOG.md §13 "Cadastro via Google na tela /register": a spec sempre
+// descreveu "ou Google" como opção aqui, mas só e-mail/senha tinha sido
+// construído — a API (POST /v1/auth/google, `token` opcional) já suportava
+// isso desde o gate de convite do Sprint 15, só faltava este botão.
 import { Alert, Button, Input } from "@harmon/ui";
 import { useQuery } from "@tanstack/react-query";
 import { useNavigate } from "@tanstack/react-router";
 import { type FormEvent, useState } from "react";
 import { useAuth } from "../auth/AuthContext";
-import { ApiError, apiFetchJson } from "../auth/api-client";
+import { ApiError, apiFetchJson, loginWithGoogle } from "../auth/api-client";
+import { useGoogleIdentityButton } from "../auth/useGoogleIdentityButton";
+import { describeAuthError } from "./LoginPage";
 
 interface RegisterPreview {
   email: string;
@@ -28,6 +35,22 @@ export function RegisterPage() {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [formError, setFormError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
+
+  async function handleGoogleCredential(credential: string) {
+    setFormError(null);
+    setSubmitting(true);
+    try {
+      const accessToken = await loginWithGoogle(credential, token);
+      await adoptSession(accessToken);
+      await navigate({ to: "/timeline" });
+    } catch (error) {
+      setFormError(describeAuthError(error));
+    } finally {
+      setSubmitting(false);
+    }
+  }
+  const { buttonRef: googleButtonRef, available: googleAvailable } =
+    useGoogleIdentityButton(handleGoogleCredential, { text: "signup_with" });
 
   const previewQuery = useQuery({
     queryKey: ["register-preview", token],
@@ -112,6 +135,20 @@ export function RegisterPage() {
         <p className="text-sm text-[var(--hm-text-2)]">
           Convite de <strong>{preview.inviterName}</strong>.
         </p>
+      ) : null}
+      {googleAvailable ? (
+        <>
+          <div ref={googleButtonRef} className="flex justify-center" />
+          <p className="text-center text-xs text-[var(--hm-text-2)]">
+            Use a conta Google de <strong>{preview?.email}</strong> para que o
+            convite seja reconhecido.
+          </p>
+          <div className="flex items-center gap-3">
+            <hr className="flex-1 border-[var(--hm-border)]" />
+            <span className="text-sm text-[var(--hm-text-2)]">ou</span>
+            <hr className="flex-1 border-[var(--hm-border)]" />
+          </div>
+        </>
       ) : null}
       <form className="grid gap-4" onSubmit={onSubmit} noValidate>
         <Input label="E-mail" value={preview?.email ?? ""} disabled />

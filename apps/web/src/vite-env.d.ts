@@ -8,8 +8,9 @@ interface ImportMeta {
   readonly env: ImportMetaEnv;
 }
 
-// Minimal surface of Google Identity Services actually used by LoginPage —
-// see https://developers.google.com/identity/gsi/web/reference/js-reference.
+// Minimal surface of Google Identity Services actually used by
+// useGoogleIdentityButton (LoginPage + RegisterPage) — see
+// https://developers.google.com/identity/gsi/web/reference/js-reference.
 interface GoogleCredentialResponse {
   credential: string;
 }
