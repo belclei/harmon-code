@@ -7,8 +7,9 @@ import { signAccessToken } from "../src/auth/jwt.js";
 export async function createAuthedUser(
   prisma: PrismaClient,
   jwtSecret: string,
-  overrides: Partial<{ email: string; name: string }> = {},
+  overrides: Partial<{ email: string; name: string; role: "user" | "admin" }> = {},
 ): Promise<{ userId: string; accessToken: string }> {
+  const role = overrides.role ?? "user";
   const user = await prisma.user.create({
     data: {
       email:
@@ -16,11 +17,9 @@ export async function createAuthedUser(
         `user-${Math.random().toString(36).slice(2)}@harmon.dev`,
       name: overrides.name ?? "Test User",
       birthDate: new Date("1990-01-01"),
+      role,
     },
   });
-  const accessToken = await signAccessToken(
-    { sub: user.id, role: "user" },
-    jwtSecret,
-  );
+  const accessToken = await signAccessToken({ sub: user.id, role }, jwtSecret);
   return { userId: user.id, accessToken };
 }
