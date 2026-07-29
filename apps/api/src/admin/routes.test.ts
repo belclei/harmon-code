@@ -1,9 +1,22 @@
 import type { FastifyInstance } from "fastify";
 // apps/api/src/admin/routes.test.ts
-import { afterAll, afterEach, beforeAll, describe, expect, it } from "vitest";
+import {
+  afterAll,
+  afterEach,
+  beforeAll,
+  describe,
+  expect,
+  it,
+  vi,
+} from "vitest";
 import { resetTestDb } from "../../test/db.js";
 import { signAccessToken } from "../auth/jwt.js";
 import { buildServer } from "../server.js";
+
+const { sendMock } = vi.hoisted(() => ({ sendMock: vi.fn() }));
+vi.mock("resend", () => ({
+  Resend: vi.fn().mockImplementation(() => ({ emails: { send: sendMock } })),
+}));
 
 const TEST_ENV = {
   DATABASE_URL:
@@ -123,6 +136,41 @@ describe("POST /v1/admin/access/waitlist/:id/approve", () => {
     expect(stored.registrationTokenHash).not.toBeNull();
     expect(stored.approvedByUserId).toBe(admin.userId);
     expect(stored.tokenExpiresAt?.getTime()).toBeGreaterThan(Date.now());
+  });
+});
+
+describe("POST /v1/admin/access/invites/:id/approve", () => {
+  it("generates a 7-day token, sends the invite email, and moves status to approved", async () => {
+    sendMock.mockResolvedValue({ data: { id: "email_test" }, error: null });
+    const admin = await createUser("admin");
+    const requester = await createUser("user", "inviter@harmon.dev");
+    const invite = await server.prisma.invite.create({
+      data: {
+        inviterUserId: requester.userId,
+        inviteeName: "Ciclana",
+        inviteeEmail: "ciclana@example.com",
+      },
+    });
+
+    const response = await server.inject({
+      method: "POST",
+      url: `/v1/admin/access/invites/${invite.id}/approve`,
+      headers: { authorization: `Bearer ${admin.accessToken}` },
+    });
+
+    expect(response.statusCode).toBe(200);
+    const stored = await server.prisma.invite.findUniqueOrThrow({
+      where: { id: invite.id },
+    });
+    expect(stored.status).toBe("approved");
+    expect(stored.registrationTokenHash).not.toBeNull();
+    expect(stored.tokenExpiresAt?.getTime()).toBeGreaterThan(Date.now());
+
+    expect(sendMock).toHaveBeenCalledTimes(1);
+    // biome-ignore lint/style/noNonNullAssertion: toHaveBeenCalledTimes(1) above guarantees this call exists
+    const call = sendMock.mock.calls[0]![0] as { to: string; html: string };
+    expect(call.to).toBe("ciclana@example.com");
+    expect(call.html).toContain("/register?token=");
   });
 });
 

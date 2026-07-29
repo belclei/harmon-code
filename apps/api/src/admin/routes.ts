@@ -16,6 +16,7 @@ import type { FastifyInstance } from "fastify";
 import { z } from "zod";
 import { TOKEN_TTL_MS } from "../access/tokens.js";
 import { hashToken } from "../auth/refresh-tokens.js";
+import { sendInviteEmail } from "../email/templates.js";
 import { ADMIN_LAST_ADMIN, NOT_FOUND } from "../errors.js";
 import { requireAdmin } from "./require-admin.js";
 
@@ -160,7 +161,7 @@ export async function registerAdminRoutes(
       if (!invite || invite.status !== "awaiting_approval") throw NOT_FOUND();
 
       const rawToken = randomBytes(24).toString("hex");
-      await fastify.prisma.invite.update({
+      const updated = await fastify.prisma.invite.update({
         where: { id },
         data: {
           status: "approved",
@@ -169,6 +170,10 @@ export async function registerAdminRoutes(
           approvedByUserId: adminId,
           approvedAt: new Date(),
         },
+      });
+      await sendInviteEmail(fastify.resend, {
+        to: updated.inviteeEmail,
+        link: `${fastify.env.WEB_APP_URL}/register?token=${rawToken}`,
       });
       await fireAdminEvent(
         fastify,
