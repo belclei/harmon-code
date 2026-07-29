@@ -194,7 +194,8 @@ describe("POST /v1/webhooks/resend (raw-body regression)", () => {
     GOOGLE_CLIENT_ID: "placeholder",
     RESEND_API_KEY: "placeholder",
     RESEND_WEBHOOK_SECRET: SECRET,
-    PORT: 3001,
+    WEB_APP_URL: "http://localhost:5173",
+  PORT: 3001,
   };
 
   let server: FastifyInstance;

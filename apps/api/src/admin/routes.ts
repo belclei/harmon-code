@@ -14,11 +14,10 @@ import { randomBytes } from "node:crypto";
 import type { Prisma } from "@harmon/db";
 import type { FastifyInstance } from "fastify";
 import { z } from "zod";
+import { TOKEN_TTL_MS } from "../access/tokens.js";
 import { hashToken } from "../auth/refresh-tokens.js";
 import { ADMIN_LAST_ADMIN, NOT_FOUND } from "../errors.js";
 import { requireAdmin } from "./require-admin.js";
-
-const TOKEN_TTL_MS = 7 * 24 * 60 * 60 * 1000;
 
 const RoleBody = z.object({ role: z.enum(["user", "admin"]) }).strict();
 const BetaBody = z.object({ isBetaTester: z.boolean() }).strict();

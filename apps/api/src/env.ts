@@ -9,6 +9,7 @@ const EnvSchema = z.object({
   RESEND_API_KEY: z.string().min(1),
   RESEND_WEBHOOK_SECRET: z.string().min(1),
   PORT: z.coerce.number().int().positive().default(3001),
+  WEB_APP_URL: z.string().url().default("http://localhost:5173"),
 });
 
 export type Env = z.infer<typeof EnvSchema>;
