@@ -505,6 +505,25 @@ export function ConnectionsPage() {
       apiFetchJson(`/shares/${id}`, { method: "DELETE" }),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ["shares"] }),
   });
+  const deleteConnectionMutation = useMutation({
+    mutationFn: (id: string) =>
+      apiFetchJson(`/connections/${id}`, { method: "DELETE" }),
+    onSuccess: () =>
+      queryClient.invalidateQueries({ queryKey: ["connections"] }),
+  });
+  const resendConnectionMutation = useMutation({
+    mutationFn: (id: string) =>
+      apiFetchJson(`/connections/${id}/resend`, { method: "POST" }),
+  });
+  const deleteInviteMutation = useMutation({
+    mutationFn: (id: string) =>
+      apiFetchJson(`/invites/${id}`, { method: "DELETE" }),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["invites"] }),
+  });
+  const resendInviteMutation = useMutation({
+    mutationFn: (id: string) =>
+      apiFetchJson(`/invites/${id}/resend`, { method: "POST" }),
+  });
 
   if (isBooting) {
     return <p className="p-6 text-[var(--hm-text-2)]">Carregando…</p>;
@@ -594,9 +613,25 @@ export function ConnectionsPage() {
                     {c.counterpartEmail}
                   </p>
                 </div>
-                <p className="text-sm text-[var(--hm-text-2)]">
-                  Aguardando resposta
-                </p>
+                <div className="flex items-center gap-2">
+                  <p className="text-sm text-[var(--hm-text-2)]">
+                    Aguardando resposta
+                  </p>
+                  <Button
+                    variant="secondary"
+                    loading={resendConnectionMutation.isPending}
+                    onClick={() => resendConnectionMutation.mutate(c.id)}
+                  >
+                    Reenviar
+                  </Button>
+                  <Button
+                    variant="secondary"
+                    loading={deleteConnectionMutation.isPending}
+                    onClick={() => deleteConnectionMutation.mutate(c.id)}
+                  >
+                    Excluir
+                  </Button>
+                </div>
               </div>
             ))}
           </div>
@@ -699,9 +734,29 @@ export function ConnectionsPage() {
                     {invite.inviteeEmail}
                   </p>
                 </div>
-                <p className="text-sm text-[var(--hm-text-2)]">
-                  {INVITE_STATUS_LABEL[invite.status]}
-                </p>
+                <div className="flex items-center gap-2">
+                  <p className="text-sm text-[var(--hm-text-2)]">
+                    {INVITE_STATUS_LABEL[invite.status]}
+                  </p>
+                  {invite.status === "approved" ? (
+                    <Button
+                      variant="secondary"
+                      loading={resendInviteMutation.isPending}
+                      onClick={() => resendInviteMutation.mutate(invite.id)}
+                    >
+                      Reenviar
+                    </Button>
+                  ) : null}
+                  {invite.status !== "registered" ? (
+                    <Button
+                      variant="secondary"
+                      loading={deleteInviteMutation.isPending}
+                      onClick={() => deleteInviteMutation.mutate(invite.id)}
+                    >
+                      Excluir
+                    </Button>
+                  ) : null}
+                </div>
               </div>
             ))}
           </div>
