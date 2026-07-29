@@ -22,7 +22,8 @@ describe("sendInviteEmail", () => {
     });
 
     expect(result).toEqual({ id: "email_1" });
-    const call = send.mock.calls[0][0] as {
+    // biome-ignore lint/style/noNonNullAssertion: awaited function call above guarantees send was called exactly once
+    const call = send.mock.calls[0]![0] as {
       to: string;
       subject: string;
       html: string;
@@ -64,7 +65,8 @@ describe("sendConnectionRequestEmail", () => {
     });
 
     expect(result).toEqual({ id: "email_2" });
-    const call = send.mock.calls[0][0] as {
+    // biome-ignore lint/style/noNonNullAssertion: awaited function call above guarantees send was called exactly once
+    const call = send.mock.calls[0]![0] as {
       to: string;
       subject: string;
       html: string;
