@@ -2,23 +2,51 @@
 // BACKLOG.md US-7.1/US-7.2 — painel Acessos (waitlist + convites aguardando
 // aprovação) e Usuários (contagens, promover/demover, beta, desabilitar).
 //
-// Escopo: WaitlistEntry/Invite existem no schema (§1.1) mas nada ainda os
-// cria — a fila pública (POST /v1/access/waitlist) e o convite usuário-a-
-// usuário (POST /v1/invites) são o Épico 8 (Sprint 13), fora deste sprint.
-// Aprovar aqui gera o token de 7 dias (registrationTokenHash) mas o envio
-// real do e-mail via Resend fica para quando a cópia do e-mail de convite
-// existir (Sprint 13 — o link que o e-mail carrega só faz sentido junto da
-// tela de cadastro via token que consome esse link). Painéis vazios são
-// esperados até lá — BACKLOG.md US-7.2 registra isso explicitamente.
+// BACKLOG.md §13 "E-mail de aprovação": aprovar aqui gerava o token de 7 dias
+// (registrationTokenHash) mas nunca disparava o e-mail via Resend — a cópia
+// (assunto/corpo/link) não existia. Agora existe (email/invite-email.ts) e é
+// enviado logo após o approve. O envio é best-effort: uma falha do Resend
+// (rede, rate limit) não desfaz a aprovação nem derruba a resposta 200 — o
+// token já está gravado e válido, só o e-mail não chegou. Fica registrado no
+// DomainEvent (`emailSent`) para o admin conseguir perceber e reenviar
+// manualmente; um botão de reenvio na UI é melhoria futura, não construído
+// aqui.
 import { randomBytes } from "node:crypto";
 import type { Prisma } from "@harmon/db";
 import type { FastifyInstance } from "fastify";
 import { z } from "zod";
 import { hashToken } from "../auth/refresh-tokens.js";
+import { sendInviteEmail } from "../email/invite-email.js";
 import { ADMIN_LAST_ADMIN, NOT_FOUND } from "../errors.js";
 import { requireAdmin } from "./require-admin.js";
 
 const TOKEN_TTL_MS = 7 * 24 * 60 * 60 * 1000;
+
+async function sendApprovalEmail(
+  fastify: FastifyInstance,
+  params: {
+    recipientName: string;
+    recipientEmail: string;
+    rawToken: string;
+    inviterName?: string | null;
+  },
+): Promise<boolean> {
+  try {
+    await sendInviteEmail(fastify.resend, {
+      recipientName: params.recipientName,
+      recipientEmail: params.recipientEmail,
+      registerUrl: `${fastify.env.APP_BASE_URL}/register?token=${params.rawToken}`,
+      inviterName: params.inviterName,
+    });
+    return true;
+  } catch (error) {
+    fastify.log.error(
+      { err: error, recipientEmail: params.recipientEmail },
+      "failed to send invite approval e-mail",
+    );
+    return false;
+  }
+}
 
 const RoleBody = z.object({ role: z.enum(["user", "admin"]) }).strict();
 const BetaBody = z.object({ isBetaTester: z.boolean() }).strict();
@@ -102,6 +130,11 @@ export async function registerAdminRoutes(
           approvedAt: new Date(),
         },
       });
+      const emailSent = await sendApprovalEmail(fastify, {
+        recipientName: entry.name,
+        recipientEmail: entry.email,
+        rawToken,
+      });
       // Sem userId de agregado próprio (WaitlistEntry não é de um usuário
       // ainda) — o evento de auditoria fica só no admin que agiu.
       await fireAdminEvent(
@@ -113,6 +146,7 @@ export async function registerAdminRoutes(
         {
           kind: "waitlist",
           email: entry.email,
+          emailSent,
         },
       );
       return { id, status: "approved" };
@@ -171,6 +205,15 @@ export async function registerAdminRoutes(
           approvedAt: new Date(),
         },
       });
+      const inviter = await fastify.prisma.user.findUnique({
+        where: { id: invite.inviterUserId },
+      });
+      const emailSent = await sendApprovalEmail(fastify, {
+        recipientName: invite.inviteeName,
+        recipientEmail: invite.inviteeEmail,
+        rawToken,
+        inviterName: inviter?.name,
+      });
       await fireAdminEvent(
         fastify,
         adminId,
@@ -180,6 +223,7 @@ export async function registerAdminRoutes(
         {
           kind: "invite",
           email: invite.inviteeEmail,
+          emailSent,
         },
       );
       return { id, status: "approved" };

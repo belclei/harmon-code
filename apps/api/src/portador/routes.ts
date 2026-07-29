@@ -34,6 +34,7 @@ import { requireUser } from "../auth/authenticate.js";
 import {
   CONNECTION_NOT_ACCEPTED,
   NOT_FOUND,
+  PORTADOR_ALREADY_ACCEPTED,
   VALIDATION_FAILED,
 } from "../errors.js";
 
@@ -179,6 +180,12 @@ export async function registerPortadorRoutes(
       });
       if (!original || original.portadorUserId !== userId) {
         throw NOT_FOUND();
+      }
+      const existingMirror = await fastify.prisma.transaction.findFirst({
+        where: { portadorMirrorOfTransactionId: original.id },
+      });
+      if (existingMirror) {
+        throw PORTADOR_ALREADY_ACCEPTED();
       }
       if (!body.accountId === !body.creditCardId) {
         throw VALIDATION_FAILED([
