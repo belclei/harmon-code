@@ -1,9 +1,26 @@
 import type { FastifyInstance } from "fastify";
 // apps/api/src/portador/routes.test.ts
-import { afterAll, afterEach, beforeAll, describe, expect, it } from "vitest";
+import {
+  afterAll,
+  afterEach,
+  beforeAll,
+  beforeEach,
+  describe,
+  expect,
+  it,
+  vi,
+} from "vitest";
 import { createAuthedUser } from "../../test/auth-helper.js";
 import { resetTestDb } from "../../test/db.js";
 import { buildServer } from "../server.js";
+
+// POST /v1/connections (used below to set up a connected-user fixture) sends
+// a notification email as of sprint 15 — mock Resend so that fixture setup
+// doesn't make a real network call against the placeholder API key.
+const { sendMock } = vi.hoisted(() => ({ sendMock: vi.fn() }));
+vi.mock("resend", () => ({
+  Resend: vi.fn().mockImplementation(() => ({ emails: { send: sendMock } })),
+}));
 
 const TEST_ENV = {
   DATABASE_URL:
@@ -28,6 +45,10 @@ afterEach(async () => {
 });
 afterAll(async () => {
   await server.close();
+});
+
+beforeEach(() => {
+  sendMock.mockResolvedValue({ data: { id: "email_test" }, error: null });
 });
 
 async function authedUser(email?: string) {

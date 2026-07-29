@@ -10,12 +10,19 @@
 // exigindo que o usuário autenticado SEJA o addressee) é o caminho principal
 // — token-based accept-by-link para alguém ainda sem conta pertence ao
 // Épico 8 (convites), fora deste sprint.
+//
+// Excluir/reenviar (sprint 15): autorização inline — dono (requesterUserId,
+// nunca addressee — ele tem accept/reject) OU admin. Excluir é hard delete,
+// só quando status="pending". Reenviar só reenvia o e-mail de notificação
+// (sem token/estado) — ver docs/superpowers/specs/2026-07-28-invite-
+// connection-cancel-resend-design.md.
 import { randomBytes } from "node:crypto";
 import type { Prisma } from "@harmon/db";
 import type { FastifyInstance } from "fastify";
 import { z } from "zod";
 import { requireUser } from "../auth/authenticate.js";
 import { hashToken } from "../auth/refresh-tokens.js";
+import { sendConnectionRequestEmail } from "../email/templates.js";
 import { NOT_FOUND, VALIDATION_FAILED } from "../errors.js";
 
 const CreateConnectionBody = z.object({ addresseeEmail: z.string().email() });
@@ -156,6 +163,9 @@ export async function registerConnectionRoutes(
         ]);
       }
 
+      const requester = await fastify.prisma.user.findUniqueOrThrow({
+        where: { id: userId },
+      });
       const rawToken = randomBytes(24).toString("hex");
       const connection = await fastify.prisma.userConnection.create({
         data: {
@@ -164,6 +174,11 @@ export async function registerConnectionRoutes(
           status: "pending",
           connectionTokenHash: hashToken(rawToken),
         },
+      });
+      await sendConnectionRequestEmail(fastify.resend, {
+        to: addressee.email,
+        requesterName: requester.name,
+        link: `${fastify.env.WEB_APP_URL}/connections`,
       });
       await fireEvent(fastify, userId, "connection.requested", connection.id, {
         counterpartUserId: addressee.id,
@@ -248,6 +263,85 @@ export async function registerConnectionRoutes(
         },
       );
       return { id: updated.id, status: updated.status };
+    },
+  );
+
+  fastify.delete(
+    "/v1/connections/:id",
+    { preHandler: requireUser(fastify) },
+    async (request) => {
+      // biome-ignore lint/style/noNonNullAssertion: set by requireUser() preHandler, which runs before this handler and throws if auth fails
+      const userId = request.userId!;
+      const { id } = request.params as { id: string };
+      const connection = await fastify.prisma.userConnection.findUnique({
+        where: { id },
+      });
+      if (
+        !connection ||
+        (connection.requesterUserId !== userId && request.userRole !== "admin")
+      ) {
+        throw NOT_FOUND();
+      }
+      if (connection.status !== "pending") {
+        throw VALIDATION_FAILED([
+          { field: "id", message: "Este pedido de conexão já foi respondido." },
+        ]);
+      }
+
+      await fastify.prisma.userConnection.delete({ where: { id } });
+      await fireEvent(fastify, userId, "connection.deleted", id, {
+        counterpartUserId: connection.addresseeUserId,
+      });
+      await fireEvent(
+        fastify,
+        connection.addresseeUserId,
+        "connection.deleted",
+        id,
+        { counterpartUserId: connection.requesterUserId },
+      );
+      return { ok: true };
+    },
+  );
+
+  fastify.post(
+    "/v1/connections/:id/resend",
+    { preHandler: requireUser(fastify) },
+    async (request) => {
+      // biome-ignore lint/style/noNonNullAssertion: set by requireUser() preHandler, which runs before this handler and throws if auth fails
+      const userId = request.userId!;
+      const { id } = request.params as { id: string };
+      const connection = await fastify.prisma.userConnection.findUnique({
+        where: { id },
+      });
+      if (
+        !connection ||
+        (connection.requesterUserId !== userId && request.userRole !== "admin")
+      ) {
+        throw NOT_FOUND();
+      }
+      if (connection.status !== "pending") {
+        throw VALIDATION_FAILED([
+          { field: "id", message: "Este pedido de conexão já foi respondido." },
+        ]);
+      }
+
+      const [requester, addressee] = await Promise.all([
+        fastify.prisma.user.findUniqueOrThrow({
+          where: { id: connection.requesterUserId },
+        }),
+        fastify.prisma.user.findUniqueOrThrow({
+          where: { id: connection.addresseeUserId },
+        }),
+      ]);
+      await sendConnectionRequestEmail(fastify.resend, {
+        to: addressee.email,
+        requesterName: requester.name,
+        link: `${fastify.env.WEB_APP_URL}/connections`,
+      });
+      await fireEvent(fastify, userId, "connection.resent", id, {
+        counterpartUserId: connection.addresseeUserId,
+      });
+      return { id: connection.id, status: connection.status };
     },
   );
 }
