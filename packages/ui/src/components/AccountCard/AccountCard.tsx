@@ -91,10 +91,9 @@ export function AccountCard({
     <Card
       interactive={Boolean(onClick)}
       onClick={onClick}
-      className={[
-        "flex items-start gap-3",
-        isActive ? "" : "opacity-60",
-      ].join(" ")}
+      className={["flex items-start gap-3", isActive ? "" : "opacity-60"].join(
+        " ",
+      )}
     >
       <InstitutionMark logoUrl={logoUrl} institutionName={institutionName} />
       <div className="min-w-0 flex-1">
