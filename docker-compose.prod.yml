@@ -60,6 +60,7 @@ services:
       RESEND_API_KEY: ${RESEND_API_KEY}
       RESEND_WEBHOOK_SECRET: ${RESEND_WEBHOOK_SECRET}
       PORT: "3001"
+      APP_BASE_URL: https://${DOMAIN}
     depends_on:
       migrate:
         condition: service_completed_successfully

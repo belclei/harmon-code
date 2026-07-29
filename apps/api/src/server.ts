@@ -6,6 +6,7 @@ import {
 } from "@fastify/type-provider-zod";
 // apps/api/src/server.ts
 import Fastify, { type FastifyError, type FastifyInstance } from "fastify";
+import type { Resend } from "resend";
 import { registerAccessRoutes } from "./access/routes.js";
 import { registerAccountRoutes } from "./accounts/routes.js";
 import { registerAdminRoutes } from "./admin/routes.js";
@@ -18,8 +19,9 @@ import { registerAuthRoutes } from "./auth/routes.js";
 import { registerCardRoutes } from "./cards/routes.js";
 import { registerCategoryRoutes } from "./categories/routes.js";
 import { registerConnectionRoutes } from "./connections/routes.js";
+import { createResendClient } from "./email/resend-client.js";
 import { registerResendWebhook } from "./email/webhook.js";
-import { type Env, loadEnv } from "./env.js";
+import { type Env, type EnvInput, loadEnv, parseEnv } from "./env.js";
 import { AppError, INTERNAL, VALIDATION_FAILED } from "./errors.js";
 import { bumpInsightsGen } from "./insights/cache.js";
 import { registerInsightRoutes } from "./insights/routes.js";
@@ -38,20 +40,24 @@ declare module "fastify" {
   interface FastifyInstance {
     env: Env;
     googleVerifier: GoogleIdTokenVerifier;
+    resend: Resend;
   }
 }
 
-export async function buildServer(envOverride?: Env): Promise<FastifyInstance> {
+export async function buildServer(
+  envOverride?: EnvInput,
+): Promise<FastifyInstance> {
   const fastify = Fastify({ logger: true }).withTypeProvider<ZodTypeProvider>();
   fastify.setValidatorCompiler(validatorCompiler);
   fastify.setSerializerCompiler(serializerCompiler);
 
-  const env = envOverride ?? loadEnv();
+  const env = envOverride ? parseEnv(envOverride) : loadEnv();
   fastify.decorate("env", env);
   fastify.decorate(
     "googleVerifier",
     createGoogleIdTokenVerifier(env.GOOGLE_CLIENT_ID),
   );
+  fastify.decorate("resend", createResendClient(env.RESEND_API_KEY));
 
   await fastify.register(prismaPlugin);
   await fastify.register(redisPlugin);
