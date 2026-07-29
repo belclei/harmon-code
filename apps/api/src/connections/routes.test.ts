@@ -293,6 +293,15 @@ describe("DELETE /v1/connections/:id", () => {
     });
 
     expect(response.statusCode).toBe(200);
+    // The DomainEvent must be attributed to the requester (a real party to
+    // the connection), not the admin who happened to trigger the delete —
+    // otherwise the requester never learns their pending connection was
+    // removed on their behalf.
+    const events = await server.prisma.domainEvent.findMany({
+      where: { aggregateId: created.json().id, type: "connection.deleted" },
+    });
+    expect(events.some((e) => e.userId === a.userId)).toBe(true);
+    expect(events.some((e) => e.userId === admin.userId)).toBe(false);
   });
 
   it("blocks deleting a connection that was already accepted", async () => {
@@ -365,5 +374,33 @@ describe("POST /v1/connections/:id/resend", () => {
     });
 
     expect(response.statusCode).toBe(400);
+  });
+
+  it("attributes the DomainEvent to the requester when an admin resends", async () => {
+    const a = await authedUser("a@harmon.dev");
+    await authedUser("b@harmon.dev");
+    const admin = await authedAdmin();
+    const created = await server.inject({
+      method: "POST",
+      url: "/v1/connections",
+      headers: { authorization: `Bearer ${a.accessToken}` },
+      payload: { addresseeEmail: "b@harmon.dev" },
+    });
+    sendMock.mockClear();
+
+    const response = await server.inject({
+      method: "POST",
+      url: `/v1/connections/${created.json().id}/resend`,
+      headers: { authorization: `Bearer ${admin.accessToken}` },
+    });
+
+    expect(response.statusCode).toBe(200);
+    // Same rationale as the delete case: the requester, not the acting
+    // admin, must be the owner of the resulting timeline event.
+    const events = await server.prisma.domainEvent.findMany({
+      where: { aggregateId: created.json().id, type: "connection.resent" },
+    });
+    expect(events.some((e) => e.userId === a.userId)).toBe(true);
+    expect(events.some((e) => e.userId === admin.userId)).toBe(false);
   });
 });

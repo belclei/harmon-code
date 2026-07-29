@@ -289,9 +289,13 @@ export async function registerConnectionRoutes(
       }
 
       await fastify.prisma.userConnection.delete({ where: { id } });
-      await fireEvent(fastify, userId, "connection.deleted", id, {
-        counterpartUserId: connection.addresseeUserId,
-      });
+      await fireEvent(
+        fastify,
+        connection.requesterUserId,
+        "connection.deleted",
+        id,
+        { counterpartUserId: connection.addresseeUserId },
+      );
       await fireEvent(
         fastify,
         connection.addresseeUserId,
@@ -338,9 +342,13 @@ export async function registerConnectionRoutes(
         requesterName: requester.name,
         link: `${fastify.env.WEB_APP_URL}/connections`,
       });
-      await fireEvent(fastify, userId, "connection.resent", id, {
-        counterpartUserId: connection.addresseeUserId,
-      });
+      await fireEvent(
+        fastify,
+        connection.requesterUserId,
+        "connection.resent",
+        id,
+        { counterpartUserId: connection.addresseeUserId },
+      );
       return { id: connection.id, status: connection.status };
     },
   );
