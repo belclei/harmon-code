@@ -215,6 +215,35 @@ describe("GET /v1/portador/pending + accept/reject", () => {
     expect(mirror?.accountId).toBe(bAccount.id);
   });
 
+  it("rejects accepting the same assignment twice (regression: used to create a second mirror, doubling the assignee's money)", async () => {
+    const { b, tx } = await assignedTransaction();
+    const bAccount = await server.prisma.account.create({
+      data: { userId: b.userId, type: "cash" },
+    });
+
+    const first = await server.inject({
+      method: "POST",
+      url: `/v1/portador/${tx.id}/accept`,
+      headers: { authorization: `Bearer ${b.accessToken}` },
+      payload: { accountId: bAccount.id },
+    });
+    expect(first.statusCode).toBe(201);
+
+    const second = await server.inject({
+      method: "POST",
+      url: `/v1/portador/${tx.id}/accept`,
+      headers: { authorization: `Bearer ${b.accessToken}` },
+      payload: { accountId: bAccount.id },
+    });
+    expect(second.statusCode).toBe(409);
+    expect(second.json().code).toBe("portador.already_accepted");
+
+    const mirrors = await server.prisma.transaction.findMany({
+      where: { portadorMirrorOfTransactionId: tx.id },
+    });
+    expect(mirrors).toHaveLength(1);
+  });
+
   it("an accepted item drops off the pending list (regression: used to stay forever, no link back to the original)", async () => {
     const { b, tx } = await assignedTransaction();
     const bAccount = await server.prisma.account.create({

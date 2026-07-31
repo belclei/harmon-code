@@ -4,6 +4,7 @@ import {
   afterAll,
   afterEach,
   beforeAll,
+  beforeEach,
   describe,
   expect,
   it,
@@ -35,6 +36,10 @@ let server: FastifyInstance;
 
 beforeAll(async () => {
   server = await buildServer(TEST_ENV);
+});
+beforeEach(() => {
+  sendMock.mockClear();
+  sendMock.mockResolvedValue({ data: { id: "email_test" }, error: null });
 });
 afterEach(async () => {
   await resetTestDb(server.prisma);
@@ -136,6 +141,53 @@ describe("POST /v1/admin/access/waitlist/:id/approve", () => {
     expect(stored.registrationTokenHash).not.toBeNull();
     expect(stored.approvedByUserId).toBe(admin.userId);
     expect(stored.tokenExpiresAt?.getTime()).toBeGreaterThan(Date.now());
+  });
+
+  it("sends the invite e-mail with a /register?token= link", async () => {
+    sendMock.mockResolvedValue({ data: { id: "email_test" }, error: null });
+    const admin = await createUser("admin");
+    const entry = await server.prisma.waitlistEntry.create({
+      data: { name: "Fulano", email: "fulano@example.com" },
+    });
+
+    const response = await server.inject({
+      method: "POST",
+      url: `/v1/admin/access/waitlist/${entry.id}/approve`,
+      headers: { authorization: `Bearer ${admin.accessToken}` },
+    });
+
+    expect(response.statusCode).toBe(200);
+    expect(sendMock).toHaveBeenCalledWith(
+      expect.objectContaining({
+        to: "fulano@example.com",
+        subject: "Seu convite para o Harmon chegou",
+        html: expect.stringContaining("/register?token="),
+      }),
+    );
+  });
+
+  it("keeps the approval when the Resend send fails — resend is a separate action, not a rollback", async () => {
+    sendMock.mockResolvedValue({
+      data: null,
+      error: { message: "network down" },
+    });
+    const admin = await createUser("admin");
+    const entry = await server.prisma.waitlistEntry.create({
+      data: { name: "Fulano", email: "fulano@example.com" },
+    });
+
+    const response = await server.inject({
+      method: "POST",
+      url: `/v1/admin/access/waitlist/${entry.id}/approve`,
+      headers: { authorization: `Bearer ${admin.accessToken}` },
+    });
+
+    expect(response.statusCode).toBe(500);
+    const stored = await server.prisma.waitlistEntry.findUniqueOrThrow({
+      where: { id: entry.id },
+    });
+    expect(stored.status).toBe("approved");
+    expect(stored.registrationTokenHash).not.toBeNull();
   });
 });
 

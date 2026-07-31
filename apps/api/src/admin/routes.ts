@@ -2,14 +2,13 @@
 // BACKLOG.md US-7.1/US-7.2 — painel Acessos (waitlist + convites aguardando
 // aprovação) e Usuários (contagens, promover/demover, beta, desabilitar).
 //
-// Escopo: WaitlistEntry/Invite existem no schema (§1.1) mas nada ainda os
-// cria — a fila pública (POST /v1/access/waitlist) e o convite usuário-a-
-// usuário (POST /v1/invites) são o Épico 8 (Sprint 13), fora deste sprint.
-// Aprovar aqui gera o token de 7 dias (registrationTokenHash) mas o envio
-// real do e-mail via Resend fica para quando a cópia do e-mail de convite
-// existir (Sprint 13 — o link que o e-mail carrega só faz sentido junto da
-// tela de cadastro via token que consome esse link). Painéis vazios são
-// esperados até lá — BACKLOG.md US-7.2 registra isso explicitamente.
+// Aprovar aqui gera o token de 7 dias (registrationTokenHash) e dispara o
+// e-mail de convite via Resend (email/templates.ts, template de marca em
+// email/templates/harmon-convite.html) logo em seguida — tanto pra fila de
+// acesso quanto pra convite usuário-a-usuário. Uma falha do Resend aqui
+// derruba a resposta (500): o token já foi gravado, então "reenviar" já
+// existe como ação própria (POST /v1/invites/:id/resend) pra cobrir esse
+// caso, em vez de best-effort silencioso.
 import { randomBytes } from "node:crypto";
 import type { Prisma } from "@harmon/db";
 import type { FastifyInstance } from "fastify";
@@ -101,6 +100,10 @@ export async function registerAdminRoutes(
           approvedByUserId: adminId,
           approvedAt: new Date(),
         },
+      });
+      await sendInviteEmail(fastify.resend, {
+        to: entry.email,
+        link: `${fastify.env.WEB_APP_URL}/register?token=${rawToken}`,
       });
       // Sem userId de agregado próprio (WaitlistEntry não é de um usuário
       // ainda) — o evento de auditoria fica só no admin que agiu.

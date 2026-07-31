@@ -21,7 +21,7 @@ import { registerCategoryRoutes } from "./categories/routes.js";
 import { registerConnectionRoutes } from "./connections/routes.js";
 import { createResendClient } from "./email/resend-client.js";
 import { registerResendWebhook } from "./email/webhook.js";
-import { type Env, loadEnv } from "./env.js";
+import { type Env, type EnvInput, loadEnv, parseEnv } from "./env.js";
 import { AppError, INTERNAL, VALIDATION_FAILED } from "./errors.js";
 import { bumpInsightsGen } from "./insights/cache.js";
 import { registerInsightRoutes } from "./insights/routes.js";
@@ -44,12 +44,14 @@ declare module "fastify" {
   }
 }
 
-export async function buildServer(envOverride?: Env): Promise<FastifyInstance> {
+export async function buildServer(
+  envOverride?: EnvInput,
+): Promise<FastifyInstance> {
   const fastify = Fastify({ logger: true }).withTypeProvider<ZodTypeProvider>();
   fastify.setValidatorCompiler(validatorCompiler);
   fastify.setSerializerCompiler(serializerCompiler);
 
-  const env = envOverride ?? loadEnv();
+  const env = envOverride ? parseEnv(envOverride) : loadEnv();
   fastify.decorate("env", env);
   fastify.decorate(
     "googleVerifier",
