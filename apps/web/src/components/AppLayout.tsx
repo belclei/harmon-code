@@ -6,6 +6,7 @@
 // rest of packages/ui already consumes the CSS-variable tokens.
 import { Link, Outlet, useLocation, useNavigate } from "@tanstack/react-router";
 import type { ReactNode } from "react";
+import packageJson from "../../package.json";
 import { useAuth } from "../auth/AuthContext";
 
 interface NavItemConfig {
@@ -190,6 +191,9 @@ export function AppLayout() {
                 <div className="truncate text-[0.9375rem]">{user.name}</div>
                 <div className="truncate text-[0.75rem] text-[var(--hm-ink-300)]">
                   Conta pessoal
+                </div>
+                <div className="truncate text-[0.65rem] text-[var(--hm-ink-400)]">
+                  v{packageJson.version}
                 </div>
               </div>
             </button>
