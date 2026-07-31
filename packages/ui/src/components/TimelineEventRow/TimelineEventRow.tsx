@@ -26,9 +26,13 @@ export type DomainEventType =
   | "recurring.paused"
   | "recurring.ended"
   | "import.completed"
+  | "invite.deleted"
+  | "invite.resent"
   | "connection.requested"
   | "connection.accepted"
   | "connection.rejected"
+  | "connection.deleted"
+  | "connection.resent"
   | "share.granted"
   | "share.permission_changed"
   | "share.revoked"
@@ -109,11 +113,17 @@ const EVENT_TEXT: Record<DomainEventType, (p: DomainEventPayload) => string> = {
   "recurring.ended": () => "Recorrência encerrada",
   "import.completed": (p) =>
     `Fatura ${p.institutionName ?? ""} — ${p.count ?? 0} transações importadas`,
+  "invite.deleted": () => "Convite excluído",
+  "invite.resent": () => "Convite reenviado",
   "connection.requested": (p) =>
     `Convite de conexão enviado a ${p.counterpartName ?? ""}`,
   "connection.accepted": (p) => `Conexão com ${p.counterpartName ?? ""} aceita`,
   "connection.rejected": (p) =>
     `Conexão com ${p.counterpartName ?? ""} recusada`,
+  "connection.deleted": (p) =>
+    `Conexão com ${p.counterpartName ?? ""} excluída`,
+  "connection.resent": (p) =>
+    `Convite de conexão reenviado a ${p.counterpartName ?? ""}`,
   "share.granted": (p) =>
     `${p.itemLabel ?? "Item"} compartilhado com ${p.counterpartName ?? ""} (${p.permission === "edit" ? "edição" : "visualização"})`,
   "share.permission_changed": (p) =>
@@ -210,7 +220,7 @@ function eventIcon(type: DomainEventType): ReactNode {
 
 /**
  * Harmon's generic structural timeline event line. Dumb component: reads a
- * `type` + loosely-typed `payload` and renders one of the catalog's 31
+ * `type` + loosely-typed `payload` and renders one of the catalog's 35
  * pt-BR copy templates (IMPLEMENTACAO.md §6, BACKLOG US-2.4) — never
  * decides which event happened.
  */
