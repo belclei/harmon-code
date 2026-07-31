@@ -7,7 +7,11 @@ import { signAccessToken } from "../src/auth/jwt.js";
 export async function createAuthedUser(
   prisma: PrismaClient,
   jwtSecret: string,
-  overrides: Partial<{ email: string; name: string; role: "user" | "admin" }> = {},
+  overrides: Partial<{
+    email: string;
+    name: string;
+    role: "user" | "admin";
+  }> = {},
 ): Promise<{ userId: string; accessToken: string }> {
   const role = overrides.role ?? "user";
   const user = await prisma.user.create({
