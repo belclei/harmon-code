@@ -105,7 +105,7 @@ export async function registerInviteRoutes(
       }
 
       await fastify.prisma.invite.delete({ where: { id } });
-      await fireEvent(fastify, userId, "invite.deleted", id, {
+      await fireEvent(fastify, invite.inviterUserId, "invite.deleted", id, {
         inviteeEmail: invite.inviteeEmail,
       });
       return { ok: true };
@@ -141,7 +141,7 @@ export async function registerInviteRoutes(
         to: updated.inviteeEmail,
         link: `${fastify.env.WEB_APP_URL}/register?token=${rawToken}`,
       });
-      await fireEvent(fastify, userId, "invite.resent", id, {
+      await fireEvent(fastify, updated.inviterUserId, "invite.resent", id, {
         inviteeEmail: updated.inviteeEmail,
       });
       return { id: updated.id, status: updated.status };

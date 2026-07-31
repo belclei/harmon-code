@@ -122,6 +122,14 @@ describe("DELETE /v1/invites/:id", () => {
     });
 
     expect(response.statusCode).toBe(200);
+    // The DomainEvent must be attributed to the inviter (the real owner of
+    // the invite), not the admin who happened to trigger the delete —
+    // otherwise the inviter never learns their invite was removed.
+    const events = await server.prisma.domainEvent.findMany({
+      where: { aggregateId: invite.id, type: "invite.deleted" },
+    });
+    expect(events.some((e) => e.userId === userId)).toBe(true);
+    expect(events.some((e) => e.userId === admin.userId)).toBe(false);
   });
 
   it("404s for a stranger who is neither the inviter nor an admin", async () => {
@@ -228,5 +236,12 @@ describe("POST /v1/invites/:id/resend", () => {
     });
 
     expect(response.statusCode).toBe(200);
+    // Same rationale as the delete case: the inviter, not the acting admin,
+    // must be the owner of the resulting timeline event.
+    const events = await server.prisma.domainEvent.findMany({
+      where: { aggregateId: invite.id, type: "invite.resent" },
+    });
+    expect(events.some((e) => e.userId === userId)).toBe(true);
+    expect(events.some((e) => e.userId === admin.userId)).toBe(false);
   });
 });
