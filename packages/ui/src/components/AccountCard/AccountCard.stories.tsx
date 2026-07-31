@@ -27,7 +27,7 @@ type Story = StoryObj<typeof AccountCard>;
 
 export const Playground: Story = {
   render: (args) => (
-    <div style={{ width: "20rem" }}>
+    <div style={{ width: "32rem" }}>
       <AccountCard {...args} />
     </div>
   ),
@@ -35,11 +35,12 @@ export const Playground: Story = {
 
 export const Estados: Story = {
   render: () => (
-    <div style={{ display: "grid", gap: "1rem", width: "20rem" }}>
+    <div style={{ display: "grid", gap: "0.75rem", width: "32rem" }}>
       <AccountCard
         institutionName="Nubank"
         type="checking"
         balanceCents={452030}
+        overdraftLimitCents={200000}
         isActive
       />
       <AccountCard
