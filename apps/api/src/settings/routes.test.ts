@@ -16,6 +16,7 @@ const TEST_ENV = {
   GOOGLE_CLIENT_ID: "placeholder",
   RESEND_API_KEY: "placeholder",
   RESEND_WEBHOOK_SECRET: "placeholder",
+  WEB_APP_URL: "http://localhost:5173",
   PORT: 3001,
 };
 

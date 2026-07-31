@@ -14,7 +14,7 @@ const meta: Meta<typeof TimelineEventRow> = {
       description: {
         component:
           "Linha de evento estrutural genérico da Timeline (IMPLEMENTACAO.md §10.1b item 5, catálogo §6). " +
-          "Cobre os 31 tipos de DomainEvent despachados para a timeline (BACKLOG US-2.4).",
+          "Cobre os 35 tipos de DomainEvent despachados para a timeline (BACKLOG US-2.4).",
       },
     },
   },
@@ -81,9 +81,13 @@ const SAMPLES: Array<{ type: DomainEventType; payload: DomainEventPayload }> = [
     type: "import.completed",
     payload: { institutionName: "Nubank de julho", count: 34 },
   },
+  { type: "invite.deleted", payload: {} },
+  { type: "invite.resent", payload: {} },
   { type: "connection.requested", payload: { counterpartName: "Maria" } },
   { type: "connection.accepted", payload: { counterpartName: "Maria" } },
   { type: "connection.rejected", payload: { counterpartName: "Maria" } },
+  { type: "connection.deleted", payload: { counterpartName: "Maria" } },
+  { type: "connection.resent", payload: { counterpartName: "Maria" } },
   {
     type: "share.granted",
     payload: {

@@ -1,5 +1,4 @@
 import type { FastifyInstance } from "fastify";
-import type { Resend } from "resend";
 // apps/api/src/admin/routes.test.ts
 import {
   afterAll,
@@ -15,6 +14,11 @@ import { resetTestDb } from "../../test/db.js";
 import { signAccessToken } from "../auth/jwt.js";
 import { buildServer } from "../server.js";
 
+const { sendMock } = vi.hoisted(() => ({ sendMock: vi.fn() }));
+vi.mock("resend", () => ({
+  Resend: vi.fn().mockImplementation(() => ({ emails: { send: sendMock } })),
+}));
+
 const TEST_ENV = {
   DATABASE_URL:
     process.env.DATABASE_URL ??
@@ -24,22 +28,18 @@ const TEST_ENV = {
   GOOGLE_CLIENT_ID: "placeholder",
   RESEND_API_KEY: "placeholder",
   RESEND_WEBHOOK_SECRET: "placeholder",
+  WEB_APP_URL: "http://localhost:5173",
   PORT: 3001,
 };
 
 let server: FastifyInstance;
-// Approving a waitlist/access entry sends an e-mail via `fastify.resend`
-// (BACKLOG.md §13) — faked here the same way `googleVerifier` is faked in
-// auth/routes.test.ts, so these tests never hit the real Resend API.
-const sendEmailMock = vi.fn();
 
 beforeAll(async () => {
   server = await buildServer(TEST_ENV);
 });
 beforeEach(() => {
-  sendEmailMock.mockReset();
-  sendEmailMock.mockResolvedValue({ data: { id: "email_123" }, error: null });
-  server.resend = { emails: { send: sendEmailMock } } as unknown as Resend;
+  sendMock.mockClear();
+  sendMock.mockResolvedValue({ data: { id: "email_test" }, error: null });
 });
 afterEach(async () => {
   await resetTestDb(server.prisma);
@@ -144,6 +144,7 @@ describe("POST /v1/admin/access/waitlist/:id/approve", () => {
   });
 
   it("sends the invite e-mail with a /register?token= link", async () => {
+    sendMock.mockResolvedValue({ data: { id: "email_test" }, error: null });
     const admin = await createUser("admin");
     const entry = await server.prisma.waitlistEntry.create({
       data: { name: "Fulano", email: "fulano@example.com" },
@@ -156,21 +157,17 @@ describe("POST /v1/admin/access/waitlist/:id/approve", () => {
     });
 
     expect(response.statusCode).toBe(200);
-    expect(sendEmailMock).toHaveBeenCalledWith(
+    expect(sendMock).toHaveBeenCalledWith(
       expect.objectContaining({
         to: "fulano@example.com",
-        subject: "Seu acesso ao Harmon foi aprovado",
-        text: expect.stringContaining("/register?token="),
+        subject: "Seu convite para o Harmon chegou",
+        html: expect.stringContaining("/register?token="),
       }),
     );
-    const event = await server.prisma.domainEvent.findFirst({
-      where: { type: "admin.access_approved", aggregateId: entry.id },
-    });
-    expect((event?.payload as { emailSent?: boolean })?.emailSent).toBe(true);
   });
 
-  it("still approves when the Resend send fails, and records emailSent: false", async () => {
-    sendEmailMock.mockResolvedValue({
+  it("keeps the approval when the Resend send fails — resend is a separate action, not a rollback", async () => {
+    sendMock.mockResolvedValue({
       data: null,
       error: { message: "network down" },
     });
@@ -185,25 +182,23 @@ describe("POST /v1/admin/access/waitlist/:id/approve", () => {
       headers: { authorization: `Bearer ${admin.accessToken}` },
     });
 
-    expect(response.statusCode).toBe(200);
+    expect(response.statusCode).toBe(500);
     const stored = await server.prisma.waitlistEntry.findUniqueOrThrow({
       where: { id: entry.id },
     });
     expect(stored.status).toBe("approved");
-    const event = await server.prisma.domainEvent.findFirst({
-      where: { type: "admin.access_approved", aggregateId: entry.id },
-    });
-    expect((event?.payload as { emailSent?: boolean })?.emailSent).toBe(false);
+    expect(stored.registrationTokenHash).not.toBeNull();
   });
 });
 
 describe("POST /v1/admin/access/invites/:id/approve", () => {
-  it("sends the invite e-mail mentioning the inviter by name", async () => {
+  it("generates a 7-day token, sends the invite email, and moves status to approved", async () => {
+    sendMock.mockResolvedValue({ data: { id: "email_test" }, error: null });
     const admin = await createUser("admin");
-    const inviter = await createUser("user", "inviter@harmon.dev");
+    const requester = await createUser("user", "inviter@harmon.dev");
     const invite = await server.prisma.invite.create({
       data: {
-        inviterUserId: inviter.userId,
+        inviterUserId: requester.userId,
         inviteeName: "Ciclana",
         inviteeEmail: "ciclana@example.com",
       },
@@ -216,12 +211,18 @@ describe("POST /v1/admin/access/invites/:id/approve", () => {
     });
 
     expect(response.statusCode).toBe(200);
-    expect(sendEmailMock).toHaveBeenCalledWith(
-      expect.objectContaining({
-        to: "ciclana@example.com",
-        text: expect.stringContaining("Plain User te convidou"),
-      }),
-    );
+    const stored = await server.prisma.invite.findUniqueOrThrow({
+      where: { id: invite.id },
+    });
+    expect(stored.status).toBe("approved");
+    expect(stored.registrationTokenHash).not.toBeNull();
+    expect(stored.tokenExpiresAt?.getTime()).toBeGreaterThan(Date.now());
+
+    expect(sendMock).toHaveBeenCalledTimes(1);
+    // biome-ignore lint/style/noNonNullAssertion: toHaveBeenCalledTimes(1) above guarantees this call exists
+    const call = sendMock.mock.calls[0]![0] as { to: string; html: string };
+    expect(call.to).toBe("ciclana@example.com");
+    expect(call.html).toContain("/register?token=");
   });
 });
 

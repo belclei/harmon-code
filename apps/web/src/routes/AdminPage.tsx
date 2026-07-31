@@ -74,6 +74,11 @@ export function AdminPage() {
       apiFetchJson(`/admin/access/invites/${id}/reject`, { method: "POST" }),
     onSuccess: invalidateAccess,
   });
+  const deleteInviteMutation = useMutation({
+    mutationFn: (id: string) =>
+      apiFetchJson(`/invites/${id}`, { method: "DELETE" }),
+    onSuccess: invalidateAccess,
+  });
 
   const roleMutation = useMutation({
     mutationFn: ({ id, role }: { id: string; role: "user" | "admin" }) =>
@@ -181,6 +186,13 @@ export function AdminPage() {
                   </p>
                 </div>
                 <div className="flex gap-2">
+                  <Button
+                    variant="secondary"
+                    loading={deleteInviteMutation.isPending}
+                    onClick={() => deleteInviteMutation.mutate(invite.id)}
+                  >
+                    Excluir
+                  </Button>
                   <Button
                     variant="secondary"
                     loading={rejectInviteMutation.isPending}

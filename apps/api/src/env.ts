@@ -9,15 +9,15 @@ const EnvSchema = z.object({
   RESEND_API_KEY: z.string().min(1),
   RESEND_WEBHOOK_SECRET: z.string().min(1),
   PORT: z.coerce.number().int().positive().default(3001),
-  // Origin of the web app — used to build the /register?token=... link sent
-  // in approval e-mails (BACKLOG.md §13 "E-mail de aprovação"). Defaulted so
+  // Origin of the web app — used to build the /register?token=... and
+  // /connections links sent in invite/connection e-mails. Defaulted so
   // every existing test's hand-rolled env object keeps working unchanged.
-  APP_BASE_URL: z.string().url().default("http://localhost:5173"),
+  WEB_APP_URL: z.string().url().default("http://localhost:5173"),
 });
 
 export type Env = z.infer<typeof EnvSchema>;
 // Pre-parse shape (defaulted keys optional) — lets buildServer's test
-// override omit APP_BASE_URL/PORT without every existing *.test.ts hand-
+// override omit WEB_APP_URL/PORT without every existing *.test.ts hand-
 // rolled env object needing an update.
 export type EnvInput = z.input<typeof EnvSchema>;
 
