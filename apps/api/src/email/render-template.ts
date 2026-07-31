@@ -6,13 +6,19 @@ import { readFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 
-const TEMPLATES_DIR = join(dirname(fileURLToPath(import.meta.url)), "templates");
+const TEMPLATES_DIR = join(
+  dirname(fileURLToPath(import.meta.url)),
+  "templates",
+);
 
 export function substituteVars(
   template: string,
   vars: Record<string, string>,
 ): string {
-  return template.replace(/\{\{(\w+)\}\}/g, (_match, key: string) => vars[key] ?? "");
+  return template.replace(
+    /\{\{(\w+)\}\}/g,
+    (_match, key: string) => vars[key] ?? "",
+  );
 }
 
 export function renderTemplate(

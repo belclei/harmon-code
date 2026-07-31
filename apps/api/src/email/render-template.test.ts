@@ -16,9 +16,7 @@ describe("substituteVars", () => {
   });
 
   it("leaves text with no placeholders untouched", () => {
-    expect(substituteVars("sem variáveis aqui", {})).toBe(
-      "sem variáveis aqui",
-    );
+    expect(substituteVars("sem variáveis aqui", {})).toBe("sem variáveis aqui");
   });
 });
 
