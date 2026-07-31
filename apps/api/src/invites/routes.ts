@@ -95,7 +95,10 @@ export async function registerInviteRoutes(
       const userId = request.userId!;
       const { id } = request.params as { id: string };
       const invite = await fastify.prisma.invite.findUnique({ where: { id } });
-      if (!invite || (invite.inviterUserId !== userId && request.userRole !== "admin")) {
+      if (
+        !invite ||
+        (invite.inviterUserId !== userId && request.userRole !== "admin")
+      ) {
         throw NOT_FOUND();
       }
       if (invite.status === "registered") {
@@ -120,7 +123,10 @@ export async function registerInviteRoutes(
       const userId = request.userId!;
       const { id } = request.params as { id: string };
       const invite = await fastify.prisma.invite.findUnique({ where: { id } });
-      if (!invite || (invite.inviterUserId !== userId && request.userRole !== "admin")) {
+      if (
+        !invite ||
+        (invite.inviterUserId !== userId && request.userRole !== "admin")
+      ) {
         throw NOT_FOUND();
       }
       if (invite.status !== "approved") {
