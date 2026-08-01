@@ -25,6 +25,7 @@ export type TimelineItem = TimelineEventItem | TimelineTransactionItem;
 export interface TimelineDay {
   date: string;
   items: TimelineItem[];
+  balanceCents: number;
 }
 
 export interface TimelinePage {
