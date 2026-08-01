@@ -7,10 +7,15 @@
 import {
   Alert,
   Badge,
+  Body,
   Button,
+  Calendar,
+  Card,
+  Checkbox,
   Dialog,
   EmptyState,
   Input,
+  Mono,
   ProfileIncompleteAlert,
   Segmented,
   Select,
@@ -18,8 +23,9 @@ import {
   TimelineAlertBanner,
   TimelineEventRow,
   TransactionRow,
+  formatMoney,
 } from "@harmon/ui";
-import type { AlertedEntity, DomainEventType } from "@harmon/ui";
+import type { AlertedEntity, CalendarRange, DomainEventType } from "@harmon/ui";
 import {
   useInfiniteQuery,
   useMutation,
@@ -27,7 +33,13 @@ import {
   useQueryClient,
 } from "@tanstack/react-query";
 import { Link, Navigate, useNavigate } from "@tanstack/react-router";
-import { type FormEvent, type ReactNode, useMemo, useState } from "react";
+import {
+  type FormEvent,
+  type ReactNode,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import { useAuth } from "../auth/AuthContext";
 import { ApiError, apiFetchJson } from "../auth/api-client";
 import type {
@@ -55,6 +67,166 @@ interface CreateTxPayload {
   toAccountId?: string;
   toCreditCardId?: string;
   categoryId?: string;
+}
+
+// ARQUITETURA.md §6.12 item 3: a Timeline filtra por tipo de evento além de
+// conta/cartão. `DomainEvent.type` tem 34 valores concretos (TimelineEventRow's
+// catalog) — granular demais pra um filtro; agrupados nas mesmas famílias que
+// TimelineEventRow já usa pra ícone (eventIcon()), então o rótulo do filtro e o
+// ícone que o usuário vê na lista sempre concordam. "transaction" é o
+// pseudo-tipo que GET /v1/timeline usa pra alternar as `Transaction` reais
+// (que não são DomainEvent) — ver apps/api/src/timeline/routes.ts.
+interface EventTypeGroup {
+  id: string;
+  label: string;
+  types: string[];
+}
+
+const EVENT_TYPE_GROUPS: EventTypeGroup[] = [
+  { id: "transaction", label: "Transações", types: ["transaction"] },
+  {
+    id: "account_card",
+    label: "Contas e cartões",
+    types: [
+      "account.created",
+      "account.updated",
+      "account.balance_adjusted",
+      "account.over_limit_entered",
+      "account.over_limit_cleared",
+      "card.created",
+      "card.updated",
+      "card.over_limit_entered",
+      "card.over_limit_cleared",
+      "card.invoice_closed",
+      "card.invoice_due",
+    ],
+  },
+  {
+    id: "scheduled",
+    label: "Agendadas",
+    types: ["scheduled.confirmed", "scheduled.skipped", "scheduled.deleted"],
+  },
+  {
+    id: "recurring",
+    label: "Recorrências",
+    types: ["recurring.created", "recurring.paused", "recurring.ended"],
+  },
+  { id: "import", label: "Importação", types: ["import.completed"] },
+  {
+    id: "connections",
+    label: "Conexões e portador",
+    types: [
+      "invite.deleted",
+      "invite.resent",
+      "connection.requested",
+      "connection.accepted",
+      "connection.rejected",
+      "connection.deleted",
+      "connection.resent",
+      "share.granted",
+      "share.permission_changed",
+      "share.revoked",
+      "portador.assigned",
+      "portador.accepted",
+      "portador.rejected",
+      "portador.settled",
+    ],
+  },
+];
+
+function toYmd(date: Date): string {
+  const y = date.getFullYear();
+  const m = String(date.getMonth() + 1).padStart(2, "0");
+  const d = String(date.getDate()).padStart(2, "0");
+  return `${y}-${m}-${d}`;
+}
+
+function shortDate(date: Date): string {
+  return `${String(date.getDate()).padStart(2, "0")}/${String(
+    date.getMonth() + 1,
+  ).padStart(2, "0")}`;
+}
+
+function periodLabel(range: CalendarRange): string {
+  if (!range.from) return "Período";
+  if (!range.to) return shortDate(range.from);
+  return `${shortDate(range.from)} – ${shortDate(range.to)}`;
+}
+
+function thisMonthRange(): CalendarRange {
+  const now = new Date();
+  return {
+    from: new Date(now.getFullYear(), now.getMonth(), 1),
+    to: new Date(now.getFullYear(), now.getMonth() + 1, 0),
+  };
+}
+
+/** Compact trigger-button + floating panel — same open/blur-to-close idiom
+ * already established by Select/AffixMenu, just without a search input
+ * (index.html id="select"'s `.hmc-select` toolbar trigger has no combobox
+ * behavior, unlike the form Select). Page-local: this isn't a new design
+ * system primitive, just shared boilerplate between the 2 toolbar filters
+ * below that need a popover instead of Select's full labeled input. */
+function FilterPopover({
+  label,
+  triggerLabel,
+  open,
+  onOpenChange,
+  children,
+}: {
+  label: string;
+  triggerLabel: string;
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  children: ReactNode;
+}) {
+  const ref = useRef<HTMLDivElement>(null);
+  return (
+    <div
+      className="relative"
+      ref={ref}
+      onBlur={(event) => {
+        if (!ref.current?.contains(event.relatedTarget as Node)) {
+          onOpenChange(false);
+        }
+      }}
+    >
+      <button
+        type="button"
+        aria-haspopup="true"
+        aria-expanded={open}
+        aria-label={label}
+        onClick={() => onOpenChange(!open)}
+        className={[
+          "flex items-center gap-2 rounded-[var(--hm-r-md)] border px-3.5 py-2 text-[.875rem]",
+          "bg-[var(--hm-surface)] text-[var(--hm-text)] transition-colors duration-150",
+          open
+            ? "border-[var(--hm-ink-300)]"
+            : "border-[var(--hm-border)] hover:border-[var(--hm-ink-300)]",
+        ].join(" ")}
+      >
+        {triggerLabel}
+        <svg
+          aria-hidden="true"
+          viewBox="0 0 20 20"
+          fill="currentColor"
+          className={[
+            "h-3.5 w-3.5 flex-none text-[var(--hm-text-2)] transition-transform duration-150",
+            open ? "rotate-180" : "",
+          ].join(" ")}
+        >
+          <path
+            fillRule="evenodd"
+            d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z"
+            clipRule="evenodd"
+          />
+        </svg>
+      </button>
+      {open ? (
+        <div className="absolute left-0 top-full z-20 mt-1.5">{children}</div>
+      ) : null}
+    </div>
+  );
 }
 
 function todayYmd(): string {
@@ -410,7 +582,33 @@ export function TimelinePage() {
   const [hiddenChipIds, setHiddenChipIds] = useState<Set<string>>(new Set());
   const [walletDialogOpen, setWalletDialogOpen] = useState(false);
   const [txDialogOpen, setTxDialogOpen] = useState(false);
+  const [periodRange, setPeriodRange] = useState<CalendarRange>({});
+  const [calendarMonth, setCalendarMonth] = useState<Date>(() => new Date());
+  const [periodOpen, setPeriodOpen] = useState(false);
+  const [eventTypesOpen, setEventTypesOpen] = useState(false);
+  const [hiddenEventGroupIds, setHiddenEventGroupIds] = useState<Set<string>>(
+    new Set(),
+  );
+  const [categoryFilterId, setCategoryFilterId] = useState<string | null>(null);
+  const [categoryOpen, setCategoryOpen] = useState(false);
   const queryClient = useQueryClient();
+
+  function toggleEventGroup(id: string) {
+    setHiddenEventGroupIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) {
+        next.delete(id);
+        return next;
+      }
+      // Never let every group be hidden at once — GET /v1/timeline treats an
+      // empty `types` CSV the same as "no filter at all" (splitCsv collapses
+      // `[]` back to `undefined`), so hiding the last visible group would
+      // silently show everything instead of nothing.
+      if (prev.size >= EVENT_TYPE_GROUPS.length - 1) return prev;
+      next.add(id);
+      return next;
+    });
+  }
 
   const invalidateTimeline = () =>
     queryClient.invalidateQueries({ queryKey: ["timeline"] });
@@ -504,8 +702,35 @@ export function TimelinePage() {
     .filter((id) => !hiddenChipIds.has(id));
   const hasActiveFilter = hiddenChipIds.size > 0;
 
+  const categoriesQuery = useQuery({
+    queryKey: ["categories"],
+    queryFn: () => apiFetchJson<CategoryDto[]>("/categories"),
+    enabled: hasSession,
+  });
+
+  const eventTypesFilterActive = hiddenEventGroupIds.size > 0;
+  const visibleEventTypes = eventTypesFilterActive
+    ? EVENT_TYPE_GROUPS.filter((g) => !hiddenEventGroupIds.has(g.id)).flatMap(
+        (g) => g.types,
+      )
+    : undefined;
+  const eventTypesTriggerLabel = eventTypesFilterActive
+    ? `Tipo de evento (${EVENT_TYPE_GROUPS.length - hiddenEventGroupIds.size}/${EVENT_TYPE_GROUPS.length})`
+    : "Todos os tipos";
+  const categoryFilterLabel = categoryFilterId
+    ? ((categoriesQuery.data ?? []).find((c) => c.id === categoryFilterId)
+        ?.name ?? "Categoria")
+    : "Todas as categorias";
+
   const timelineQuery = useInfiniteQuery({
-    queryKey: ["timeline", [...hiddenChipIds].sort()],
+    queryKey: [
+      "timeline",
+      [...hiddenChipIds].sort(),
+      visibleEventTypes,
+      categoryFilterId,
+      periodRange.from ? toYmd(periodRange.from) : null,
+      periodRange.to ? toYmd(periodRange.to) : null,
+    ],
     queryFn: ({ pageParam }: { pageParam: string | undefined }) => {
       const params = new URLSearchParams();
       if (pageParam) params.set("cursor", pageParam);
@@ -513,6 +738,10 @@ export function TimelinePage() {
         params.set("accountIds", visibleAccountIds.join(","));
         params.set("cardIds", visibleCardIds.join(","));
       }
+      if (visibleEventTypes) params.set("types", visibleEventTypes.join(","));
+      if (categoryFilterId) params.set("categoryId", categoryFilterId);
+      if (periodRange.from) params.set("from", toYmd(periodRange.from));
+      if (periodRange.to) params.set("to", toYmd(periodRange.to));
       const qs = params.toString();
       return apiFetchJson<TimelinePageDto>(`/timeline${qs ? `?${qs}` : ""}`);
     },
@@ -551,6 +780,13 @@ export function TimelinePage() {
     0,
   );
   const openInvoices = (cardsQuery.data ?? []).filter((c) => c.usedCents > 0);
+  const totalInvoicesCents = openInvoices.reduce(
+    (sum, c) => sum + c.usedCents,
+    0,
+  );
+  // §6.12 item 6's "patrimônio total" — no investments in the MVP schema yet
+  // (PRODUCT.md), so ativos-passivos is just contas menos faturas em aberto.
+  const netWorthCents = netBalanceCents - totalInvoicesCents;
 
   if (isBooting) {
     return <p className="p-6 text-[var(--hm-text-2)]">Carregando…</p>;
@@ -583,9 +819,13 @@ export function TimelinePage() {
             <h1 className="text-xl font-bold text-[var(--hm-text)]">
               Timeline
             </h1>
-            <Button onClick={() => setTxDialogOpen(true)}>
-              + Transação
-            </Button>
+            {/* Hidden during ativação (§6.11): sem conta/cartão cadastrado, os
+                selects de destino do NewTransactionDialog ficam vazios e o
+                usuário nunca consegue submeter o formulário — um beco sem
+                saída em vez de um "+ Transação" utilizável. */}
+            {pendingActivation.length === 0 ? (
+              <Button onClick={() => setTxDialogOpen(true)}>+ Transação</Button>
+            ) : null}
           </div>
           <NewTransactionDialog
             open={txDialogOpen}
@@ -654,40 +894,150 @@ export function TimelinePage() {
             </div>
           ) : (
             <>
-              {chips.length > 0 ? (
-                <div className="mb-4 flex flex-wrap gap-2">
-                  {chips.map((chip) => {
-                    const hidden = hiddenChipIds.has(chip.id);
-                    return (
-                      <button
-                        key={chip.id}
-                        type="button"
-                        onClick={() =>
-                          setHiddenChipIds((prev) => {
-                            const next = new Set(prev);
-                            if (next.has(chip.id)) next.delete(chip.id);
-                            else next.add(chip.id);
-                            return next;
-                          })
-                        }
-                      >
-                        <Badge
-                          kind="status"
-                          status={hidden ? "inactive" : "active"}
+              <div className="mb-4 flex flex-wrap items-center gap-2 border-y border-[var(--hm-border)] py-3">
+                {chips.length > 0 ? (
+                  <>
+                    <span className="hm-label mr-1">Mostrar</span>
+                    {chips.map((chip) => {
+                      const hidden = hiddenChipIds.has(chip.id);
+                      return (
+                        <button
+                          key={chip.id}
+                          type="button"
+                          onClick={() =>
+                            setHiddenChipIds((prev) => {
+                              const next = new Set(prev);
+                              if (next.has(chip.id)) next.delete(chip.id);
+                              else next.add(chip.id);
+                              return next;
+                            })
+                          }
                         >
-                          {chip.label}
-                        </Badge>
+                          <Badge
+                            kind="status"
+                            status={hidden ? "inactive" : "active"}
+                          >
+                            {chip.label}
+                          </Badge>
+                        </button>
+                      );
+                    })}
+                    {hasActiveFilter ? (
+                      <p className="text-xs text-[var(--hm-text-2)]">
+                        {chips.length - hiddenChipIds.size} de {chips.length}{" "}
+                        contas/cartões visíveis
+                      </p>
+                    ) : null}
+                  </>
+                ) : null}
+
+                <FilterPopover
+                  label="Filtrar por período"
+                  triggerLabel={periodLabel(periodRange)}
+                  open={periodOpen}
+                  onOpenChange={setPeriodOpen}
+                >
+                  <Calendar
+                    label="Selecione o período"
+                    mode="range"
+                    month={calendarMonth}
+                    onMonthChange={setCalendarMonth}
+                    selected={periodRange}
+                    onSelect={(value) => {
+                      const range = value as CalendarRange;
+                      setPeriodRange(range);
+                      if (range.from && range.to) setPeriodOpen(false);
+                    }}
+                    footer={
+                      <>
+                        <Button
+                          variant="tertiary"
+                          size="sm"
+                          onClick={() => {
+                            setPeriodRange(thisMonthRange());
+                            setPeriodOpen(false);
+                          }}
+                        >
+                          Este mês
+                        </Button>
+                        <Button
+                          variant="tertiary"
+                          size="sm"
+                          onClick={() => {
+                            setPeriodRange({});
+                            setPeriodOpen(false);
+                          }}
+                        >
+                          Limpar
+                        </Button>
+                      </>
+                    }
+                  />
+                </FilterPopover>
+
+                <FilterPopover
+                  label="Filtrar por tipo de evento"
+                  triggerLabel={eventTypesTriggerLabel}
+                  open={eventTypesOpen}
+                  onOpenChange={setEventTypesOpen}
+                >
+                  <div className="flex w-64 flex-col gap-2.5 rounded-[var(--hm-r-md)] border border-[var(--hm-border)] bg-[var(--hm-surface)] p-3.5 shadow-[var(--hm-e2)]">
+                    {EVENT_TYPE_GROUPS.map((group) => {
+                      const checked = !hiddenEventGroupIds.has(group.id);
+                      const isLastVisible =
+                        checked &&
+                        hiddenEventGroupIds.size >=
+                          EVENT_TYPE_GROUPS.length - 1;
+                      return (
+                        <Checkbox
+                          key={group.id}
+                          label={group.label}
+                          checked={checked}
+                          disabled={isLastVisible}
+                          onChange={() => toggleEventGroup(group.id)}
+                        />
+                      );
+                    })}
+                  </div>
+                </FilterPopover>
+
+                <FilterPopover
+                  label="Filtrar por categoria"
+                  triggerLabel={categoryFilterLabel}
+                  open={categoryOpen}
+                  onOpenChange={setCategoryOpen}
+                >
+                  <div className="flex w-56 flex-col overflow-hidden rounded-[var(--hm-r-md)] border border-[var(--hm-border)] bg-[var(--hm-surface)] py-1 shadow-[var(--hm-e2)]">
+                    {[
+                      {
+                        id: null as string | null,
+                        label: "Todas as categorias",
+                      },
+                      ...(categoriesQuery.data ?? []).map((c) => ({
+                        id: c.id,
+                        label: c.name,
+                      })),
+                    ].map((option) => (
+                      <button
+                        key={option.id ?? "__all__"}
+                        type="button"
+                        onClick={() => {
+                          setCategoryFilterId(option.id);
+                          setCategoryOpen(false);
+                        }}
+                        className={[
+                          "px-3.5 py-2 text-left text-[.875rem]",
+                          categoryFilterId === option.id
+                            ? "bg-[var(--hm-blue-100)] font-bold text-[var(--hm-text)] dark:bg-[var(--hm-blue-700)]/30"
+                            : "text-[var(--hm-text)] hover:bg-[var(--hm-surface-sunken)]",
+                        ].join(" ")}
+                      >
+                        {option.label}
                       </button>
-                    );
-                  })}
-                  {hasActiveFilter ? (
-                    <p className="text-xs text-[var(--hm-text-2)]">
-                      {chips.length - hiddenChipIds.size} de {chips.length}{" "}
-                      contas/cartões visíveis
-                    </p>
-                  ) : null}
-                </div>
-              ) : null}
+                    ))}
+                  </div>
+                </FilterPopover>
+              </div>
 
               {timelineQuery.isLoading ? <TimelineSkeleton /> : null}
               {timelineQuery.isError ? (
@@ -753,36 +1103,81 @@ export function TimelinePage() {
         </div>
 
         <aside className="flex flex-col gap-4">
-          <div className="rounded-[var(--hm-r-lg)] border border-[var(--hm-border)] p-4">
-            <p className="mb-1 text-xs uppercase tracking-wide text-[var(--hm-text-2)]">
-              Saldo líquido
-            </p>
-            <p className="text-lg font-semibold text-[var(--hm-text)]">
-              {(netBalanceCents / 100).toLocaleString("pt-BR", {
-                style: "currency",
-                currency: "BRL",
-              })}
-            </p>
-          </div>
+          <Card>
+            <p className="hm-label mb-1">Saldo líquido</p>
+            <Mono
+              variant="number"
+              className="text-lg font-semibold text-[var(--hm-text)]"
+            >
+              {formatMoney(netBalanceCents)}
+            </Mono>
+            {/* §6.12 item 6 — quebra por conta/instituição sob o total. */}
+            {(accountsQuery.data ?? []).length > 0 ? (
+              <div className="mt-4 flex flex-col gap-2 border-t border-[var(--hm-border)] pt-3">
+                {(accountsQuery.data ?? []).map((a) => (
+                  <div
+                    key={a.id}
+                    className="flex items-center justify-between gap-2"
+                  >
+                    <Body as="span" muted className="truncate text-[.8125rem]">
+                      {a.name || a.institutionName}
+                    </Body>
+                    <Mono
+                      variant="number"
+                      className="flex-none text-[.8125rem]"
+                    >
+                      {formatMoney(a.balanceCents)}
+                    </Mono>
+                  </div>
+                ))}
+              </div>
+            ) : null}
+          </Card>
 
-          {openInvoices.length > 0 ? (
-            <div className="rounded-[var(--hm-r-lg)] border border-[var(--hm-border)] p-4">
-              <p className="mb-2 text-xs uppercase tracking-wide text-[var(--hm-text-2)]">
+          <Card>
+            <div className="flex items-baseline justify-between">
+              <Body as="span" muted>
                 Faturas em aberto
-              </p>
-              <ul className="flex flex-col gap-1 text-sm text-[var(--hm-text)]">
+              </Body>
+              <Mono variant="number" tone="out" className="text-[.9375rem]">
+                {totalInvoicesCents > 0 ? "− " : ""}
+                {formatMoney(totalInvoicesCents)}
+              </Mono>
+            </div>
+            <div className="mt-3 flex items-baseline justify-between border-t border-[var(--hm-border)] pt-3">
+              <Body as="span" muted>
+                Patrimônio total
+              </Body>
+              <Mono
+                variant="number"
+                tone={netWorthCents < 0 ? "out" : "default"}
+                className="text-[.9375rem]"
+              >
+                {formatMoney(netWorthCents)}
+              </Mono>
+            </div>
+            {openInvoices.length > 0 ? (
+              <ul className="mt-3 flex flex-col gap-1 border-t border-[var(--hm-border)] pt-3">
                 {openInvoices.map((c) => (
-                  <li key={c.id}>
-                    {c.name || c.institutionName} —{" "}
-                    {(c.usedCents / 100).toLocaleString("pt-BR", {
-                      style: "currency",
-                      currency: "BRL",
-                    })}
+                  <li
+                    key={c.id}
+                    className="flex items-center justify-between gap-2"
+                  >
+                    <Body as="span" muted className="truncate text-[.8125rem]">
+                      {c.name || c.institutionName}
+                    </Body>
+                    <Mono
+                      variant="number"
+                      tone="out"
+                      className="flex-none text-[.8125rem]"
+                    >
+                      − {formatMoney(c.usedCents)}
+                    </Mono>
                   </li>
                 ))}
               </ul>
-            </div>
-          ) : null}
+            ) : null}
+          </Card>
 
           <Link
             to="/dashboard"
