@@ -1,3 +1,14 @@
+## Pre-PR Checklist
+
+Before opening a pull request:
+- **Lint:** Run `npm run lint` or `biome check` on changed files. Don't rely on CI to catch it.
+  - Narrow: `biome check packages/ui/src/components/Alert/` (or whatever changed)
+  - Full: `npm run lint` (slower, but catches everything)
+- **Tests:** Confirm local test suite passes
+- **Typecheck:** Confirm TypeScript is clean
+
+This prevents lint-fail PRs that waste reviewer time.
+
 ## graphify
 
 This project has a knowledge graph at graphify-out/ with god nodes, community structure, and cross-file relationships.
