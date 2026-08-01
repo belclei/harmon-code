@@ -82,6 +82,34 @@ describe("recurring-transactions (US-3.9b)", () => {
     expect(body.referenceAmountBRLCents).toBe(200_000);
   });
 
+  // Bug report: a new series never showed up on the Timeline. Root cause —
+  // TimelineEventRow/EVENT_TEXT (@harmon/ui) already has copy for
+  // recurring.created/paused/ended, and GET /v1/timeline already reads
+  // straight from DomainEvent, but this route never wrote one.
+  it("emits a recurring.created DomainEvent on creation, so it shows up on the Timeline", async () => {
+    const { userId, accessToken } = await authedUser();
+    const acc = await account(userId);
+    const created = await server.inject({
+      method: "POST",
+      url: "/v1/recurring-transactions",
+      headers: auth(accessToken),
+      payload: {
+        description: "Aluguel apartamento novo",
+        kind: "expense",
+        accountId: acc.id,
+        referenceAmountCents: 200_000,
+        dayOfMonth: 10,
+        startDate: "2026-09-01",
+      },
+    });
+    const events = await server.prisma.domainEvent.findMany({
+      where: { aggregateId: created.json().id, type: "recurring.created" },
+    });
+    expect(events).toHaveLength(1);
+    expect(events[0]?.userId).toBe(userId);
+    expect(events[0]?.aggregateType).toBe("RecurringTransaction");
+  });
+
   it("rejects a series that is both account and card", async () => {
     const { userId, accessToken } = await authedUser();
     const acc = await account(userId);
@@ -128,6 +156,73 @@ describe("recurring-transactions (US-3.9b)", () => {
     expect(res.statusCode).toBe(200);
     expect(res.json().isActive).toBe(false);
     expect(res.json().endDate).toBe("2026-12-31");
+  });
+
+  it("emits recurring.paused when isActive flips to false, and recurring.ended when endDate is set", async () => {
+    const { userId, accessToken } = await authedUser();
+    const acc = await account(userId);
+    const created = await server.inject({
+      method: "POST",
+      url: "/v1/recurring-transactions",
+      headers: auth(accessToken),
+      payload: {
+        description: "Netflix",
+        kind: "expense",
+        accountId: acc.id,
+        referenceAmountCents: 5_590,
+        dayOfMonth: 15,
+        startDate: "2026-01-01",
+      },
+    });
+    const id = created.json().id;
+    await server.inject({
+      method: "PATCH",
+      url: `/v1/recurring-transactions/${id}`,
+      headers: auth(accessToken),
+      payload: { isActive: false, endDate: "2026-12-31" },
+    });
+    const paused = await server.prisma.domainEvent.findMany({
+      where: { aggregateId: id, type: "recurring.paused" },
+    });
+    const ended = await server.prisma.domainEvent.findMany({
+      where: { aggregateId: id, type: "recurring.ended" },
+    });
+    expect(paused).toHaveLength(1);
+    expect(paused[0]?.userId).toBe(userId);
+    expect(ended).toHaveLength(1);
+    expect(ended[0]?.userId).toBe(userId);
+  });
+
+  it("does not emit recurring.paused when isActive is set to true (resume has no catalog event)", async () => {
+    const { userId, accessToken } = await authedUser();
+    const acc = await account(userId);
+    const created = await server.inject({
+      method: "POST",
+      url: "/v1/recurring-transactions",
+      headers: auth(accessToken),
+      payload: {
+        description: "Netflix",
+        kind: "expense",
+        accountId: acc.id,
+        referenceAmountCents: 5_590,
+        dayOfMonth: 15,
+        startDate: "2026-01-01",
+      },
+    });
+    const id = created.json().id;
+    await server.inject({
+      method: "PATCH",
+      url: `/v1/recurring-transactions/${id}`,
+      headers: auth(accessToken),
+      payload: { isActive: true },
+    });
+    const events = await server.prisma.domainEvent.findMany({
+      where: {
+        aggregateId: id,
+        type: { in: ["recurring.paused", "recurring.ended"] },
+      },
+    });
+    expect(events).toHaveLength(0);
   });
 
   it("deleting a series keeps past occurrences and unlinks them (no cascade)", async () => {
