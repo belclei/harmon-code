@@ -12,11 +12,13 @@
     "test": "npm run test --workspaces --if-present",
     "boundaries": "depcruise --config .dependency-cruiser.cjs packages $([ -d apps ] && echo apps)",
     "storybook": "npm run storybook --workspace=@harmon/ui",
-    "build-storybook": "npm run build-storybook --workspace=@harmon/ui"
+    "build-storybook": "npm run build-storybook --workspace=@harmon/ui",
+    "dev": "concurrently -n api,web -c blue,green \"npm run dev --workspace=@harmon/api\" \"npm run dev --workspace=@harmon/web\""
   },
   "devDependencies": {
     "@biomejs/biome": "^1.9.4",
     "@types/node": "^20.17.9",
+    "concurrently": "^9.1.0",
     "dependency-cruiser": "^16.10.0",
     "typescript": "^5.7.2"
   }

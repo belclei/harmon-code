@@ -1,4 +1,5 @@
 // apps/api/src/index.ts
+import "dotenv/config";
 import { buildServer } from "./server.js";
 
 const server = await buildServer();
