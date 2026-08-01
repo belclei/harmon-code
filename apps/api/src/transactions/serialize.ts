@@ -39,13 +39,63 @@ export interface TransactionResponse {
   installmentPurchaseAmountCents: number | null;
   recurringTransactionId: string | null;
   createdAt: string;
+  installmentDetails?: InstallmentDetail;
 }
 
 function ymd(date: Date): string {
   return date.toISOString().slice(0, 10);
 }
 
-export function toTransactionResponse(tx: Transaction): TransactionResponse {
+function calculateInstallmentDetails(
+  tx: Transaction,
+  allTxByGroupId: Map<string, Transaction[]>,
+): InstallmentDetail | undefined {
+  if (!tx.installmentGroupId || !tx.installmentNumber || !tx.installmentTotal) {
+    return undefined;
+  }
+
+  const groupTxs = allTxByGroupId.get(tx.installmentGroupId) ?? [];
+  if (groupTxs.length === 0) return undefined;
+
+  const original = groupTxs.find((t) => t.installmentNumber === 1);
+  if (!original) return undefined;
+
+  const paidCount = groupTxs.filter(
+    (t) => t.installmentNumber! < tx.installmentNumber! && !t.isScheduled
+  ).length;
+  const paidAmountCents = paidCount * tx.amountCents;
+  const remainingCount = tx.installmentTotal! - paidCount - 1;
+  const remainingAmountCents = remainingCount * tx.amountCents;
+
+  const nextDate = new Date(tx.transactionDate);
+  nextDate.setMonth(nextDate.getMonth() + 1);
+
+  const payoffDate = new Date(original.transactionDate);
+  payoffDate.setMonth(payoffDate.getMonth() + original.installmentTotal! - 1);
+
+  return {
+    originalAmountCents: original.amountCents,
+    originalDate: ymd(original.transactionDate),
+    installmentNumber: tx.installmentNumber,
+    installmentTotal: tx.installmentTotal,
+    hasInterest: false,
+    paidCount,
+    paidAmountCents,
+    remainingCount,
+    remainingAmountCents,
+    nextInstallmentDate: ymd(nextDate),
+    payoffDate: ymd(payoffDate),
+  };
+}
+
+export function toTransactionResponse(
+  tx: Transaction,
+  installmentsByGroupId?: Map<string, Transaction[]>,
+): TransactionResponse {
+  const details = installmentsByGroupId
+    ? calculateInstallmentDetails(tx, installmentsByGroupId)
+    : undefined;
+
   return {
     id: tx.id,
     kind: tx.kind,
@@ -67,5 +117,6 @@ export function toTransactionResponse(tx: Transaction): TransactionResponse {
     installmentPurchaseAmountCents: tx.installmentPurchaseAmountCents,
     recurringTransactionId: tx.recurringTransactionId,
     createdAt: tx.createdAt.toISOString(),
+    ...(details ? { installmentDetails: details } : {}),
   };
 }
