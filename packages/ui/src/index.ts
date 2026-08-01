@@ -38,3 +38,4 @@ export * from "./components/StagingReviewRow/StagingReviewRow";
 export * from "./components/PortadorCard/PortadorCard";
 export * from "./components/Avatar/Avatar";
 export * from "./components/CategoryIcon/CategoryIcon";
+export * from "./components/TransferPairCard/TransferPairCard";
