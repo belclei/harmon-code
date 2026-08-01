@@ -4,7 +4,7 @@
 // Nunca cascateia sobre ocorrências passadas: as ocorrências são Transactions
 // ligadas por recurringTransactionId — mexer na série não toca nelas.
 import { makeDate } from "@harmon/core";
-import type { RecurringTransaction } from "@harmon/db";
+import type { Prisma, RecurringTransaction } from "@harmon/db";
 import type { FastifyInstance } from "fastify";
 import { z } from "zod";
 import { requireUser } from "../auth/authenticate.js";
@@ -46,6 +46,28 @@ const UpdateBody = z
 function parseDate(ymd: string): Date {
   const [y, m, d] = ymd.split("-");
   return makeDate(Number(y), Number(m), Number(d));
+}
+
+// Timeline structural events for the series' own lifecycle (§6.7/§6.12) —
+// TimelineEventRow/EVENT_TEXT (@harmon/ui) already has copy for these 3
+// types ("Nova recorrência cadastrada"/"pausada"/"encerrada"); this route
+// just never wrote the DomainEvent that GET /v1/timeline reads.
+async function fireEvent(
+  fastify: FastifyInstance,
+  userId: string,
+  type: string,
+  aggregateId: string,
+  payload: Prisma.InputJsonValue,
+): Promise<void> {
+  await fastify.prisma.domainEvent.create({
+    data: {
+      userId,
+      type,
+      aggregateType: "RecurringTransaction",
+      aggregateId,
+      payload,
+    },
+  });
 }
 
 function serialize(r: RecurringTransaction) {
@@ -105,6 +127,9 @@ export async function registerRecurringTransactionRoutes(
           startDate: parseDate(body.startDate),
           endDate: body.endDate ? parseDate(body.endDate) : null,
         },
+      });
+      await fireEvent(fastify, userId, "recurring.created", series.id, {
+        itemLabel: series.description,
       });
       return reply.code(201).send(serialize(series));
     },
@@ -177,6 +202,16 @@ export async function registerRecurringTransactionRoutes(
             : {}),
         },
       });
+      if (body.isActive === false) {
+        await fireEvent(fastify, userId, "recurring.paused", id, {
+          itemLabel: updated.description,
+        });
+      }
+      if (body.endDate) {
+        await fireEvent(fastify, userId, "recurring.ended", id, {
+          itemLabel: updated.description,
+        });
+      }
       return serialize(updated);
     },
   );
