@@ -67,26 +67,30 @@ const INLINE_TONE: Record<AlertVariant, string> = {
 // instead of the flat pastel for the background.
 const VARIANT_STYLES: Record<
   AlertVariant,
-  { bg: string; icon: string; role: "status" | "alert" }
+  { bg: string; icon: string; border: string; role: "status" | "alert" }
 > = {
   info: {
     bg: "bg-[var(--hm-blue-100)] dark:bg-[var(--hm-blue-700)]/20",
     icon: "text-[var(--hm-blue-700)] dark:text-[var(--hm-blue-300)]",
+    border: "border-[var(--hm-blue-700)] dark:border-[var(--hm-blue-300)]",
     role: "status",
   },
   success: {
     bg: "bg-[var(--hm-sage-100)] dark:bg-[var(--hm-sage-700)]/20",
     icon: "text-[var(--hm-sage-700)] dark:text-[var(--hm-sage-300)]",
+    border: "border-[var(--hm-sage-700)] dark:border-[var(--hm-sage-300)]",
     role: "status",
   },
   warning: {
     bg: "bg-[var(--hm-sand-100)] dark:bg-[var(--hm-sand-700)]/20",
     icon: "text-[var(--hm-sand-700)] dark:text-[var(--hm-sand-300)]",
+    border: "border-[var(--hm-sand-700)] dark:border-[var(--hm-sand-300)]",
     role: "alert",
   },
   error: {
     bg: "bg-[var(--hm-clay-100)] dark:bg-[var(--hm-clay-600)]/20",
     icon: "text-[var(--hm-clay-650)] dark:text-[var(--hm-clay-500)]",
+    border: "border-[var(--hm-clay-650)] dark:border-[var(--hm-clay-500)]",
     role: "alert",
   },
 };
@@ -194,6 +198,7 @@ export function Alert({
         // previous single-div version silently never fired.
         "@container rounded-[var(--hm-r-md)]",
         styles.bg,
+        styles.border,
         className,
       ].join(" ")}
     >
