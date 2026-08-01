@@ -3,7 +3,9 @@
 // (ARQUITETURA.md §6.12). Função pura: I/O (filtros, fetch) fica em routes.ts;
 // aqui só agrupamento + paginação por cursor, testável sem banco.
 import type { DomainEvent, Transaction } from "@harmon/db";
-import { toTransactionResponse } from "../transactions/serialize.js";
+import { toTransactionResponse, type InstallmentDetail } from "../transactions/serialize.js";
+
+export type { InstallmentDetail };
 
 export interface TimelineEventItem {
   itemType: "event";

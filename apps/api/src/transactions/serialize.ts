@@ -4,6 +4,20 @@
 // valor (§1.4): amountCents/amountBRLCents são sempre positivos.
 import type { Transaction } from "@harmon/db";
 
+export interface InstallmentDetail {
+  originalAmountCents: number;
+  originalDate: string;
+  installmentNumber: number;
+  installmentTotal: number;
+  hasInterest: boolean;
+  paidCount: number;
+  paidAmountCents: number;
+  remainingCount: number;
+  remainingAmountCents: number;
+  nextInstallmentDate: string;
+  payoffDate: string;
+}
+
 export interface TransactionResponse {
   id: string;
   kind: Transaction["kind"];
