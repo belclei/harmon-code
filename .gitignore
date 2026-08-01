@@ -14,5 +14,6 @@ coverage/
 !.env.*.example
 .DS_Store
 .superpowers/
+.worktrees/
 .playwright-mcp/
 graphify-out/
