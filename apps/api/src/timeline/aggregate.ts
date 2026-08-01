@@ -3,7 +3,10 @@
 // (ARQUITETURA.md §6.12). Função pura: I/O (filtros, fetch) fica em routes.ts;
 // aqui só agrupamento + paginação por cursor, testável sem banco.
 import type { DomainEvent, Transaction } from "@harmon/db";
-import { toTransactionResponse, type InstallmentDetail } from "../transactions/serialize.js";
+import {
+  type InstallmentDetail,
+  toTransactionResponse,
+} from "../transactions/serialize.js";
 
 export type { InstallmentDetail };
 

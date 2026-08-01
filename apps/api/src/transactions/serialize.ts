@@ -61,7 +61,7 @@ function calculateInstallmentDetails(
   if (!original) return undefined;
 
   const paidCount = groupTxs.filter(
-    (t) => t.installmentNumber! < tx.installmentNumber! && !t.isScheduled
+    (t) => t.installmentNumber! < tx.installmentNumber! && !t.isScheduled,
   ).length;
   const paidAmountCents = paidCount * tx.amountCents;
   const remainingCount = tx.installmentTotal! - paidCount - 1;

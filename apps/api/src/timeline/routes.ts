@@ -1,3 +1,4 @@
+import { balance } from "@harmon/core";
 // apps/api/src/timeline/routes.ts
 // BACKLOG.md US-6.1 — GET /v1/timeline: Transaction+DomainEvent interleaved,
 // agregado por dia, paginado por cursor, filtrável por período/conta-cartão
@@ -116,19 +117,101 @@ export async function registerTimelineRoutes(
       // "transaction" (pseudo-tipo) não está entre os selecionados.
       const includeTransactions = !types || types.includes("transaction");
 
-      const [transactions, events] = await Promise.all([
-        includeTransactions
-          ? fastify.prisma.transaction.findMany({ where: txWhere })
-          : Promise.resolve([]),
-        // categoryId não filtra events — DomainEvent não tem esse conceito
-        // (§6 catalog); o filtro de categoria só restringe transações.
-        fastify.prisma.domainEvent.findMany({ where: eventWhere }),
-      ]);
+      const [transactions, events, allAccounts, allTransactions] =
+        await Promise.all([
+          includeTransactions
+            ? fastify.prisma.transaction.findMany({ where: txWhere })
+            : Promise.resolve([]),
+          // categoryId não filtra events — DomainEvent não tem esse conceito
+          // (§6 catalog); o filtro de categoria só restringe transações.
+          fastify.prisma.domainEvent.findMany({ where: eventWhere }),
+          // Fetch all accounts for current balance calculation
+          fastify.prisma.account.findMany({ where: { userId } }),
+          // Fetch all transactions (unfiltered) to calculate retroactive balances
+          fastify.prisma.transaction.findMany({ where: { userId } }),
+        ]);
 
-      return buildTimelinePage(transactions, events, {
+      const page = buildTimelinePage(transactions, events, {
         cursor: query.cursor,
         limit: query.limit,
       });
+
+      // Calculate current balance by summing all accounts
+      let currentBalanceCents = 0;
+      for (const account of allAccounts) {
+        const accountTransactions = allTransactions.filter(
+          (tx) => tx.accountId === account.id,
+        );
+        const money = balance({
+          account: {
+            id: account.id,
+            type: account.type,
+            openingBalanceCents: account.openingBalanceCents,
+            overdraftLimitCents: account.overdraftLimitCents,
+            isActive: account.isActive,
+          },
+          transactions: accountTransactions.map((tx) => ({
+            id: tx.id,
+            kind: tx.kind,
+            transferDirection: tx.transferDirection ?? undefined,
+            amountBRLCents: tx.amountBRLCents,
+            transactionDate: tx.transactionDate,
+            isScheduled: tx.isScheduled,
+            recurringTransactionId: tx.recurringTransactionId ?? undefined,
+          })),
+          asOf: new Date(),
+        });
+        currentBalanceCents += money.valueCents;
+      }
+
+      // Calculate retroactive balance for each day by walking backward through timeline
+      const dayBalances = new Map<string, number>();
+
+      // Sort filtered transactions by date for balance calculation
+      const transactionsByDate = new Map<string, typeof transactions>();
+      for (const tx of transactions) {
+        const dateStr = tx.transactionDate.toISOString().slice(0, 10);
+        const list = transactionsByDate.get(dateStr) ?? [];
+        list.push(tx);
+        transactionsByDate.set(dateStr, list);
+      }
+
+      // Process days in reverse chronological order (newest first)
+      const sortedDates = [...page.days.map((d) => d.date)].sort((a, b) =>
+        a < b ? 1 : -1,
+      );
+
+      let runningBalance = currentBalanceCents;
+      for (const date of sortedDates) {
+        // Record the balance at the end of this day
+        dayBalances.set(date, runningBalance);
+
+        // Calculate impact of transactions on this day
+        const dayTransactions = transactionsByDate.get(date) ?? [];
+        let dayImpact = 0;
+        for (const tx of dayTransactions) {
+          if (tx.kind === "income") {
+            dayImpact += tx.amountBRLCents;
+          } else if (tx.kind === "expense") {
+            dayImpact -= tx.amountBRLCents;
+          }
+          // transfers: no net impact on total balance (impact = 0)
+        }
+
+        // Update running balance for the previous day
+        runningBalance -= dayImpact;
+      }
+
+      // Merge balances into response
+      const pageWithBalances = {
+        ...page,
+        days: page.days.map((day) => ({
+          ...day,
+          balanceCents: dayBalances.get(day.date) ?? 0,
+        })),
+      };
+
+      return pageWithBalances;
     },
   );
 }
