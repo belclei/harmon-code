@@ -54,6 +54,23 @@ export type TxKind = "income" | "expense" | "transfer";
 export type TxSource = "manual" | "import";
 export type TxDirection = "out" | "in";
 
+// Mirrors apps/api/src/transactions/serialize.ts's InstallmentDetail —
+// same field names as @harmon/ui's TransactionRow InstallmentDetail, so this
+// passes through untouched from API response to TransactionRow prop.
+export interface InstallmentDetailDto {
+  originalAmountCents: number;
+  originalDate: string;
+  installmentNumber: number;
+  installmentTotal: number;
+  hasInterest: boolean;
+  paidCount: number;
+  paidAmountCents: number;
+  remainingCount: number;
+  remainingAmountCents: number;
+  nextInstallmentDate: string;
+  payoffDate: string;
+}
+
 export interface TransactionDto {
   id: string;
   kind: TxKind;
@@ -75,6 +92,12 @@ export interface TransactionDto {
   installmentPurchaseAmountCents: number | null;
   recurringTransactionId: string | null;
   createdAt: string;
+  // Optional: apps/api/src/timeline/aggregate.ts does not currently pass the
+  // installmentsByGroupId map into toTransactionResponse(), so this is never
+  // populated by GET /v1/timeline yet — the "installment" TransactionRow
+  // variant below is wired for when that backend gap closes, but exercises
+  // the categoryLabel ("Parcela N/M") fallback path in the meantime.
+  installmentDetails?: InstallmentDetailDto;
 }
 
 export interface RecurringDto {
@@ -131,6 +154,7 @@ export type TimelineItemDto = TimelineEventDto | TimelineTransactionDto;
 export interface TimelineDayDto {
   date: string;
   items: TimelineItemDto[];
+  balanceCents: number;
 }
 
 export interface TimelinePageDto {

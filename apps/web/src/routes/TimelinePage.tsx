@@ -11,6 +11,7 @@ import {
   Button,
   Calendar,
   Card,
+  CategoryIcon,
   Checkbox,
   Dialog,
   EmptyState,
@@ -23,9 +24,15 @@ import {
   TimelineAlertBanner,
   TimelineEventRow,
   TransactionRow,
+  TransferPairCard,
   formatMoney,
 } from "@harmon/ui";
-import type { AlertedEntity, CalendarRange, DomainEventType } from "@harmon/ui";
+import type {
+  AlertedEntity,
+  CalendarRange,
+  DomainEventType,
+  TransferAccount,
+} from "@harmon/ui";
 import {
   useInfiniteQuery,
   useMutation,
@@ -45,6 +52,7 @@ import { ApiError, apiFetchJson } from "../auth/api-client";
 import type {
   AccountDto,
   CardDto,
+  TimelineItemDto,
   TimelinePageDto,
   TransactionDto,
   TxKind,
@@ -55,6 +63,7 @@ interface CategoryDto {
   id: string;
   name: string;
   kind: TxKind;
+  icon: string;
 }
 
 interface CreateTxPayload {
@@ -161,6 +170,32 @@ function thisMonthRange(): CalendarRange {
   };
 }
 
+/** Header greeting (§6.12) — time-of-day salutation + full pt-BR date,
+ * both derived from the same `now` so they can't disagree (e.g. greeting
+ * says "Boa noite" off a stale render while the date already rolled over). */
+function greetingAndDate(): { greeting: string; dateLabel: string } {
+  const now = new Date();
+  const hour = now.getHours();
+  const greeting =
+    hour < 12 ? "Bom dia" : hour < 18 ? "Boa tarde" : "Boa noite";
+
+  const rawDateLabel = now.toLocaleDateString("pt-BR", {
+    weekday: "long",
+    day: "2-digit",
+    month: "long",
+    year: "numeric",
+    timeZone: "America/Sao_Paulo",
+  });
+  // toLocaleDateString's pt-BR weekday/month names come back lowercase
+  // ("quinta-feira, 01 de agosto de 2026") — capitalize just the leading
+  // letter, not every word (a blanket `capitalize` class would also
+  // uppercase "de" mid-string, which isn't correct Portuguese).
+  const dateLabel =
+    rawDateLabel.charAt(0).toUpperCase() + rawDateLabel.slice(1);
+
+  return { greeting, dateLabel };
+}
+
 /** Compact trigger-button + floating panel — same open/blur-to-close idiom
  * already established by Select/AffixMenu, just without a search input
  * (index.html id="select"'s `.hmc-select` toolbar trigger has no combobox
@@ -233,6 +268,20 @@ function todayYmd(): string {
   return new Date().toLocaleDateString("en-CA", {
     timeZone: "America/Sao_Paulo",
   });
+}
+
+function isToday(dateYmd: string): boolean {
+  return dateYmd === todayYmd();
+}
+
+function dayOfWeek(dateYmd: string): string {
+  // Fixed-width "YYYY-MM-DD" (en-CA locale format, same as todayYmd()) —
+  // slice() avoids noUncheckedIndexedAccess noise from array destructuring.
+  const year = Number(dateYmd.slice(0, 4));
+  const month = Number(dateYmd.slice(5, 7));
+  const day = Number(dateYmd.slice(8, 10));
+  const date = new Date(year, month - 1, day);
+  return date.toLocaleDateString("pt-BR", { weekday: "long" }).toUpperCase();
 }
 
 function NewTransactionDialog({
@@ -451,13 +500,25 @@ interface ScheduledHandlers {
   onDelete: (id: string) => void;
 }
 
-function transactionRowProps(tx: TransactionDto, scheduled: ScheduledHandlers) {
+function transactionRowProps(
+  tx: TransactionDto,
+  scheduled: ScheduledHandlers,
+  categoriesById: Map<string, CategoryDto>,
+  expandedInstallments: Set<string>,
+  onToggleInstallment: (id: string) => void,
+) {
+  const category = tx.categoryId
+    ? categoriesById.get(tx.categoryId)
+    : undefined;
   const common = {
     description: tx.description,
     date: tx.transactionDate,
     kind: tx.kind,
     amountCents: tx.amountCents,
     source: tx.source,
+    categoryIcon: category ? (
+      <CategoryIcon slug={category.icon} className="h-5 w-5 flex-none" />
+    ) : undefined,
     categoryLabel:
       tx.installmentTotal && tx.installmentNumber
         ? `Parcela ${tx.installmentNumber}/${tx.installmentTotal}`
@@ -488,7 +549,94 @@ function transactionRowProps(tx: TransactionDto, scheduled: ScheduledHandlers) {
       />
     );
   }
+  if (tx.installmentGroupId && tx.installmentDetails) {
+    return (
+      <TransactionRow
+        key={tx.id}
+        {...common}
+        // The dedicated badge (installmentNumber/installmentTotal) below
+        // already shows "N/M" — dropping the "Parcela N/M" categoryLabel
+        // here avoids saying it twice in the same row.
+        categoryLabel={undefined}
+        variant="installment"
+        installment={tx.installmentDetails}
+        expanded={expandedInstallments.has(tx.id)}
+        onViewAllInstallments={() => onToggleInstallment(tx.id)}
+      />
+    );
+  }
   return <TransactionRow key={tx.id} {...common} variant="default" />;
+}
+
+/** US-6.1's paired-transfer rendering (§6.12): a transfer is 2 Transaction
+ * rows sharing transferPairId (one "out", one "in") — TransferPairCard
+ * collapses them into a single card instead of 2 separate TransactionRows.
+ * Only searches the same day's items (brief's stated scope): a transfer
+ * whose pair lands on a different day — shouldn't happen since both legs
+ * share one transactionDate, but the API doesn't guarantee it — falls back
+ * to each leg rendering as its own "transfer" variant TransactionRow. */
+function findTransferPair(
+  tx: TransactionDto,
+  items: TimelineItemDto[],
+): TransactionDto | undefined {
+  for (const item of items) {
+    if (
+      item.itemType === "transaction" &&
+      item.transaction.id !== tx.id &&
+      item.transaction.transferPairId === tx.transferPairId &&
+      item.transaction.transferDirection === "in"
+    ) {
+      return item.transaction;
+    }
+  }
+  return undefined;
+}
+
+/** True when `tx` (the "in" leg of a transfer) has a same-day "out" pair —
+ * i.e. TransferPairCard already rendered this transfer once via that "out"
+ * leg (findTransferPair above), so the "in" leg itself should render
+ * nothing rather than show the same transfer a second time. */
+function hasOutTransferPair(
+  tx: TransactionDto,
+  items: TimelineItemDto[],
+): boolean {
+  return items.some(
+    (item) =>
+      item.itemType === "transaction" &&
+      item.transaction.id !== tx.id &&
+      item.transaction.transferPairId === tx.transferPairId &&
+      item.transaction.transferDirection === "out",
+  );
+}
+
+/** Resolves a transfer leg's own account/card into TransferPairCard's
+ * TransferAccount shape. balanceAfterCents is a best-effort stand-in for
+ * "balance right after this transfer" — GET /v1/timeline only returns each
+ * account/card's *current* balance, not a point-in-time snapshot, and
+ * TransferPairCard doesn't render this field today anyway (see Task 8
+ * report), so the gap is invisible but real if that changes later. */
+function resolveTransferParty(
+  tx: TransactionDto,
+  accountsById: Map<string, AccountDto>,
+  cardsById: Map<string, CardDto>,
+): TransferAccount {
+  if (tx.accountId) {
+    const account = accountsById.get(tx.accountId);
+    return {
+      name: account?.name || account?.institutionName || "Conta",
+      institution: account?.institutionName ?? "",
+      balanceAfterCents: account?.balanceCents ?? 0,
+    };
+  }
+  if (tx.creditCardId) {
+    const card = cardsById.get(tx.creditCardId);
+    return {
+      name: card?.name || card?.institutionName || "Cartão",
+      institution: card?.institutionName ?? "",
+      balanceAfterCents: card ? -card.usedCents : 0,
+    };
+  }
+  return { name: "Conta", institution: "", balanceAfterCents: 0 };
 }
 
 function TimelineSkeleton() {
@@ -591,7 +739,22 @@ export function TimelinePage() {
   );
   const [categoryFilterId, setCategoryFilterId] = useState<string | null>(null);
   const [categoryOpen, setCategoryOpen] = useState(false);
+  const [accountsOpen, setAccountsOpen] = useState(false);
+  // Task 10 (§6.12) — per-row "ver todas as parcelas" toggle for the
+  // installment TransactionRow variant, keyed by transaction id.
+  const [expandedInstallments, setExpandedInstallments] = useState<Set<string>>(
+    new Set(),
+  );
   const queryClient = useQueryClient();
+
+  function toggleInstallment(id: string) {
+    setExpandedInstallments((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  }
 
   function toggleEventGroup(id: string) {
     setHiddenEventGroupIds((prev) => {
@@ -708,6 +871,21 @@ export function TimelinePage() {
     enabled: hasSession,
   });
 
+  // O(1) lookups for the items render loop below — built once per data
+  // change instead of a .find() per row per re-render.
+  const categoriesById = useMemo(
+    () => new Map((categoriesQuery.data ?? []).map((c) => [c.id, c])),
+    [categoriesQuery.data],
+  );
+  const accountsById = useMemo(
+    () => new Map((accountsQuery.data ?? []).map((a) => [a.id, a])),
+    [accountsQuery.data],
+  );
+  const cardsById = useMemo(
+    () => new Map((cardsQuery.data ?? []).map((c) => [c.id, c])),
+    [cardsQuery.data],
+  );
+
   const eventTypesFilterActive = hiddenEventGroupIds.size > 0;
   const visibleEventTypes = eventTypesFilterActive
     ? EVENT_TYPE_GROUPS.filter((g) => !hiddenEventGroupIds.has(g.id)).flatMap(
@@ -796,6 +974,7 @@ export function TimelinePage() {
   }
 
   const days = timelineQuery.data?.pages.flatMap((page) => page.days) ?? [];
+  const { greeting, dateLabel } = greetingAndDate();
 
   return (
     <div className="mx-auto max-w-5xl px-4 py-8">
@@ -815,10 +994,18 @@ export function TimelinePage() {
 
       <div className="grid gap-8 lg:grid-cols-[1fr_280px]">
         <div>
-          <div className="mb-6 flex items-center justify-between">
-            <h1 className="text-xl font-bold text-[var(--hm-text)]">
-              Timeline
-            </h1>
+          <div className="mb-6 flex items-start justify-between gap-4">
+            <div>
+              <Body as="p" muted className="text-[.8125rem]">
+                {dateLabel}
+              </Body>
+              <h1 className="mt-1 text-xl font-bold text-[var(--hm-text)]">
+                {greeting}, {user.name}.
+              </h1>
+              <Body muted className="mt-1">
+                A narrativa do seu dinheiro — causa e efeito, dia a dia.
+              </Body>
+            </div>
             {/* Hidden during ativação (§6.11): sem conta/cartão cadastrado, os
                 selects de destino do NewTransactionDialog ficam vazios e o
                 usuário nunca consegue submeter o formulário — um beco sem
@@ -844,7 +1031,13 @@ export function TimelinePage() {
                 {activationDoneCount} de 3 concluídos
               </p>
               <div className="flex flex-col gap-3">
-                {pendingActivation.includes("wallet") ? (
+                {hasWallet ? (
+                  <Alert
+                    variant="success"
+                    title="Carteira registrada"
+                    description="Seu dinheiro físico já faz parte da Timeline."
+                  />
+                ) : (
                   <Alert
                     variant="warning"
                     title="Carteira"
@@ -856,10 +1049,16 @@ export function TimelinePage() {
                       },
                     ]}
                   />
-                ) : null}
-                {pendingActivation.includes("accounts") ? (
+                )}
+                {hasBankAccount ? (
                   <Alert
-                    variant="warning"
+                    variant="success"
+                    title="Contas registradas"
+                    description="Suas contas já aparecem na Timeline."
+                  />
+                ) : (
+                  <Alert
+                    variant="info"
                     title="Contas"
                     description="Adicione as contas de banco onde seu dinheiro vive — corrente ou poupança."
                     actions={[
@@ -869,10 +1068,16 @@ export function TimelinePage() {
                       },
                     ]}
                   />
-                ) : null}
-                {pendingActivation.includes("cards") ? (
+                )}
+                {hasCard ? (
                   <Alert
-                    variant="warning"
+                    variant="success"
+                    title="Cartões registrados"
+                    description="Seus cartões já aparecem na Timeline."
+                  />
+                ) : (
+                  <Alert
+                    variant="info"
                     title="Cartões"
                     description="Adicione seus cartões de crédito — limite, fechamento e vencimento."
                     actions={[
@@ -882,7 +1087,7 @@ export function TimelinePage() {
                       },
                     ]}
                   />
-                ) : null}
+                )}
               </div>
               <WalletDialog
                 open={walletDialogOpen}
@@ -896,39 +1101,45 @@ export function TimelinePage() {
             <>
               <div className="mb-4 flex flex-wrap items-center gap-2 border-y border-[var(--hm-border)] py-3">
                 {chips.length > 0 ? (
-                  <>
-                    <span className="hm-label mr-1">Mostrar</span>
-                    {chips.map((chip) => {
-                      const hidden = hiddenChipIds.has(chip.id);
-                      return (
-                        <button
-                          key={chip.id}
-                          type="button"
-                          onClick={() =>
-                            setHiddenChipIds((prev) => {
-                              const next = new Set(prev);
-                              if (next.has(chip.id)) next.delete(chip.id);
-                              else next.add(chip.id);
-                              return next;
-                            })
-                          }
-                        >
-                          <Badge
-                            kind="status"
-                            status={hidden ? "inactive" : "active"}
-                          >
-                            {chip.label}
-                          </Badge>
-                        </button>
-                      );
-                    })}
-                    {hasActiveFilter ? (
-                      <p className="text-xs text-[var(--hm-text-2)]">
-                        {chips.length - hiddenChipIds.size} de {chips.length}{" "}
-                        contas/cartões visíveis
-                      </p>
-                    ) : null}
-                  </>
+                  <FilterPopover
+                    label="Filtrar por conta ou cartão"
+                    triggerLabel={
+                      hasActiveFilter
+                        ? `${chips.length - hiddenChipIds.size} de ${chips.length} contas`
+                        : "Todas as contas"
+                    }
+                    open={accountsOpen}
+                    onOpenChange={setAccountsOpen}
+                  >
+                    <div className="flex w-64 flex-col gap-2.5 rounded-[var(--hm-r-md)] border border-[var(--hm-border)] bg-[var(--hm-surface)] p-3.5 shadow-[var(--hm-e2)]">
+                      {chips.map((chip) => {
+                        const checked = !hiddenChipIds.has(chip.id);
+                        // Same guard as the event-type filter above: an empty
+                        // accountIds/cardIds CSV collapses back to "no filter"
+                        // server-side (splitCsv, apps/api/src/timeline/routes.ts),
+                        // so hiding the last visible chip would silently show
+                        // everything instead of nothing.
+                        const isLastVisible =
+                          checked && hiddenChipIds.size >= chips.length - 1;
+                        return (
+                          <Checkbox
+                            key={chip.id}
+                            label={chip.label}
+                            checked={checked}
+                            disabled={isLastVisible}
+                            onChange={() =>
+                              setHiddenChipIds((prev) => {
+                                const next = new Set(prev);
+                                if (next.has(chip.id)) next.delete(chip.id);
+                                else next.add(chip.id);
+                                return next;
+                              })
+                            }
+                          />
+                        );
+                      })}
+                    </div>
+                  </FilterPopover>
                 ) : null}
 
                 <FilterPopover
@@ -1056,35 +1267,111 @@ export function TimelinePage() {
               ) : null}
 
               <div className="flex flex-col gap-6">
-                {days.map((day) => (
-                  <section key={day.date}>
-                    <h2 className="mb-2 text-sm font-semibold uppercase tracking-wide text-[var(--hm-text-2)]">
-                      {day.date}
-                    </h2>
-                    <div className="flex flex-col gap-2">
-                      {day.items.map((item) =>
-                        item.itemType === "transaction" ? (
-                          transactionRowProps(
-                            item.transaction,
+                {days.map((day) => {
+                  const today = isToday(day.date);
+                  const dow = dayOfWeek(day.date);
+
+                  return (
+                    <section
+                      key={day.date}
+                      className={
+                        today
+                          ? "rounded-[var(--hm-r-md)] bg-[var(--hm-surface-sunken)] p-4"
+                          : ""
+                      }
+                    >
+                      <div className="mb-3 flex items-center justify-between gap-2">
+                        <h2 className="flex items-center gap-2 text-sm font-semibold uppercase tracking-wide text-[var(--hm-text-2)]">
+                          {today ? "HOJE · " : ""}
+                          {day.date}
+                          {today ? (
+                            <Badge kind="status" status="active">
+                              {dow}
+                            </Badge>
+                          ) : null}
+                        </h2>
+                        <div className="flex items-baseline gap-2 rounded-full bg-[var(--hm-surface)] px-3 py-1 text-[.75rem]">
+                          <span className="uppercase tracking-widest text-[var(--hm-text-2)]">
+                            Saldo do dia
+                          </span>
+                          <Mono
+                            variant="number"
+                            className="text-[.8125rem] text-[var(--hm-text)]"
+                          >
+                            {formatMoney(day.balanceCents)}
+                          </Mono>
+                        </div>
+                      </div>
+                      <div className="flex flex-col gap-2">
+                        {day.items.map((item) => {
+                          if (item.itemType !== "transaction") {
+                            return (
+                              <TimelineEventRow
+                                key={item.id}
+                                // DomainEvent.type/payload are untyped String/Json
+                                // at the DB boundary (§6 catalog) —
+                                // TimelineEventRow owns the actual type union, so
+                                // this cast is the API contract's boundary, not a
+                                // real type escape.
+                                type={item.type as DomainEventType}
+                                payload={item.payload}
+                                createdAt={item.createdAt}
+                              />
+                            );
+                          }
+
+                          const tx = item.transaction;
+
+                          // Transfer pair: the "out" leg renders a single
+                          // TransferPairCard for both legs; the "in" leg (found
+                          // below) renders nothing so it isn't shown twice.
+                          if (
+                            tx.kind === "transfer" &&
+                            tx.transferDirection === "out" &&
+                            tx.transferPairId
+                          ) {
+                            const pair = findTransferPair(tx, day.items);
+                            if (pair) {
+                              return (
+                                <TransferPairCard
+                                  key={tx.id}
+                                  amountCents={tx.amountCents}
+                                  from={resolveTransferParty(
+                                    tx,
+                                    accountsById,
+                                    cardsById,
+                                  )}
+                                  to={resolveTransferParty(
+                                    pair,
+                                    accountsById,
+                                    cardsById,
+                                  )}
+                                />
+                              );
+                            }
+                          }
+                          if (
+                            tx.kind === "transfer" &&
+                            tx.transferDirection === "in" &&
+                            tx.transferPairId &&
+                            hasOutTransferPair(tx, day.items)
+                          ) {
+                            // Already rendered above via its "out" pair.
+                            return null;
+                          }
+
+                          return transactionRowProps(
+                            tx,
                             scheduledHandlers,
-                          )
-                        ) : (
-                          <TimelineEventRow
-                            key={item.id}
-                            // DomainEvent.type/payload are untyped String/Json
-                            // at the DB boundary (§6 catalog) —
-                            // TimelineEventRow owns the actual type union, so
-                            // this cast is the API contract's boundary, not a
-                            // real type escape.
-                            type={item.type as DomainEventType}
-                            payload={item.payload}
-                            createdAt={item.createdAt}
-                          />
-                        ),
-                      )}
-                    </div>
-                  </section>
-                ))}
+                            categoriesById,
+                            expandedInstallments,
+                            toggleInstallment,
+                          );
+                        })}
+                      </div>
+                    </section>
+                  );
+                })}
               </div>
 
               {timelineQuery.hasNextPage ? (
@@ -1179,12 +1466,25 @@ export function TimelinePage() {
             ) : null}
           </Card>
 
-          <Link
-            to="/dashboard"
-            className="text-sm text-[var(--hm-blue-700)] hover:underline"
-          >
-            Ver Disponível Hoje na Análise →
-          </Link>
+          <Card sunken>
+            <div className="flex items-end justify-between gap-2">
+              <div>
+                <p className="hm-label mb-1 text-[.625rem]">DISPONÍVEL HOJE</p>
+                <Mono
+                  variant="number"
+                  className="text-xl font-semibold text-[var(--hm-text)]"
+                >
+                  {formatMoney(netWorthCents)}
+                </Mono>
+              </div>
+              <Link
+                to="/dashboard"
+                className="inline-flex text-xs text-[var(--hm-blue-700)] hover:underline"
+              >
+                Ver análise →
+              </Link>
+            </div>
+          </Card>
         </aside>
       </div>
     </div>

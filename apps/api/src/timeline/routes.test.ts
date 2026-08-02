@@ -228,4 +228,71 @@ describe("GET /v1/timeline", () => {
     expect(body.days[0].items).toHaveLength(1);
     expect(body.days[0].items[0].itemType).toBe("event");
   });
+
+  it("calculates daily balance retroactively from account balances", async () => {
+    const { userId, accessToken } = await authedUser();
+    const account = await createAccount(userId);
+
+    // Create transactions that sum to a known balance
+    // Start: 0 (opening balance)
+    // Day 1: +1000 income -> balance = 1000
+    // Day 2: -300 expense -> balance = 700
+    // Day 3: +500 income -> balance = 1200
+    await server.prisma.transaction.create({
+      data: {
+        userId,
+        accountId: account.id,
+        kind: "income",
+        description: "Salary",
+        transactionDate: new Date("2026-07-01"),
+        amountCents: 1000,
+        amountBRLCents: 1000,
+      },
+    });
+    await server.prisma.transaction.create({
+      data: {
+        userId,
+        accountId: account.id,
+        kind: "expense",
+        description: "Mercado",
+        transactionDate: new Date("2026-07-02"),
+        amountCents: 300,
+        amountBRLCents: 300,
+      },
+    });
+    await server.prisma.transaction.create({
+      data: {
+        userId,
+        accountId: account.id,
+        kind: "income",
+        description: "Bonus",
+        transactionDate: new Date("2026-07-03"),
+        amountCents: 500,
+        amountBRLCents: 500,
+      },
+    });
+
+    const response = await server.inject({
+      method: "GET",
+      url: "/v1/timeline",
+      headers: { authorization: `Bearer ${accessToken}` },
+    });
+
+    expect(response.statusCode).toBe(200);
+    const body = response.json();
+    expect(body.days).toHaveLength(3);
+
+    // Verify days are newest first
+    expect(body.days[0].date).toBe("2026-07-03");
+    expect(body.days[1].date).toBe("2026-07-02");
+    expect(body.days[2].date).toBe("2026-07-01");
+
+    // Verify balances are calculated correctly
+    // Day 3 (newest): balance = 1200 (current total)
+    expect(body.days[0].balanceCents).toBe(1200);
+    // Day 2: balance = 1200 - 500 (day 3 income) = 700
+    expect(body.days[1].balanceCents).toBe(700);
+    // Day 1: balance = 700 + 300 (day 2 expense) = 1000
+    expect(body.days[2].balanceCents).toBe(1000);
+  });
 });

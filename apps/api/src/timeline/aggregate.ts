@@ -3,7 +3,12 @@
 // (ARQUITETURA.md §6.12). Função pura: I/O (filtros, fetch) fica em routes.ts;
 // aqui só agrupamento + paginação por cursor, testável sem banco.
 import type { DomainEvent, Transaction } from "@harmon/db";
-import { toTransactionResponse } from "../transactions/serialize.js";
+import {
+  type InstallmentDetail,
+  toTransactionResponse,
+} from "../transactions/serialize.js";
+
+export type { InstallmentDetail };
 
 export interface TimelineEventItem {
   itemType: "event";
@@ -20,13 +25,22 @@ export interface TimelineTransactionItem {
 
 export type TimelineItem = TimelineEventItem | TimelineTransactionItem;
 
-export interface TimelineDay {
+export interface TimelineDayWithoutBalance {
   date: string;
   items: TimelineItem[];
 }
 
+export interface TimelineDay extends TimelineDayWithoutBalance {
+  balanceCents: number;
+}
+
 export interface TimelinePage {
   days: TimelineDay[];
+  nextCursor: string | null;
+}
+
+export interface TimelinePageWithoutBalance {
+  days: TimelineDayWithoutBalance[];
   nextCursor: string | null;
 }
 
@@ -62,14 +76,25 @@ export function buildTimelinePage(
   transactions: Transaction[],
   events: DomainEvent[],
   opts: { cursor?: string; limit: number },
-): TimelinePage {
+): TimelinePageWithoutBalance {
+  const installmentsByGroupId = new Map<string, Transaction[]>();
+  for (const tx of transactions) {
+    if (tx.installmentGroupId) {
+      if (!installmentsByGroupId.has(tx.installmentGroupId)) {
+        installmentsByGroupId.set(tx.installmentGroupId, []);
+      }
+      const list = installmentsByGroupId.get(tx.installmentGroupId);
+      if (list) list.push(tx);
+    }
+  }
+
   const sortable: SortableItem[] = [
     ...transactions.map((tx) => ({
       date: transactionDay(tx),
       timestamp: tx.transactionDate.getTime(),
       item: {
         itemType: "transaction" as const,
-        transaction: toTransactionResponse(tx),
+        transaction: toTransactionResponse(tx, installmentsByGroupId),
       },
     })),
     ...events.map((event) => ({

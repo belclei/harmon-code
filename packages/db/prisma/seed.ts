@@ -51,13 +51,13 @@ const SYSTEM_CATEGORIES: Array<{
   {
     name: "Salário",
     kind: "income",
-    icon: "briefcase",
+    icon: "hm-cat-renda",
     colorToken: "--hm-sage-600",
   },
   {
     name: "Freelance e extras",
     kind: "income",
-    icon: "sparkles",
+    icon: "hm-cat-renda",
     colorToken: "--hm-sage-500",
   },
   {
@@ -69,7 +69,7 @@ const SYSTEM_CATEGORIES: Array<{
   {
     name: "Reembolso",
     kind: "income",
-    icon: "rotate-ccw",
+    icon: "hm-cat-renda",
     colorToken: "--hm-blue-500",
   },
   {
@@ -82,43 +82,43 @@ const SYSTEM_CATEGORIES: Array<{
   {
     name: "Moradia",
     kind: "expense",
-    icon: "home",
+    icon: "hm-cat-moradia",
     colorToken: "--hm-clay-600",
   },
   {
     name: "Alimentação",
     kind: "expense",
-    icon: "utensils",
+    icon: "hm-cat-alimentacao",
     colorToken: "--hm-clay-500",
   },
   {
     name: "Transporte",
     kind: "expense",
-    icon: "car",
+    icon: "hm-cat-transporte",
     colorToken: "--hm-clay-100",
   },
   {
     name: "Saúde",
     kind: "expense",
-    icon: "heart-pulse",
+    icon: "hm-cat-saude",
     colorToken: "--hm-blue-700",
   },
   {
     name: "Lazer",
     kind: "expense",
-    icon: "party-popper",
+    icon: "hm-cat-lazer",
     colorToken: "--hm-sand-600",
   },
   {
     name: "Compras",
     kind: "expense",
-    icon: "shopping-bag",
+    icon: "hm-cat-compras",
     colorToken: "--hm-sand-500",
   },
   {
     name: "Assinaturas",
     kind: "expense",
-    icon: "repeat",
+    icon: "hm-cat-assinaturas",
     colorToken: "--hm-blue-300",
   },
   {
@@ -130,7 +130,7 @@ const SYSTEM_CATEGORIES: Array<{
   {
     name: "Cuidados pessoais",
     kind: "expense",
-    icon: "sparkles",
+    icon: "hm-cat-saude",
     colorToken: "--hm-clay-650",
   },
   {
