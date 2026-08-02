@@ -83,7 +83,8 @@ export function buildTimelinePage(
       if (!installmentsByGroupId.has(tx.installmentGroupId)) {
         installmentsByGroupId.set(tx.installmentGroupId, []);
       }
-      installmentsByGroupId.get(tx.installmentGroupId)!.push(tx);
+      const list = installmentsByGroupId.get(tx.installmentGroupId);
+      if (list) list.push(tx);
     }
   }
 
