@@ -165,37 +165,53 @@ export async function registerTimelineRoutes(
       }
 
       // Calculate retroactive balance for each day by walking backward through timeline
+      // Note: balance is calculated from ALL transactions (ignoring filters), as the
+      // "saldo do dia" represents actual account balance, not filtered balance.
       const dayBalances = new Map<string, number>();
 
-      // Sort filtered transactions by date for balance calculation
-      const transactionsByDate = new Map<string, typeof transactions>();
-      for (const tx of transactions) {
+      // Sort all transactions by date for balance calculation (unfiltered)
+      const transactionsByDate = new Map<string, typeof allTransactions>();
+      for (const tx of allTransactions) {
         const dateStr = tx.transactionDate.toISOString().slice(0, 10);
         const list = transactionsByDate.get(dateStr) ?? [];
         list.push(tx);
         transactionsByDate.set(dateStr, list);
       }
 
-      // Process days in reverse chronological order (newest first)
-      const sortedDates = [...page.days.map((d) => d.date)].sort((a, b) =>
-        a < b ? 1 : -1,
-      );
+      // Process all dates that appear in the timeline or the transaction history
+      const allDates = new Set([
+        ...page.days.map((d) => d.date),
+        ...transactionsByDate.keys(),
+      ]);
+      const sortedDates = [...allDates].sort((a, b) => (a < b ? 1 : -1));
 
       let runningBalance = currentBalanceCents;
       for (const date of sortedDates) {
         // Record the balance at the end of this day
-        dayBalances.set(date, runningBalance);
+        if (page.days.some((d) => d.date === date)) {
+          dayBalances.set(date, runningBalance);
+        }
 
-        // Calculate impact of transactions on this day
+        // Calculate impact of unscheduled transactions on this day
         const dayTransactions = transactionsByDate.get(date) ?? [];
         let dayImpact = 0;
         for (const tx of dayTransactions) {
+          // Only include confirmed (not scheduled) transactions in balance
+          if (tx.isScheduled) continue;
           if (tx.kind === "income") {
             dayImpact += tx.amountBRLCents;
           } else if (tx.kind === "expense") {
             dayImpact -= tx.amountBRLCents;
+          } else if (tx.kind === "transfer") {
+            // Transfer out to another account: no net impact on total balance
+            // (money moves from one account to another, both user-owned)
+            // Transfer out to card (paying bill): expense from source account
+            if (tx.creditCardId) {
+              // Payment to credit card: reduce balance (expense)
+              dayImpact -= tx.amountBRLCents;
+            }
+            // else: transfer between accounts, no net impact
           }
-          // transfers: no net impact on total balance (impact = 0)
         }
 
         // Update running balance for the previous day

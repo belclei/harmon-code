@@ -60,18 +60,21 @@ function calculateInstallmentDetails(
   const original = groupTxs.find((t) => t.installmentNumber === 1);
   if (!original) return undefined;
 
+  const installmentNumber = tx.installmentNumber ?? 0;
   const paidCount = groupTxs.filter(
-    (t) => t.installmentNumber! < tx.installmentNumber! && !t.isScheduled,
+    (t) => (t.installmentNumber ?? 0) < installmentNumber && !t.isScheduled,
   ).length;
   const paidAmountCents = paidCount * tx.amountCents;
-  const remainingCount = tx.installmentTotal! - paidCount - 1;
+  const installmentTotal = tx.installmentTotal ?? 0;
+  const remainingCount = installmentTotal - paidCount - 1;
   const remainingAmountCents = remainingCount * tx.amountCents;
 
   const nextDate = new Date(tx.transactionDate);
   nextDate.setMonth(nextDate.getMonth() + 1);
 
+  const originalInstallmentTotal = original.installmentTotal ?? 0;
   const payoffDate = new Date(original.transactionDate);
-  payoffDate.setMonth(payoffDate.getMonth() + original.installmentTotal! - 1);
+  payoffDate.setMonth(payoffDate.getMonth() + originalInstallmentTotal - 1);
 
   return {
     originalAmountCents: original.amountCents,

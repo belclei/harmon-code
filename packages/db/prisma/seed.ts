@@ -51,7 +51,7 @@ const SYSTEM_CATEGORIES: Array<{
   {
     name: "Salário",
     kind: "income",
-    icon: "briefcase",
+    icon: "hm-cat-renda",
     colorToken: "--hm-sage-600",
   },
   {
@@ -69,7 +69,7 @@ const SYSTEM_CATEGORIES: Array<{
   {
     name: "Reembolso",
     kind: "income",
-    icon: "hm-cat-assinaturas",
+    icon: "hm-cat-renda",
     colorToken: "--hm-blue-500",
   },
   {
@@ -130,7 +130,7 @@ const SYSTEM_CATEGORIES: Array<{
   {
     name: "Cuidados pessoais",
     kind: "expense",
-    icon: "hm-cat-renda",
+    icon: "hm-cat-saude",
     colorToken: "--hm-clay-650",
   },
   {

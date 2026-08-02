@@ -15,6 +15,7 @@ const ICONS: Record<string, ReactNode> = {
       strokeWidth="1.6"
       strokeLinecap="round"
       strokeLinejoin="round"
+      aria-hidden="true"
     >
       <g>
         <path d="M6 3 V8" />
@@ -37,6 +38,7 @@ const ICONS: Record<string, ReactNode> = {
       strokeWidth="1.6"
       strokeLinecap="round"
       strokeLinejoin="round"
+      aria-hidden="true"
     >
       <g>
         <path d="M2 11 L12 3 L22 11" />
@@ -54,6 +56,7 @@ const ICONS: Record<string, ReactNode> = {
       strokeWidth="1.6"
       strokeLinecap="round"
       strokeLinejoin="round"
+      aria-hidden="true"
     >
       <g>
         <path d="M5 11.5 L7.5 6 H16.5 L19 11.5" />
@@ -71,8 +74,12 @@ const ICONS: Record<string, ReactNode> = {
       strokeWidth="1.6"
       strokeLinecap="round"
       strokeLinejoin="round"
+      aria-hidden="true"
     >
-      <path d="M9.5 3 H14.5 V9.5 H21 V14.5 H14.5 V21 H9.5 V14.5 H3 V9.5 H9.5 Z" fill="none" />
+      <path
+        d="M9.5 3 H14.5 V9.5 H21 V14.5 H14.5 V21 H9.5 V14.5 H3 V9.5 H9.5 Z"
+        fill="none"
+      />
       <circle cx="12" cy="12" r="1.8" fill="currentColor" />
     </svg>
   ),
@@ -84,6 +91,7 @@ const ICONS: Record<string, ReactNode> = {
       strokeWidth="1.6"
       strokeLinecap="round"
       strokeLinejoin="round"
+      aria-hidden="true"
     >
       <g>
         <path d="M3 7 H21 V10.4 A1.8 1.8 0 0 0 21 13.6 V17 H3 V13.6 A1.8 1.8 0 0 0 3 10.4 Z" />
@@ -101,6 +109,7 @@ const ICONS: Record<string, ReactNode> = {
       strokeWidth="1.6"
       strokeLinecap="round"
       strokeLinejoin="round"
+      aria-hidden="true"
     >
       <g transform="translate(12,12) scale(0.6667)">
         <circle cx="0" cy="0" r="8.5" fill="none" />
@@ -126,6 +135,7 @@ const ICONS: Record<string, ReactNode> = {
       strokeWidth="1.6"
       strokeLinecap="round"
       strokeLinejoin="round"
+      aria-hidden="true"
     >
       <g>
         <path d="M4 8.5 H20 L18.5 21 H5.5 Z" />
@@ -143,6 +153,7 @@ const ICONS: Record<string, ReactNode> = {
       strokeWidth="1.6"
       strokeLinecap="round"
       strokeLinejoin="round"
+      aria-hidden="true"
     >
       <g>
         <path d="M12 3 V13" />
@@ -160,6 +171,7 @@ const ICONS: Record<string, ReactNode> = {
       strokeWidth="1.6"
       strokeLinecap="round"
       strokeLinejoin="round"
+      aria-hidden="true"
     >
       <g>
         <path d="M2 9 L12 3 L22 9" />
@@ -180,6 +192,7 @@ const ICONS: Record<string, ReactNode> = {
       strokeWidth="1.6"
       strokeLinecap="round"
       strokeLinejoin="round"
+      aria-hidden="true"
     >
       <rect x="3" y="4" width="18" height="16" rx="1.5" />
       <g strokeWidth="1.4">
@@ -199,6 +212,7 @@ const ICONS: Record<string, ReactNode> = {
       strokeWidth="1.6"
       strokeLinecap="round"
       strokeLinejoin="round"
+      aria-hidden="true"
     >
       <g>
         <ellipse cx="11" cy="13" rx="8" ry="6.4" />
@@ -219,6 +233,7 @@ const ICONS: Record<string, ReactNode> = {
       strokeWidth="1.6"
       strokeLinecap="round"
       strokeLinejoin="round"
+      aria-hidden="true"
     >
       <path
         d="M12 20.5 C3 14 3 8.5 6.5 6.5 C9 5 11.5 6.5 12 9 C12.5 6.5 15 5 17.5 6.5 C21 8.5 21 14 12 20.5 Z"
@@ -235,6 +250,7 @@ const ICONS: Record<string, ReactNode> = {
       strokeWidth="1.6"
       strokeLinecap="round"
       strokeLinejoin="round"
+      aria-hidden="true"
     >
       <g>
         <path d="M20 12 A8 8 0 1 1 17 5.8" />
@@ -251,6 +267,7 @@ const ICONS: Record<string, ReactNode> = {
       strokeWidth="1.6"
       strokeLinecap="round"
       strokeLinejoin="round"
+      aria-hidden="true"
     >
       <g>
         <path d="M3 9 H20" />
@@ -270,6 +287,7 @@ const ICONS: Record<string, ReactNode> = {
       strokeWidth="1.6"
       strokeLinecap="round"
       strokeLinejoin="round"
+      aria-hidden="true"
     >
       <g transform="translate(12,12) scale(0.6667)">
         <circle cx="0" cy="0" r="11" fill="none" strokeDasharray="3 4" />
