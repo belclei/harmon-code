@@ -1,15 +1,16 @@
 /* Must be the very first rule in the bundled stylesheet — CSS requires
    @import to precede all other rules, including Tailwind's own @import.
-   This is normally the first rule inside harmon-tokens.css; moved here
+   This is normally the first rule inside lurem-tokens.css; moved here
    because by the time that file is @import-ed below, it would no longer
-   be first. See the NOTE in packages/ui/src/tokens/harmon-tokens.css. */
-@import url("https://fonts.googleapis.com/css2?family=Cantarell:ital,wght@0,400;0,700;1,400&family=Red+Hat+Mono:wght@400;500;700&display=swap");
+   be first. See the NOTE in packages/ui/src/tokens/lurem-tokens.css.
+   Michroma added for --lr-font-institutional (rebrand Harmon -> Lurem). */
+@import url("https://fonts.googleapis.com/css2?family=Cantarell:ital,wght@0,400;0,700;1,400&family=Red+Hat+Mono:wght@400;500;700&family=Michroma&display=swap");
 
 @import "tailwindcss";
 
 /* Single source of truth for design tokens within this workspace.
    Copied from the private docs/brand repo — see packages/ui/README.md. */
-@import "../tokens/harmon-tokens.css";
+@import "../tokens/lurem-tokens.css";
 
 /* Harmon toggles themes via `data-theme="dark"` on an ancestor (see
    US-1.6), not the OS `prefers-color-scheme` media query — so Tailwind's
@@ -19,26 +20,36 @@
    it was in between the two @import statements above. */
 @custom-variant dark (&:where([data-theme="dark"], [data-theme="dark"] *));
 
-/* Bridge a couple of Harmon tokens into Tailwind's theme namespace so the
+/* Bridge a couple of Lurem tokens into Tailwind's theme namespace so the
    `font-sans` / `font-mono` utilities resolve to the brand typefaces.
    Colors, spacing, radii and elevation are intentionally NOT duplicated
-   here — components consume `--hm-*` custom properties directly (e.g.
-   `bg-[var(--hm-surface)]`) so there is exactly one place (harmon-tokens.css)
+   here — components consume `--lr-*` custom properties directly (e.g.
+   `bg-[var(--lr-surface)]`) so there is exactly one place (lurem-tokens.css)
    that defines a value. */
 @theme inline {
-  --font-sans: var(--hm-font-sans);
-  --font-mono: var(--hm-font-mono);
+  --font-sans: var(--lr-font-sans);
+  --font-mono: var(--lr-font-mono);
 }
 
 body {
-  background: var(--hm-bg);
-  color: var(--hm-text);
-  font-family: var(--hm-font-sans);
+  background: var(--lr-bg);
+  color: var(--lr-text);
+  font-family: var(--lr-font-sans);
 }
 
 /* Sweep used by <Skeleton>'s shimmer. Reduced-motion users get the plain
    static placeholder for free via the `@media (prefers-reduced-motion)`
-   rule already in harmon-tokens.css, which zeroes all animation durations. */
+   rule already in lurem-tokens.css, which zeroes all animation durations.
+   NOTE (Task 1.1b scope note): this keyframe's NAME is intentionally left
+   as `hm-skeleton-shimmer`, not renamed to `lr-`. Skeleton.tsx references
+   it via `animate-[hm-skeleton-shimmer_...]` in the same Tailwind
+   arbitrary-value string as `var(--hm-ease-settle)` — that file is a
+   packages/ui/src *consumer*, out of this task's scope (Task 1.3's
+   mechanical hm- -> lr- sweep). Renaming only the definition here without
+   also fixing Skeleton.tsx in the same change would silently break the
+   shimmer animation, which is exactly the failure mode this task exists
+   to prevent. Left coupled on purpose; Task 1.3 renames both sides
+   together. See task-1.1b-report.md. */
 @keyframes hm-skeleton-shimmer {
   100% {
     transform: translateX(100%);

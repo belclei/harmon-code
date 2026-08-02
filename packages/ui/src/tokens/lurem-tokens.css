@@ -1,0 +1,266 @@
+/* ============================================================
+   Lurem — Design Tokens v1.0
+   Rebrand Harmon → Lurem. Ver docs/design-system/DESIGN_SYSTEM.md §1
+   (paleta anterior — azul-pervinca/areia/verde-sálvia — descontinuada)
+   ============================================================ */
+
+/* NOTE (packages/ui vendored copy only — not present in the private repo's
+   original): the @font-face import used to live here, but CSS requires
+   @import to precede every other rule in the *final* stylesheet. Once this
+   file is pulled in via `@import "../tokens/lurem-tokens.css"` from
+   src/styles/tailwind.css (itself after `@import "tailwindcss"`), an
+   @import here is no longer first and browsers/bundlers silently drop it —
+   Cantarell/Red Hat Mono/Michroma would fail to load with no visible error.
+   Moved to the top of tailwind.css instead; see that file. */
+
+:root {
+  /* ---- Paleta bruta ---- */
+  --lr-night-900: #0d1420;
+  --lr-night-800: #282e39;
+  --lr-night-700: #434852;
+  --lr-night-600: #5e626a;
+  --lr-night-500: #797c83;
+  --lr-night-400: #93979c;
+  --lr-night-300: #aeb1b5;
+  --lr-night-200: #c9cbcd;
+  --lr-night-100: #e4e5e6;
+
+  --lr-petrol-700: #1f3d3e;
+  --lr-petrol-600: #4c6465;
+  --lr-petrol-500: #798b8b;
+  --lr-petrol-300: #a5b1b2;
+  --lr-petrol-100: #d2d8d8;
+
+  --lr-ivory-000: #f8f6f1;
+  --lr-ivory-100: #f2ede3;
+  /* Ivory 200: DESIGN_SYSTEM.md §1.3 lista este degrau mas nenhum uso
+     semântico o referencia hoje — valor derivado por interpolação, não
+     validado visualmente. Revisar antes de usar como token de superfície. */
+  --lr-ivory-200: #797672;
+  --lr-white: #ffffff;
+
+  --lr-gold-700: #47371f;
+  --lr-gold-600: #8d6d3d;
+  --lr-gold-500: #d4a45c;
+  --lr-gold-300: #e2c292;
+  --lr-gold-100: #f1e1c9;
+
+  --lr-graphite-700: #323232;
+  --lr-graphite-600: #5b5b5b;
+  --lr-graphite-500: #848484;
+  /* Graphite 200: não listado em DESIGN_SYSTEM.md §1.3 (a escala pula de
+     300 para 100), mas §1.4 exige Graphite 200 para Border claro.
+     Preenchido por interpolação entre Graphite 100 e Graphite 300. */
+  --lr-graphite-200: #c2c2c2;
+  --lr-graphite-300: #adadad;
+  --lr-graphite-100: #d6d6d6;
+
+  /* Terracota — perdas financeiras e erro. Nunca vermelho puro. Hex
+     mantido do arquivo anterior, já que DESIGN_SYSTEM.md não especifica
+     um novo valor. */
+  --lr-negative-800: #8b3c31; /* v1.2 — hover/active do botão "danger", ver Button.tsx */
+  --lr-negative-700: #9e4438; /* v1.2 — hover/active do botão "danger", ver Button.tsx */
+  --lr-terracota-600: #b24a3d;
+  /* O antigo --hm-clay-300 (#e08a7d, degrau escuro simétrico usado no
+     tema dark) não vira um token à parte aqui: é exatamente o mesmo hex
+     já usado como override de --lr-negative em [data-theme="dark"]
+     abaixo. --lr-money-out referencia var(--lr-negative), que resolve
+     para esse valor no escuro — sem token duplicado. */
+
+  /* ---- Semântica (tema claro) ---- */
+  --lr-bg: var(--lr-ivory-100);
+  --lr-surface: var(--lr-white);
+  --lr-surface-sunken: var(--lr-ivory-000);
+  --lr-border: var(--lr-graphite-200);
+  --lr-text: var(--lr-night-900);
+  --lr-text-secondary: var(--lr-graphite-600);
+  /* --lr-label: DESIGN_SYSTEM.md não tem matiz equivalente ao antigo
+     blue-700/300 (label institucional). Em vez de inventar uma cor não
+     especificada, alias para text-secondary — placeholder até revisão
+     de design, mesmo tratamento dado ao gap do Ivory-200. */
+  --lr-label: var(--lr-text-secondary);
+  /* Accent: DESIGN_SYSTEM.md §1.2 lista "foco" explicitamente como
+     aplicação do Gold — mapeamento direto, não um placeholder. */
+  --lr-accent: var(--lr-gold-500);
+  --lr-focus: var(--lr-gold-500);
+  /* Foco visível — contorno em tinta (contraste) + halo dourado
+     (significado), mesma lógica do arquivo anterior (ink-900 + sand-500). */
+  --lr-focus-ring: var(--lr-night-900);
+  /* Positivo: DESIGN_SYSTEM.md §1.4 não diferencia claro/escuro (dá só
+     "Petrol 600"), mas petrol-600 tem 2.92:1 sobre night-900 — falha
+     AA. Override em [data-theme="dark"] usa petrol-500 (5.17:1). */
+  --lr-positive: var(--lr-petrol-600);
+  --lr-negative: var(--lr-terracota-600);
+
+  /* Dinheiro — aliases semânticos. A indireção via var() já resolve o
+     tema correto em tempo de uso (text/positive/negative trocam de
+     valor em [data-theme="dark"]; uma única declaração basta). */
+  --lr-money: var(--lr-text);
+  --lr-money-in: var(--lr-positive);
+  --lr-money-out: var(--lr-negative);
+
+  /* Texto de marca sobre o próprio tint (chip/badge), não sobre a
+     superfície neutra — mesmo problema que o arquivo anterior resolvia
+     com --hm-blue-on-tint/--hm-sage-on-tint: os tokens semânticos base
+     só foram verificados contra --lr-bg/--lr-surface, não contra o
+     próprio degrau 100 usado como fundo tintado de chip/badge.
+     - label-on-tint: graphite-600 já cobre 4,67:1 contra graphite-100
+       (acima de AA) — nenhum hex extra necessário, ao contrário do
+       arquivo anterior. Alias direto a --lr-label (hoje == graphite-600;
+       reavaliar se --lr-label ganhar uma cor própria no futuro).
+     - positive-on-tint: petrol-600 sozinho só tem 4,39:1 contra
+       petrol-100 — abaixo de AA por uma margem pequena. Mesma técnica
+       do arquivo anterior (hex bespoke, não um degrau da escala):
+       petrol-600 escurecido 6% linearmente em direção ao preto ->
+       #475E5F, verificado em 4,80:1 contra petrol-100. */
+  --lr-label-on-tint: var(--lr-label);
+  --lr-positive-on-tint: #475e5f;
+
+  /* Valor estimado NUNCA usa a cor de valor real — princípio §1.2.3.
+     Hex literal preservado do arquivo anterior, sem recálculo. */
+  --lr-estimate: #5a6a96;
+
+  /* ---- Tipografia ---- */
+  --lr-font-institutional: "Michroma", sans-serif;
+  --lr-font-sans: Cantarell, "Segoe UI", system-ui, -apple-system, sans-serif;
+  --lr-font-mono: "Red Hat Mono", "SF Mono", ui-monospace, monospace;
+
+  /* ---- Espaço (base 8) ---- */
+  --lr-s1: 8px;
+  --lr-s2: 16px;
+  --lr-s3: 24px;
+  --lr-s4: 32px;
+  --lr-s5: 40px;
+  --lr-s6: 48px;
+  --lr-s8: 64px;
+  --lr-s10: 80px;
+  --lr-s12: 96px;
+  --lr-s16: 128px;
+
+  /* ---- Raio ---- */
+  --lr-r-none: 0;
+  --lr-r-sm: 4px;
+  --lr-r-md: 8px;
+  --lr-r-lg: 16px;
+  --lr-r-xl: 24px;
+  --lr-r-full: 999px;
+
+  /* ---- Elevação (usar com parcimônia) ----
+     Valores literais do DESIGN_SYSTEM.md §1.9 (não os do arquivo
+     anterior): o rgba antigo usava o RGB do ink-900 descontinuado, o
+     que deixaria a sombra tingida com uma cor que não existe mais na
+     paleta. A spec já resolve isso com rgba neutro. */
+  --lr-e0: none;
+  --lr-e1: 0 1px 2px rgba(0, 0, 0, 0.05);
+  --lr-e2: 0 6px 20px rgba(0, 0, 0, 0.08);
+
+  /* ---- Motion ---- */
+  --lr-d-instant: 120ms;
+  --lr-d-base: 320ms;
+  --lr-d-reveal: 640ms;
+  --lr-d-settle: 1200ms;
+  --lr-ease-settle: cubic-bezier(0.22, 0.61, 0.36, 1);
+  --lr-ease-enter: cubic-bezier(0.32, 0.72, 0, 1);
+
+  /* ---- Grid ---- */
+  --lr-grid-cols-desktop: 12;
+  --lr-grid-cols-mobile: 4;
+  --lr-maxw: 1160px;
+  --lr-gutter: 24px;
+  --lr-margin-mobile: 20px;
+}
+
+/* ---- Tema escuro ---- */
+[data-theme="dark"],
+.lr-dark {
+  --lr-bg: var(--lr-night-900);
+  --lr-surface: var(--lr-night-800);
+  --lr-surface-sunken: #090f1a;
+  --lr-border: var(--lr-night-700);
+  --lr-text: var(--lr-ivory-100);
+  --lr-text-secondary: var(--lr-graphite-300);
+  --lr-label: var(--lr-text-secondary);
+  --lr-focus-ring: var(--lr-gold-500); /* no escuro o dourado já tem 8,14:1 */
+  --lr-positive: var(--lr-petrol-500); /* petrol-600 só tem 2,92:1 sobre night-900 */
+  --lr-negative: #e08a7d; /* mais claro que o terracota base, para manter AA sobre night-900 */
+  --lr-estimate: #8794a8;
+}
+
+/* ============================================================
+   Primitivas
+   ============================================================ */
+
+.lr-label {
+  font-family: var(--lr-font-sans);
+  font-size: .6875rem;
+  letter-spacing: .16em;
+  text-transform: uppercase;
+  color: var(--lr-label);
+}
+
+/* Todo valor monetário usa mono e tabular-nums — colunas de números alinham */
+.lr-money {
+  font-family: var(--lr-font-mono);
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: "tnum" 1;
+  color: var(--lr-money);
+}
+.lr-money--in {
+  color: var(--lr-money-in);
+}
+.lr-money--out {
+  color: var(--lr-money-out);
+}
+.lr-money--hero {
+  font-size: 3.25rem;
+  line-height: 1;
+  letter-spacing: -.02em;
+}
+
+/* Estimativa: cor distinta + traço tracejado. Nunca se confunde com valor real. */
+.lr-estimate {
+  color: var(--lr-estimate);
+  border-bottom: 1px dashed currentColor;
+}
+
+.lr-card {
+  background: var(--lr-surface);
+  border: 1px solid var(--lr-border);
+  border-radius: var(--lr-r-md);
+  padding: var(--lr-s3);
+  box-shadow: var(--lr-e0);
+}
+
+/* Foco visível — contorno em tinta (contraste) + halo dourado (significado) */
+:where(a, button, input, select, textarea, [tabindex]):focus-visible {
+  outline: 2px solid var(--lr-focus-ring);
+  outline-offset: 2px;
+  box-shadow: 0 0 0 5px var(--lr-focus);
+}
+
+/* ============================================================
+   Motion — "nada explode, nada gira rapidamente"
+   ============================================================ */
+
+@keyframes lr-settle {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+.lr-reveal {
+  animation: lr-settle var(--lr-d-reveal) var(--lr-ease-settle) both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: .01ms !important;
+    transition-duration: .01ms !important;
+  }
+}
