@@ -25,14 +25,22 @@ export interface TimelineTransactionItem {
 
 export type TimelineItem = TimelineEventItem | TimelineTransactionItem;
 
-export interface TimelineDay {
+export interface TimelineDayWithoutBalance {
   date: string;
   items: TimelineItem[];
+}
+
+export interface TimelineDay extends TimelineDayWithoutBalance {
   balanceCents: number;
 }
 
 export interface TimelinePage {
   days: TimelineDay[];
+  nextCursor: string | null;
+}
+
+export interface TimelinePageWithoutBalance {
+  days: TimelineDayWithoutBalance[];
   nextCursor: string | null;
 }
 
@@ -68,14 +76,24 @@ export function buildTimelinePage(
   transactions: Transaction[],
   events: DomainEvent[],
   opts: { cursor?: string; limit: number },
-): TimelinePage {
+): TimelinePageWithoutBalance {
+  const installmentsByGroupId = new Map<string, Transaction[]>();
+  for (const tx of transactions) {
+    if (tx.installmentGroupId) {
+      if (!installmentsByGroupId.has(tx.installmentGroupId)) {
+        installmentsByGroupId.set(tx.installmentGroupId, []);
+      }
+      installmentsByGroupId.get(tx.installmentGroupId)!.push(tx);
+    }
+  }
+
   const sortable: SortableItem[] = [
     ...transactions.map((tx) => ({
       date: transactionDay(tx),
       timestamp: tx.transactionDate.getTime(),
       item: {
         itemType: "transaction" as const,
-        transaction: toTransactionResponse(tx),
+        transaction: toTransactionResponse(tx, installmentsByGroupId),
       },
     })),
     ...events.map((event) => ({

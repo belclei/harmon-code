@@ -228,7 +228,7 @@ export async function registerTransactionRoutes(
             },
           }),
         ]);
-        return reply.code(201).send([out, inLeg].map(toTransactionResponse));
+        return reply.code(201).send([out, inLeg].map((tx) => toTransactionResponse(tx)));
       }
 
       // XOR conta/cartão para income/expense (CHECK do schema §1.4)
@@ -290,7 +290,8 @@ export async function registerTransactionRoutes(
           where: { installmentGroupId: groupId },
           orderBy: { installmentNumber: "asc" },
         });
-        return reply.code(201).send(created.map(toTransactionResponse));
+        const installmentsByGroupId = new Map([[groupId, created]]);
+        return reply.code(201).send(created.map((tx) => toTransactionResponse(tx, installmentsByGroupId)));
       }
 
       // ---- Manual income/expense (US-3.5) ----
@@ -385,7 +386,16 @@ export async function registerTransactionRoutes(
         },
         orderBy: [{ transactionDate: "desc" }, { createdAt: "desc" }],
       });
-      return txs.map(toTransactionResponse);
+      const installmentsByGroupId = new Map<string, Transaction[]>();
+      for (const tx of txs) {
+        if (tx.installmentGroupId) {
+          if (!installmentsByGroupId.has(tx.installmentGroupId)) {
+            installmentsByGroupId.set(tx.installmentGroupId, []);
+          }
+          installmentsByGroupId.get(tx.installmentGroupId)!.push(tx);
+        }
+      }
+      return txs.map((tx) => toTransactionResponse(tx, installmentsByGroupId));
     },
   );
 
