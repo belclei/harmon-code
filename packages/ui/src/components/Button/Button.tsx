@@ -59,7 +59,7 @@ const VARIANT_CLASSES: Record<ButtonVariant, string> = {
   // Dark theme redefines --lr-bg to var(--lr-night-900) too (see
   // lurem-tokens.css's [data-theme="dark"] block) — with no dark-mode
   // override, a --lr-night-900 button on a --lr-night-900 page is nearly
-  // invisible. brand/design-system/harmon-components.css has this same gap
+  // invisible. brand/design-system/lurem-components.css has this same gap
   // (.hmc-btn--primary is never overridden for dark). Fixed here by
   // stepping the whole light-mode ramp (900→700→800) up one notch in dark
   // mode (700→600→800) so the button never matches the page background.
@@ -87,12 +87,12 @@ const VARIANT_CLASSES: Record<ButtonVariant, string> = {
     "hover:bg-[var(--lr-surface-sunken)] hover:text-[var(--lr-text)] " +
     "active:bg-[var(--lr-border)]/40 active:text-[var(--lr-text)]",
   // --lr-negative-700/800 mirror the hover/active shades already hardcoded in
-  // brand/design-system/harmon-components.css — promoted to real tokens
+  // brand/design-system/lurem-components.css — promoted to real tokens
   // (v1.2) instead of living as one-off hex here.
   danger:
     "bg-[var(--lr-negative)] text-white border border-transparent " +
     "hover:bg-[var(--lr-negative-700)] active:bg-[var(--lr-negative-800)]",
-  // index.html lines ~63-67 of harmon-components.css (`.hmc-btn--link`):
+  // index.html lines ~63-67 of lurem-components.css (`.hmc-btn--link`):
   // background none, padding 0, min-height 0, underlined, --hm-blue-700,
   // hover → --lr-night-900. --hm-blue-700/--lr-night-900 are only AA-checked
   // against a light page (lurem-tokens.css's own v1.1 comment, same caveat

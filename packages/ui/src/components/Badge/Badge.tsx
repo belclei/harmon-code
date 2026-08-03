@@ -41,7 +41,7 @@ export type BadgeProps = BadgeStatusProps | BadgeCategoryProps;
 
 // bg/text pairs use the v1.1 AA-checked text tokens from lurem-tokens.css
 // (--lr-*-700, or --lr-negative-on-tint on clay-100) rather than the older
-// hardcoded hex in brand/design-system/harmon-components.css, which
+// hardcoded hex in brand/design-system/lurem-components.css, which
 // predates that AA correction — see Sprint report for the flag.
 // Same dark-mode gap as Alert: the raw --lr-*-100 tints and --lr-*-700 text
 // tones are only checked for a light page, so they get a dark: override
@@ -71,7 +71,7 @@ const STATUS_STYLES: Record<
   // Was bg-[var(--lr-ivory-100)]: in light theme that token IS --lr-bg (the
   // page background itself, lurem-tokens.css line 47), so the pill was
   // literally invisible against the page and only its text floated. The
-  // reference's neutral chip/badge (harmon-components.css .hmc-badge/.hmc-chip
+  // reference's neutral chip/badge (lurem-components.css .hmc-badge/.hmc-chip
   // base rule) uses --lr-surface-sunken + a real border instead — matches that.
   inactive: {
     bg: "bg-[var(--lr-surface-sunken)] dark:bg-white/10",

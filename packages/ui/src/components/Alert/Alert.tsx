@@ -234,7 +234,7 @@ export function Alert({
             // lurem-tokens.css). On top of these variants' tinted washes
             // (blue-100/sage-100/clay-100 etc.) it measured 4.12–4.35:1 via
             // axe-core — short of the 4.5:1 this component's own a11y bar
-            // requires. brand/design-system/harmon-components.css's
+            // requires. brand/design-system/lurem-components.css's
             // `.hmc-alert__body` has this identical gap. Full-strength text
             // trades a bit of visual "secondary" softness for guaranteed AA.
             <p className="m-0 mt-0.5 text-[.875rem] text-[var(--lr-text)]">
