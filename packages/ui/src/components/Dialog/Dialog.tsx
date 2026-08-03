@@ -15,7 +15,7 @@ export interface DialogProps {
 }
 
 /**
- * Harmon's confirmation dialog (index.html id="dialogo", WAI-ARIA Dialog
+ * Lurem's confirmation dialog (index.html id="dialogo", WAI-ARIA Dialog
  * (Modal) pattern). A dumb, controlled component — `open` and what happens
  * on confirm both live with the caller; this only renders the modal chrome
  * and its focus/keyboard behavior (see `useModalBehavior`).

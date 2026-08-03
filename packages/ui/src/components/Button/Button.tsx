@@ -57,7 +57,7 @@ export type ButtonProps =
 
 const VARIANT_CLASSES: Record<ButtonVariant, string> = {
   // Dark theme redefines --lr-bg to var(--lr-night-900) too (see
-  // harmon-tokens.css's [data-theme="dark"] block) — with no dark-mode
+  // lurem-tokens.css's [data-theme="dark"] block) — with no dark-mode
   // override, a --lr-night-900 button on a --lr-night-900 page is nearly
   // invisible. brand/design-system/harmon-components.css has this same gap
   // (.hmc-btn--primary is never overridden for dark). Fixed here by
@@ -69,7 +69,7 @@ const VARIANT_CLASSES: Record<ButtonVariant, string> = {
     "dark:bg-[var(--lr-night-700)] dark:hover:bg-[var(--lr-night-600)] dark:active:bg-[var(--lr-night-800)]",
   // active:bg-[var(--lr-ivory-100)] is a raw light-tint token with no dark
   // redefinition — in dark mode --lr-text also resolves to --lr-ivory-100
-  // (harmon-tokens.css's [data-theme="dark"] block), so the active
+  // (lurem-tokens.css's [data-theme="dark"] block), so the active
   // background and the button's own text became the same color, making the
   // label disappear. dark:active: steps to --lr-night-700 (one tick lighter
   // than --lr-surface's ink-800), same "never match dark text" fix already
@@ -95,7 +95,7 @@ const VARIANT_CLASSES: Record<ButtonVariant, string> = {
   // index.html lines ~63-67 of harmon-components.css (`.hmc-btn--link`):
   // background none, padding 0, min-height 0, underlined, --hm-blue-700,
   // hover → --lr-night-900. --hm-blue-700/--lr-night-900 are only AA-checked
-  // against a light page (harmon-tokens.css's own v1.1 comment, same caveat
+  // against a light page (lurem-tokens.css's own v1.1 comment, same caveat
   // already noted for Alert/Badge above) — dark mode steps to the same
   // --hm-blue-300/--lr-ivory-100 pairing used elsewhere in this file.
   // REBRAND (Task 1.3): the new Lurem palette has no hue for "info/link"
@@ -139,7 +139,7 @@ const ICON_ONLY_SIZE_CLASSES: Record<ButtonSize, string> = {
 };
 
 /**
- * Harmon's base action trigger. A dumb, presentational component: it never
+ * Lurem's base action trigger. A dumb, presentational component: it never
  * fetches data or knows what clicking it does — that is entirely up to the
  * `onClick` handler passed in by the caller. Covers both a labeled button
  * and an icon-only square button (pass `icon` with no `children`).

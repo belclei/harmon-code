@@ -3,7 +3,7 @@ import type { HTMLAttributes } from "react";
 export type CardPadding = "none" | "sm" | "md" | "lg";
 
 export interface CardProps extends HTMLAttributes<HTMLDivElement> {
-  /** Padding scale, in Harmon's base-8 spacing tokens. `md` (24px) is the default from harmon-tokens.css's `.lr-card` primitive. */
+  /** Padding scale, in Lurem's base-8 spacing tokens. `md` (24px) is the default from lurem-tokens.css's `.lr-card` primitive. */
   padding?: CardPadding;
   /** Recessed background — nest a card inside another surface without a heavier border. */
   sunken?: boolean;
@@ -24,7 +24,7 @@ const PADDING_OVERRIDE: Record<CardPadding, string | undefined> = {
 };
 
 /**
- * Harmon's base surface container. Purely presentational: padding, border
+ * Lurem's base surface container. Purely presentational: padding, border
  * and shadow come from `--lr-*` tokens via the `.lr-card` primitive; this
  * component adds no state and no behavior of its own.
  */
@@ -72,7 +72,7 @@ export function Card({
       }
       className={[
         "lr-card",
-        // `!` (Tailwind v4 important-modifier) is required here: harmon-tokens.css's
+        // `!` (Tailwind v4 important-modifier) is required here: lurem-tokens.css's
         // `.lr-card` sets `background`/`border` as an unlayered shorthand rule, and
         // unlayered CSS always wins over Tailwind's utilities (emitted inside
         // `@layer utilities`) regardless of source order or specificity — without

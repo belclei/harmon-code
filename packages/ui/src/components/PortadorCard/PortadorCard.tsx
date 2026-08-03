@@ -36,7 +36,7 @@ export interface PortadorCardProps {
 }
 
 /**
- * Harmon's portador (shared-cardholder) validation card. Dumb component:
+ * Lurem's portador (shared-cardholder) validation card. Dumb component:
  * status/copy arrive via props; direction of settlement ("a seu favor" vs.
  * reverse) is decided by the caller, never computed here (§6.10, §8.2 —
  * "informação, não julgamento" applies to relationships between people too).

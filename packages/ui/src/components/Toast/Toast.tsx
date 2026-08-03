@@ -41,7 +41,7 @@ const ICON_TONE: Record<Exclude<ToastVariant, "neutral">, string> = {
 };
 
 /**
- * Harmon's toast (index.html id="dialogo"). Themed panel — follows
+ * Lurem's toast (index.html id="dialogo"). Themed panel — follows
  * Dialog/Sheet's --lr-surface + --lr-border + shadow pattern instead of a
  * fixed dark surface, so it switches with [data-theme="dark"] like the
  * rest of the elevated-surface components. Purely presentational: a single

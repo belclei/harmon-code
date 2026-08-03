@@ -76,7 +76,7 @@ function usageBarTone(usagePercent: number): string {
 }
 
 /**
- * Harmon's credit-card summary row. Dumb component: `usedCents` already
+ * Lurem's credit-card summary row. Dumb component: `usedCents` already
  * sums the closed + open invoice (§6.4, BACKLOG US-2.1) — this component
  * only turns the ratio into a progress-bar width/color. Layout matches the
  * design handoff's `.hmc-account` row (icon, name/meta, invoice value) plus

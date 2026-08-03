@@ -10,7 +10,7 @@ const meta: Meta<typeof Button> = {
     docs: {
       description: {
         component:
-          "Gatilho de ação base do Harmon. Componente burro: nunca decide o que " +
+          "Gatilho de ação base do Lurem. Componente burro: nunca decide o que " +
           "acontece ao ser clicado — isso é responsabilidade do `onClick` recebido via prop.",
       },
     },

@@ -16,7 +16,7 @@ export interface SegmentedProps {
 }
 
 /**
- * Harmon's segmented control (index.html id="tabs", "segmented"). Unlike
+ * Lurem's segmented control (index.html id="tabs", "segmented"). Unlike
  * `Tabs`, this never switches visible panel content — it's a mutually
  * exclusive filter/period toggle — so it uses the WAI-ARIA `radiogroup`/
  * `radio` pattern instead of `tablist`/`tab`.

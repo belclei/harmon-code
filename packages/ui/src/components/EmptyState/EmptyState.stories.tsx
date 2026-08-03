@@ -9,7 +9,7 @@ const meta: Meta<typeof EmptyState> = {
     docs: {
       description: {
         component:
-          'Estado vazio do Harmon (index.html id="carregando"). Nunca é uma tela morta — ' +
+          'Estado vazio do Lurem (index.html id="carregando"). Nunca é uma tela morta — ' +
           "sempre carrega o próximo passo concreto.",
       },
     },

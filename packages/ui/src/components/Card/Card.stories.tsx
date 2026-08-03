@@ -9,8 +9,8 @@ const meta: Meta<typeof Card> = {
     docs: {
       description: {
         component:
-          "Container base do Harmon — padding, borda e sombra vêm dos tokens " +
-          "(`.lr-card` em harmon-tokens.css). Sem estado, sem lógica de negócio.",
+          "Container base do Lurem — padding, borda e sombra vêm dos tokens " +
+          "(`.lr-card` em lurem-tokens.css). Sem estado, sem lógica de negócio.",
       },
     },
   },

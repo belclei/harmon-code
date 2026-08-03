@@ -12,7 +12,7 @@
    Copied from the private docs/brand repo — see packages/ui/README.md. */
 @import "../tokens/lurem-tokens.css";
 
-/* Harmon toggles themes via `data-theme="dark"` on an ancestor (see
+/* Lurem toggles themes via `data-theme="dark"` on an ancestor (see
    US-1.6), not the OS `prefers-color-scheme` media query — so Tailwind's
    `dark:` variant is repointed at that attribute instead of its default.
    Must come after every @import (CSS requires imports to precede all

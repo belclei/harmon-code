@@ -14,7 +14,7 @@ export interface InputAffixMenuProps {
 
 export interface InputProps
   extends Omit<InputHTMLAttributes<HTMLInputElement>, "type" | "size"> {
-  /** HTML input type. Harmon's Storybook only guarantees coverage for these four. */
+  /** HTML input type. Lurem's Storybook only guarantees coverage for these four. */
   type?: InputType;
   /** Visible label — every input must have one; there is no `placeholder`-only mode. */
   label: string;
@@ -36,7 +36,7 @@ export interface InputProps
    */
   affixMenu?: InputAffixMenuProps;
   /**
-   * Harmon's money typography (index.html id="campo", `.hmc-input--money`):
+   * Lurem's money typography (index.html id="campo", `.hmc-input--money`):
    * mono, tabular-nums, right-aligned, larger size. Also defaults
    * `inputMode` to `"decimal"` so mobile shows the numeric keypad — the
    * sign lives in the value/prefix, never typed by hand (§ "o sinal fica no
@@ -46,7 +46,7 @@ export interface InputProps
 }
 
 /**
- * Harmon's base text field. A dumb, presentational component — validation
+ * Lurem's base text field. A dumb, presentational component — validation
  * logic lives entirely with the caller; this component only renders the
  * `error` string it is handed.
  */

@@ -21,7 +21,7 @@ export interface EmptyStateProps {
   className?: string;
 }
 
-/** Harmon's empty/no-results state. Dumb component: it renders whatever copy and actions the caller passes. */
+/** Lurem's empty/no-results state. Dumb component: it renders whatever copy and actions the caller passes. */
 export function EmptyState({
   icon,
   title,

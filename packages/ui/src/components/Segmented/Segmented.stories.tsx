@@ -10,7 +10,7 @@ const meta: Meta<typeof Segmented> = {
     docs: {
       description: {
         component:
-          'Segmented control do Harmon (index.html id="tabs"). Diferente do Tabs, nunca troca ' +
+          'Segmented control do Lurem (index.html id="tabs"). Diferente do Tabs, nunca troca ' +
           "conteúdo de painel — é um filtro/período mutuamente exclusivo (`radiogroup`/`radio`).",
       },
     },

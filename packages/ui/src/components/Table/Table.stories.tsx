@@ -19,7 +19,7 @@ const meta: Meta<typeof Table> = {
     docs: {
       description: {
         component:
-          'Tabela do Harmon (index.html id="tabela"). Coluna de valor sempre à direita, mono e ' +
+          'Tabela do Lurem (index.html id="tabela"). Coluna de valor sempre à direita, mono e ' +
           "tabular. A linha agendada usa a cor de estimativa mesmo dentro da tabela — o princípio não tem exceção contextual.",
       },
     },

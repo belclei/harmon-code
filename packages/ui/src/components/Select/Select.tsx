@@ -54,7 +54,7 @@ export interface SelectProps {
 }
 
 /**
- * Harmon's searchable dropdown (combobox pattern, WAI-ARIA 1.2). Open/closed
+ * Lurem's searchable dropdown (combobox pattern, WAI-ARIA 1.2). Open/closed
  * and the search query are local UI state, not business logic: the component
  * never decides *what* the options are or what selecting one means.
  */

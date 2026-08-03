@@ -7,7 +7,7 @@ import type {
 
 export type TableProps = TableHTMLAttributes<HTMLTableElement>;
 
-/** Harmon's base data table (index.html id="tabela"). Purely presentational — pass real `<thead>`/`<tbody>` markup via `TableHead`/`TableBody`/`TableRow`/`TableHeaderCell`/`TableCell`. */
+/** Lurem's base data table (index.html id="tabela"). Purely presentational — pass real `<thead>`/`<tbody>` markup via `TableHead`/`TableBody`/`TableRow`/`TableHeaderCell`/`TableCell`. */
 export function Table({ className = "", ...rest }: TableProps) {
   return (
     <table

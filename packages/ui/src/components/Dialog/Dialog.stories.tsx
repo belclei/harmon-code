@@ -12,7 +12,7 @@ const meta: Meta<typeof Dialog> = {
     docs: {
       description: {
         component:
-          'Diálogo de confirmação do Harmon (index.html id="dialogo", padrão WAI-ARIA Dialog ' +
+          'Diálogo de confirmação do Lurem (index.html id="dialogo", padrão WAI-ARIA Dialog ' +
           "Modal). Foco preso, Escape fecha, foco retorna ao gatilho ao fechar — ver `useModalBehavior`.",
       },
     },

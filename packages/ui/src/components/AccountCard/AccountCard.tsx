@@ -72,7 +72,7 @@ function accountMeta(type: AccountType, overdraftLimitCents: number): string {
 }
 
 /**
- * Harmon's account summary row. Dumb component: `overLimit` and `isActive`
+ * Lurem's account summary row. Dumb component: `overLimit` and `isActive`
  * arrive as props — it never computes whether a balance breaches the
  * overdraft limit (§6.4, BACKLOG US-2.1). Layout matches the design
  * handoff's `.hmc-account` row: icon, name/meta, balance — stacked as a

@@ -13,7 +13,7 @@ const SIZE_CLASSES: Record<SpinnerSize, string> = {
   md: "h-5 w-5 border-2",
 };
 
-/** Harmon's inline loading ring (index.html id="carregando", `.hmc-spinner`). Purely decorative animation — the surrounding view owns the loading state it's reporting. */
+/** Lurem's inline loading ring (index.html id="carregando", `.hmc-spinner`). Purely decorative animation — the surrounding view owns the loading state it's reporting. */
 export function Spinner({ size = "md", className = "", label }: SpinnerProps) {
   return (
     <span

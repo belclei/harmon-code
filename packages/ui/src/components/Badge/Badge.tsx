@@ -39,7 +39,7 @@ export interface BadgeCategoryProps extends BadgeCommonProps {
 
 export type BadgeProps = BadgeStatusProps | BadgeCategoryProps;
 
-// bg/text pairs use the v1.1 AA-checked text tokens from harmon-tokens.css
+// bg/text pairs use the v1.1 AA-checked text tokens from lurem-tokens.css
 // (--lr-*-700, or --lr-negative-on-tint on clay-100) rather than the older
 // hardcoded hex in brand/design-system/harmon-components.css, which
 // predates that AA correction — see Sprint report for the flag.
@@ -50,7 +50,7 @@ export type BadgeProps = BadgeStatusProps | BadgeCategoryProps;
 // blue-700/sage-700 fail axe-core's color-contrast check on their *own*
 // -100 chip background (4.32:1 / 4.35:1, short of 4.5:1) even though they
 // pass against the neutral page — a badge/chip is exactly the "text on its
-// own tint" case harmon-tokens.css's v1.1 pass never covered. --hm-blue-on-tint
+// own tint" case lurem-tokens.css's v1.1 pass never covered. --hm-blue-on-tint
 // / --lr-positive-on-tint (v1.2) are that same hue nudged darker until it clears
 // 4.5:1 against these exact backgrounds. (Rebrand note: blue's on-tint hack
 // is now moot — the graphite substitution below doesn't need one, see its
@@ -69,7 +69,7 @@ const STATUS_STYLES: Record<
     label: "Ativo",
   },
   // Was bg-[var(--lr-ivory-100)]: in light theme that token IS --lr-bg (the
-  // page background itself, harmon-tokens.css line 47), so the pill was
+  // page background itself, lurem-tokens.css line 47), so the pill was
   // literally invisible against the page and only its text floated. The
   // reference's neutral chip/badge (harmon-components.css .hmc-badge/.hmc-chip
   // base rule) uses --lr-surface-sunken + a real border instead — matches that.
@@ -137,7 +137,7 @@ const CATEGORY_STYLES: Record<
 };
 
 /**
- * Harmon's small status/category pill. Dumb component: `status` and `color`
+ * Lurem's small status/category pill. Dumb component: `status` and `color`
  * are enums the caller picks from data it already has — nothing here is
  * computed from business rules.
  */

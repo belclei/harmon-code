@@ -4,7 +4,7 @@
 //
 // Aprovar aqui gera o token de 7 dias (registrationTokenHash) e dispara o
 // e-mail de convite via Resend (email/templates.ts, template de marca em
-// email/templates/harmon-convite.html) logo em seguida — tanto pra fila de
+// email/templates/lurem-convite.html) logo em seguida — tanto pra fila de
 // acesso quanto pra convite usuário-a-usuário. Uma falha do Resend aqui
 // derruba a resposta (500): o token já foi gravado, então "reenviar" já
 // existe como ação própria (POST /v1/invites/:id/resend) pra cobrir esse

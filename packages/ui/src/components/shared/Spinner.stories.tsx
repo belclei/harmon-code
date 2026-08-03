@@ -11,7 +11,7 @@ const meta: Meta<typeof Spinner> = {
     docs: {
       description: {
         component:
-          'Anel de carregamento inline do Harmon (index.html id="carregando"). Cor herda de ' +
+          'Anel de carregamento inline do Lurem (index.html id="carregando"). Cor herda de ' +
           "`currentColor` — o mesmo anel que `Button` usa internamente em `loading`.",
       },
     },

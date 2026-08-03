@@ -5,7 +5,7 @@ import { PrismaClient } from "@lurem/db";
 import { hashPassword } from "../src/auth/password.js";
 
 const EMAIL = "demo@harmon.dev";
-const PASSWORD = "harmon123";
+const PASSWORD = "lurem123";
 
 async function main(): Promise<void> {
   const prisma = new PrismaClient();

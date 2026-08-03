@@ -18,7 +18,7 @@ export interface TabsProps {
 }
 
 /**
- * Harmon's tab list (index.html id="tabs", WAI-ARIA Tabs pattern). A dumb,
+ * Lurem's tab list (index.html id="tabs", WAI-ARIA Tabs pattern). A dumb,
  * controlled component: it never owns which panel is "active" — the caller
  * does, via `value`/`onChange` — it only renders the trigger row and its
  * keyboard behavior (Left/Right/Home/End, roving tabindex).

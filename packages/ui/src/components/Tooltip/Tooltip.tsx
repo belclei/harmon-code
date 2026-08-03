@@ -21,7 +21,7 @@ export interface TooltipProps {
   className?: string;
 }
 
-/** Harmon's tooltip (index.html id="dialogo"). Purely presentational — visibility is local hover/focus state, not app state. */
+/** Lurem's tooltip (index.html id="dialogo"). Purely presentational — visibility is local hover/focus state, not app state. */
 export function Tooltip({
   content,
   children,

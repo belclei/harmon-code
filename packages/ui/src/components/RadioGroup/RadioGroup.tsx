@@ -21,7 +21,7 @@ export interface RadioGroupProps {
   id?: string;
 }
 
-/** Harmon's radio group. A dumb, controlled component — `value` is owned entirely by the caller. */
+/** Lurem's radio group. A dumb, controlled component — `value` is owned entirely by the caller. */
 export function RadioGroup({
   label,
   name,

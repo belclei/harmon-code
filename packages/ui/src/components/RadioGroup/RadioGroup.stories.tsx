@@ -10,7 +10,7 @@ const meta: Meta<typeof RadioGroup> = {
     docs: {
       description: {
         component:
-          'Grupo de rádio do Harmon (index.html id="selecao"). Componente burro e controlado — ' +
+          'Grupo de rádio do Lurem (index.html id="selecao"). Componente burro e controlado — ' +
           "`value` vem inteiramente do chamador; a navegação por seta entre opções é nativa do browser (mesmo `name`).",
       },
     },

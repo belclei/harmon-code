@@ -103,7 +103,7 @@ function formatDayLabel(date: Date, isToday: boolean): string {
 }
 
 /**
- * Harmon's calendar (index.html id="calendario", origin react-day-picker).
+ * Lurem's calendar (index.html id="calendario", origin react-day-picker).
  * Locale pt-BR only (week starts Sunday, lowercase names, no i18n
  * abstraction — this product has no other locale, see PRODUCT.md). A dumb,
  * controlled component: `month` and `selected` are both owned by the

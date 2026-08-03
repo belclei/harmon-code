@@ -18,7 +18,7 @@ describe("sendInviteEmail", () => {
 
     const result = await sendInviteEmail(resend, {
       to: "convidado@example.com",
-      link: "https://harmon.fasolo.tech/register?token=xyz",
+      link: "https://lurem.fasolo.tech/register?token=xyz",
     });
 
     expect(result).toEqual({ id: "email_1" });
@@ -31,12 +31,8 @@ describe("sendInviteEmail", () => {
     };
     expect(call.to).toBe("convidado@example.com");
     expect(call.subject).toBe("Seu convite para o Lurem chegou");
-    expect(call.html).toContain(
-      "https://harmon.fasolo.tech/register?token=xyz",
-    );
-    expect(call.text).toContain(
-      "https://harmon.fasolo.tech/register?token=xyz",
-    );
+    expect(call.html).toContain("https://lurem.fasolo.tech/register?token=xyz");
+    expect(call.text).toContain("https://lurem.fasolo.tech/register?token=xyz");
   });
 
   it("throws with the failure reason when Resend returns an error", async () => {
@@ -61,7 +57,7 @@ describe("sendConnectionRequestEmail", () => {
     const result = await sendConnectionRequestEmail(resend, {
       to: "addressee@example.com",
       requesterName: "Maria",
-      link: "https://harmon.fasolo.tech/connections",
+      link: "https://lurem.fasolo.tech/connections",
     });
 
     expect(result).toEqual({ id: "email_2" });
@@ -75,6 +71,6 @@ describe("sendConnectionRequestEmail", () => {
     expect(call.to).toBe("addressee@example.com");
     expect(call.subject).toBe("Pedido de conexão no Lurem");
     expect(call.html).toContain("Maria");
-    expect(call.text).toContain("https://harmon.fasolo.tech/connections");
+    expect(call.text).toContain("https://lurem.fasolo.tech/connections");
   });
 });

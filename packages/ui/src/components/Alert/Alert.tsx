@@ -49,7 +49,7 @@ export interface AlertProps {
 // clears 3:1 but fails 4.5:1 for text). --lr-negative/--lr-negative here
 // are FieldMessage's original error-only precedent for this exact problem,
 // generalized to the other three variants using each hue's own already-AA
-// text tier (harmon-tokens.css v1.1).
+// text tier (lurem-tokens.css v1.1).
 // REBRAND (Task 1.3): "info" has no home in the new Lurem palette — only
 // Night/Petrol/Ivory/Gold/Graphite/Terracota exist, and none is designated
 // "info" by DESIGN_SYSTEM.md. Substituted --lr-graphite-* at the matching
@@ -64,12 +64,12 @@ const INLINE_TONE: Record<AlertVariant, string> = {
   error: "text-[var(--lr-negative)] dark:text-[var(--lr-negative)]",
 };
 
-// harmon-tokens.css never redefines the raw --lr-*-100 tints (or the
+// lurem-tokens.css never redefines the raw --lr-*-100 tints (or the
 // AA-checked --lr-*-700 text tones) for [data-theme="dark"] — they're only
 // meant as "light wash on a light page". Used as-is, a dark-theme Alert
 // would render a near-white title on a near-white background (title uses
 // var(--lr-text), which becomes --lr-ivory-100 in dark mode). Fixed the same
-// way harmon-tokens.css already handles --lr-label/--lr-money-in (a
+// way lurem-tokens.css already handles --lr-label/--lr-money-in (a
 // lighter, ~300-tier tone for dark) and a translucent wash of the base hue
 // instead of the flat pastel for the background.
 const VARIANT_STYLES: Record<
@@ -149,7 +149,7 @@ const ACTION_VARIANT_MAP = {
 } as const;
 
 /**
- * Harmon's inline notification. Dumb component: it renders whatever
+ * Lurem's inline notification. Dumb component: it renders whatever
  * title/description the caller passes and only reports "the user asked to
  * close this" — it never decides when to appear or disappear on its own.
  */
@@ -231,7 +231,7 @@ export function Alert({
           {description ? (
             // NOT --lr-text-secondary: that token is AA-checked against the neutral
             // --lr-bg/--lr-surface only (per its own v1.1 comment in
-            // harmon-tokens.css). On top of these variants' tinted washes
+            // lurem-tokens.css). On top of these variants' tinted washes
             // (blue-100/sage-100/clay-100 etc.) it measured 4.12–4.35:1 via
             // axe-core — short of the 4.5:1 this component's own a11y bar
             // requires. brand/design-system/harmon-components.css's

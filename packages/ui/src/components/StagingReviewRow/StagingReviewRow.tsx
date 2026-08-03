@@ -53,7 +53,7 @@ function ConfidencePips({ pips }: { pips: 1 | 2 | 3 }) {
 }
 
 /**
- * Harmon's import-review line item. Dumb component: `confidencePips` and
+ * Lurem's import-review line item. Dumb component: `confidencePips` and
  * `status` arrive via props — no extraction/confidence scoring happens here
  * (§6.8, BACKLOG US-2.5). "Alta confiança" styling is `confidencePips === 3`,
  * a read of the same prop, not a separate decision.

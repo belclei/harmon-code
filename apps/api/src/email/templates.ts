@@ -26,8 +26,8 @@ export function sendInviteEmail(
   return send(resend, {
     to: params.to,
     subject: "Seu convite para o Lurem chegou",
-    html: renderTemplate("harmon-convite.html", { link: params.link }),
-    text: renderTemplate("harmon-convite.txt", { link: params.link }),
+    html: renderTemplate("lurem-convite.html", { link: params.link }),
+    text: renderTemplate("lurem-convite.txt", { link: params.link }),
   });
 }
 
@@ -39,7 +39,7 @@ export function sendConnectionRequestEmail(
   return send(resend, {
     to: params.to,
     subject: "Pedido de conexão no Lurem",
-    html: renderTemplate("harmon-conexao.html", vars),
-    text: renderTemplate("harmon-conexao.txt", vars),
+    html: renderTemplate("lurem-conexao.html", vars),
+    text: renderTemplate("lurem-conexao.txt", vars),
   });
 }

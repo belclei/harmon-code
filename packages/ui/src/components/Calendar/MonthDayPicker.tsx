@@ -16,7 +16,7 @@ const MUTED_DAYS = new Set([29, 30, 31]);
 const DAYS = Array.from({ length: 31 }, (_, index) => index + 1);
 
 /**
- * Harmon's "which day of the month" recurrence picker (index.html
+ * Lurem's "which day of the month" recurrence picker (index.html
  * id="calendario") — a flat 1–31 grid plus a "fim" (last day) option, no
  * month/weekday context (unlike `Calendar`, this isn't tied to any specific
  * month). A dumb, controlled component.

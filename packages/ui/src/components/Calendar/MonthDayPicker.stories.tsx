@@ -13,7 +13,7 @@ const meta: Meta<typeof MonthDayPicker> = {
     docs: {
       description: {
         component:
-          'Seletor de dia do mês do Harmon (index.html id="calendario", "Seletor de dia do mês — ' +
+          'Seletor de dia do mês do Lurem (index.html id="calendario", "Seletor de dia do mês — ' +
           'recorrências"). Dias 29–31 aparecem esmaecidos: nem todo mês os tem — escolhendo um deles, ' +
           "a ocorrência cai no último dia do mês curto.",
       },

@@ -11,7 +11,7 @@ export interface SheetProps {
 }
 
 /**
- * Harmon's mobile bottom sheet (index.html id="dialogo") — same modal
+ * Lurem's mobile bottom sheet (index.html id="dialogo") — same modal
  * behavior as `Dialog` (see `useModalBehavior`), different chrome: anchored
  * to the bottom edge, rounded only on top, with a grab handle.
  */

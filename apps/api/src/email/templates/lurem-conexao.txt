@@ -2,7 +2,7 @@ HARMON · CONEXÃO
 
 {{requesterName}} quer se conectar com você.
 
-Conexões no Harmon permitem compartilhar contas e cartões, e acertar
+Conexões no Lurem permitem compartilhar contas e cartões, e acertar
 despesas divididas. Entre no app para aceitar ou recusar este pedido.
 
 Ver pedido: {{link}}
@@ -12,4 +12,4 @@ Você pode aceitar ou recusar a qualquer momento na sua página de Conexões.
 --
 Você não precisa de mais dados. Precisa de distância.
 Você recebeu este e-mail porque {{requesterName}} pediu para se conectar
-com você no Harmon.
+com você no Lurem.

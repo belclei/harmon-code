@@ -21,7 +21,7 @@ export interface CheckboxProps
   error?: boolean;
 }
 
-/** Harmon's checkbox. A dumb, controlled component — `checked` and `indeterminate` are owned entirely by the caller. */
+/** Lurem's checkbox. A dumb, controlled component — `checked` and `indeterminate` are owned entirely by the caller. */
 export function Checkbox({
   label,
   checked = false,

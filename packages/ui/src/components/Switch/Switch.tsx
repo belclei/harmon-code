@@ -21,7 +21,7 @@ export type SwitchProps =
     });
 
 /**
- * Harmon's toggle (index.html id="selecao"). A real `role="switch"` button,
+ * Lurem's toggle (index.html id="selecao"). A real `role="switch"` button,
  * not a checkbox — WAI-ARIA's own recommended pattern for an on/off control
  * that applies immediately (a preference), as opposed to `Checkbox`, which
  * waits for a form's own "Salvar".

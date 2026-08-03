@@ -11,7 +11,7 @@ const meta: Meta<typeof Input> = {
     docs: {
       description: {
         component:
-          "Campo de texto base do Harmon. Sempre com label visível; validação " +
+          "Campo de texto base do Lurem. Sempre com label visível; validação " +
           "é responsabilidade de quem usa o componente — o `error` chega pronto via prop.",
       },
     },

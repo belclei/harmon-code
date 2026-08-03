@@ -12,7 +12,7 @@ const meta: Meta<typeof Calendar> = {
     docs: {
       description: {
         component:
-          'Calendário do Harmon (index.html id="calendario", origem react-day-picker). Locale ' +
+          'Calendário do Lurem (index.html id="calendario", origem react-day-picker). Locale ' +
           "pt-BR fixo (semana começa domingo). O ponto sob o dia: cheio é transação real, vazado com " +
           'traço é agendada — o calendário nunca mostra valores, só "quando".',
       },

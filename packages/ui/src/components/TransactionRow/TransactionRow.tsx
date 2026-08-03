@@ -183,7 +183,7 @@ function InstallmentDetails({
 }
 
 /**
- * Harmon's transaction line item. Dumb component: variant/fields all come
+ * Lurem's transaction line item. Dumb component: variant/fields all come
  * via props — it renders 5 shapes (manual/importada share the `default`
  * variant, distinguished only by the `source` tag) without deciding any
  * business state itself (§6.6, BACKLOG US-2.3).

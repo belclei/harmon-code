@@ -3,7 +3,7 @@
   "version": "0.0.0",
   "private": true,
   "type": "module",
-  "description": "Harmon design-system component library (dumb, presentational components) developed and documented in Storybook.",
+  "description": "Lurem design-system component library (dumb, presentational components) developed and documented in Storybook.",
   "main": "src/index.ts",
   "types": "src/index.ts",
   "scripts": {
