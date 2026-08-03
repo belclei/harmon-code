@@ -7,7 +7,7 @@ async function send(
   params: { to: string; subject: string; html: string; text: string },
 ): Promise<{ id: string }> {
   const { data, error } = await resend.emails.send({
-    from: "Harmon <onboarding@harmon.fasolo.tech>",
+    from: "Lurem <onboarding@lurem.fasolo.tech>",
     to: params.to,
     subject: params.subject,
     html: params.html,
@@ -25,7 +25,7 @@ export function sendInviteEmail(
 ): Promise<{ id: string }> {
   return send(resend, {
     to: params.to,
-    subject: "Seu convite para o Harmon chegou",
+    subject: "Seu convite para o Lurem chegou",
     html: renderTemplate("harmon-convite.html", { link: params.link }),
     text: renderTemplate("harmon-convite.txt", { link: params.link }),
   });
@@ -38,7 +38,7 @@ export function sendConnectionRequestEmail(
   const vars = { requesterName: params.requesterName, link: params.link };
   return send(resend, {
     to: params.to,
-    subject: "Pedido de conexão no Harmon",
+    subject: "Pedido de conexão no Lurem",
     html: renderTemplate("harmon-conexao.html", vars),
     text: renderTemplate("harmon-conexao.txt", vars),
   });

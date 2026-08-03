@@ -4,7 +4,7 @@
 // Escopo: UserConnection.addresseeUserId é NOT NULL no schema (§1.2,
 // decisão do Sprint 1) — não dá pra gerar um link "cego" sem saber quem vai
 // aceitar. Por isso POST /v1/connections pede o e-mail do convidado (deve já
-// ser um usuário Harmon cadastrado) em vez de um token público standalone; o
+// ser um usuário Lurem cadastrado) em vez de um token público standalone; o
 // token gerado ainda existe (connectionTokenHash) para o caso de A querer
 // mandar um link, mas aceitar via /v1/connections/:id/accept (in-app,
 // exigindo que o usuário autenticado SEJA o addressee) é o caminho principal
@@ -134,7 +134,7 @@ export async function registerConnectionRoutes(
         throw VALIDATION_FAILED([
           {
             field: "addresseeEmail",
-            message: "Não encontramos um usuário Harmon com esse e-mail.",
+            message: "Não encontramos um usuário Lurem com esse e-mail.",
           },
         ]);
       }

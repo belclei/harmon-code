@@ -18,7 +18,7 @@ const html = `<!doctype html>
 <html>
   <head>
     <meta charset="utf-8" />
-    <title>Harmon — teste manual de Google OAuth</title>
+    <title>Lurem — teste manual de Google OAuth</title>
     <script src="https://accounts.google.com/gsi/client" async defer></script>
   </head>
   <body style="font-family: sans-serif; max-width: 480px; margin: 4rem auto;">

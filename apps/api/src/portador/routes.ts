@@ -19,7 +19,7 @@
 // - settle: soma o saldo líquido entre os dois (mesma fórmula de
 //   connections/routes.ts) e registra uma transação real na conta do
 //   usuário que está acertando — nenhuma tentativa de sincronizar as duas
-//   pontas automaticamente, já que Harmon não vê a transferência bancária
+//   pontas automaticamente, já que Lurem não vê a transferência bancária
 //   real entre contas de pessoas diferentes.
 //
 // `portadorMirrorOfTransactionId` (emenda 27/07/2026, IMPLEMENTACAO.md §1.4)

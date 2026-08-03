@@ -30,7 +30,7 @@ describe("sendInviteEmail", () => {
       text: string;
     };
     expect(call.to).toBe("convidado@example.com");
-    expect(call.subject).toBe("Seu convite para o Harmon chegou");
+    expect(call.subject).toBe("Seu convite para o Lurem chegou");
     expect(call.html).toContain(
       "https://harmon.fasolo.tech/register?token=xyz",
     );
@@ -73,7 +73,7 @@ describe("sendConnectionRequestEmail", () => {
       text: string;
     };
     expect(call.to).toBe("addressee@example.com");
-    expect(call.subject).toBe("Pedido de conexão no Harmon");
+    expect(call.subject).toBe("Pedido de conexão no Lurem");
     expect(call.html).toContain("Maria");
     expect(call.text).toContain("https://harmon.fasolo.tech/connections");
   });
