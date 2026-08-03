@@ -12,12 +12,12 @@ jobs:
       postgres:
         image: postgres:16-alpine
         env:
-          POSTGRES_USER: harmon
-          POSTGRES_PASSWORD: harmon
-          POSTGRES_DB: harmon
+          POSTGRES_USER: lurem
+          POSTGRES_PASSWORD: lurem
+          POSTGRES_DB: lurem
         ports: ["5433:5432"]
         options: >-
-          --health-cmd "pg_isready -U harmon"
+          --health-cmd "pg_isready -U lurem"
           --health-interval 5s
           --health-timeout 3s
           --health-retries 10
@@ -30,7 +30,7 @@ jobs:
           --health-timeout 3s
           --health-retries 10
     env:
-      DATABASE_URL: postgresql://harmon:harmon@localhost:5433/harmon?schema=public
+      DATABASE_URL: postgresql://lurem:lurem@localhost:5433/lurem?schema=public
       REDIS_URL: redis://localhost:6379
       JWT_SECRET: ci-only-secret-not-used-in-prod-32-bytes
       GOOGLE_CLIENT_ID: ci-placeholder
@@ -44,7 +44,7 @@ jobs:
           cache: npm
       - run: npm ci
       - name: Apply migrations
-        run: npm run generate --workspace=@harmon/db && npx --workspace=@harmon/db prisma migrate deploy
+        run: npm run generate --workspace=@lurem/db && npx --workspace=@lurem/db prisma migrate deploy
       - name: Lint
         run: npm run lint
       - name: Typecheck
