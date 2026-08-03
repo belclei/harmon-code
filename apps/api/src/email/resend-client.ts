@@ -12,7 +12,7 @@ export async function sendTestEmail(
   const { data, error } = await resend.emails.send({
     from: "Lurem <onboarding@lurem.fasolo.tech>",
     to,
-    subject: "Harmon — e-mail de teste da infraestrutura Resend",
+    subject: "Lurem — e-mail de teste da infraestrutura Resend",
     text: "Se você recebeu este e-mail, o client Resend (US-1.12) está configurado corretamente.",
   });
   if (error || !data) {
