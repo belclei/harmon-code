@@ -328,7 +328,7 @@ export function AccountsPage() {
   });
 
   if (isBooting) {
-    return <p className="p-6 text-[var(--hm-text-2)]">Carregando…</p>;
+    return <p className="p-6 text-[var(--lr-text-secondary)]">Carregando…</p>;
   }
   if (!user) {
     return <Navigate to="/login" />;
@@ -350,10 +350,10 @@ export function AccountsPage() {
     <div className="mx-auto max-w-4xl px-4 py-8">
       <div className="mb-6 flex items-start justify-between gap-6">
         <div>
-          <p className="m-0 mb-2 text-[.6875rem] tracking-[.16em] text-[var(--hm-text-2)] uppercase">
+          <p className="m-0 mb-2 text-[.6875rem] tracking-[.16em] text-[var(--lr-text-secondary)] uppercase">
             Onde seu dinheiro está
           </p>
-          <h1 className="m-0 text-xl font-bold text-[var(--hm-text)]">
+          <h1 className="m-0 text-xl font-bold text-[var(--lr-text)]">
             Contas e cartões
           </h1>
         </div>
@@ -382,16 +382,16 @@ export function AccountsPage() {
       />
 
       <section className="mb-9">
-        <h2 className="mb-3.5 text-[.6875rem] tracking-[.16em] text-[var(--hm-text-2)] uppercase">
+        <h2 className="mb-3.5 text-[.6875rem] tracking-[.16em] text-[var(--lr-text-secondary)] uppercase">
           Contas · saldo líquido {formatMoney(netBalanceCents)}
         </h2>
         {accountsQuery.isLoading ? (
-          <p className="text-[var(--hm-text-2)]">Carregando…</p>
+          <p className="text-[var(--lr-text-secondary)]">Carregando…</p>
         ) : null}
         {accountsQuery.isError ? (
           <p
             role="alert"
-            className="text-[var(--hm-clay-600)] dark:text-[var(--hm-clay-300)]"
+            className="text-[var(--lr-negative)] dark:text-[var(--lr-negative)]"
           >
             Não foi possível carregar suas contas.
           </p>
@@ -416,16 +416,16 @@ export function AccountsPage() {
       </section>
 
       <section>
-        <h2 className="mb-3.5 text-[.6875rem] tracking-[.16em] text-[var(--hm-text-2)] uppercase">
+        <h2 className="mb-3.5 text-[.6875rem] tracking-[.16em] text-[var(--lr-text-secondary)] uppercase">
           Cartões de crédito
         </h2>
         {cardsQuery.isLoading ? (
-          <p className="text-[var(--hm-text-2)]">Carregando…</p>
+          <p className="text-[var(--lr-text-secondary)]">Carregando…</p>
         ) : null}
         {cardsQuery.isError ? (
           <p
             role="alert"
-            className="text-[var(--hm-clay-600)] dark:text-[var(--hm-clay-300)]"
+            className="text-[var(--lr-negative)] dark:text-[var(--lr-negative)]"
           >
             Não foi possível carregar seus cartões.
           </p>

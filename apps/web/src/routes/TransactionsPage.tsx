@@ -188,7 +188,7 @@ export function TransactionsPage() {
   });
 
   if (isBooting) {
-    return <p className="p-6 text-[var(--hm-text-2)]">Carregando…</p>;
+    return <p className="p-6 text-[var(--lr-text-secondary)]">Carregando…</p>;
   }
   if (!user) {
     return <Navigate to="/login" />;
@@ -254,50 +254,50 @@ export function TransactionsPage() {
       <nav className="mb-6 flex gap-4 text-sm">
         <Link
           to="/timeline"
-          className="text-[var(--hm-text-2)] hover:underline"
+          className="text-[var(--lr-text-secondary)] hover:underline"
         >
           Timeline
         </Link>
         <Link
           to="/dashboard"
-          className="text-[var(--hm-text-2)] hover:underline"
+          className="text-[var(--lr-text-secondary)] hover:underline"
         >
           Dashboard
         </Link>
         <Link
           to="/accounts"
-          className="text-[var(--hm-text-2)] hover:underline"
+          className="text-[var(--lr-text-secondary)] hover:underline"
         >
           Contas
         </Link>
-        <span className="font-semibold text-[var(--hm-text)]">Transações</span>
+        <span className="font-semibold text-[var(--lr-text)]">Transações</span>
         <Link
           to="/recurring"
-          className="text-[var(--hm-text-2)] hover:underline"
+          className="text-[var(--lr-text-secondary)] hover:underline"
         >
           Recorrências
         </Link>
         <Link
           to="/connections"
-          className="text-[var(--hm-text-2)] hover:underline"
+          className="text-[var(--lr-text-secondary)] hover:underline"
         >
           Conexões
         </Link>
         <Link
           to="/settings"
-          className="text-[var(--hm-text-2)] hover:underline"
+          className="text-[var(--lr-text-secondary)] hover:underline"
         >
           Configurações
         </Link>
       </nav>
 
-      <h1 className="mb-6 text-xl font-bold text-[var(--hm-text)]">
+      <h1 className="mb-6 text-xl font-bold text-[var(--lr-text)]">
         Transações
       </h1>
 
       <form
         onSubmit={onSubmit}
-        className="mb-8 grid gap-4 rounded-xl border border-[var(--hm-border)] p-4"
+        className="mb-8 grid gap-4 rounded-xl border border-[var(--lr-border)] p-4"
       >
         <Segmented
           label="Tipo"
@@ -397,11 +397,11 @@ export function TransactionsPage() {
       </form>
 
       <section>
-        <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-[var(--hm-text-2)]">
+        <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-[var(--lr-text-secondary)]">
           Lançamentos
         </h2>
         {txQuery.isLoading ? (
-          <p className="text-[var(--hm-text-2)]">Carregando…</p>
+          <p className="text-[var(--lr-text-secondary)]">Carregando…</p>
         ) : null}
         {!txQuery.isLoading && transactions.length === 0 ? (
           <EmptyState

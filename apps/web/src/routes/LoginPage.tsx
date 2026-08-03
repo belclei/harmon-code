@@ -73,16 +73,16 @@ export function LoginPage() {
 
   return (
     <div className="mx-auto flex min-h-screen max-w-sm flex-col justify-center gap-6 px-4">
-      <h1 className="text-xl font-bold text-[var(--hm-text)]">
+      <h1 className="text-xl font-bold text-[var(--lr-text)]">
         Entrar no Harmon
       </h1>
       {googleAvailable ? (
         <>
           <div ref={googleButtonRef} className="flex justify-center" />
           <div className="flex items-center gap-3">
-            <hr className="flex-1 border-[var(--hm-border)]" />
-            <span className="text-sm text-[var(--hm-text-2)]">ou</span>
-            <hr className="flex-1 border-[var(--hm-border)]" />
+            <hr className="flex-1 border-[var(--lr-border)]" />
+            <span className="text-sm text-[var(--lr-text-secondary)]">ou</span>
+            <hr className="flex-1 border-[var(--lr-border)]" />
           </div>
         </>
       ) : null}
@@ -108,7 +108,7 @@ export function LoginPage() {
         {formError ? (
           <p
             role="alert"
-            className="text-sm text-[var(--hm-clay-600)] dark:text-[var(--hm-clay-300)]"
+            className="text-sm text-[var(--lr-negative)] dark:text-[var(--lr-negative)]"
           >
             {formError}
           </p>

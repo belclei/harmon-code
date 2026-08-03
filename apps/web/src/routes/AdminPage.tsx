@@ -106,7 +106,7 @@ export function AdminPage() {
   });
 
   if (isBooting) {
-    return <p className="p-6 text-[var(--hm-text-2)]">Carregando…</p>;
+    return <p className="p-6 text-[var(--lr-text-secondary)]">Carregando…</p>;
   }
   if (!user) {
     return <Navigate to="/login" />;
@@ -121,12 +121,12 @@ export function AdminPage() {
 
   return (
     <div className="mx-auto max-w-5xl px-4 py-8">
-      <h1 className="mb-6 text-xl font-bold text-[var(--hm-text)]">
+      <h1 className="mb-6 text-xl font-bold text-[var(--lr-text)]">
         Painel administrativo
       </h1>
 
       <section className="mb-10">
-        <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-[var(--hm-text-2)]">
+        <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-[var(--lr-text-secondary)]">
           Acessos
         </h2>
         {waitlist.length === 0 && invites.length === 0 ? (
@@ -139,16 +139,16 @@ export function AdminPage() {
             {waitlist.map((entry) => (
               <div
                 key={entry.id}
-                className="flex items-center justify-between rounded-[var(--hm-r-lg)] border border-[var(--hm-border)] p-4"
+                className="flex items-center justify-between rounded-[var(--lr-r-lg)] border border-[var(--lr-border)] p-4"
               >
                 <div>
-                  <p className="text-[var(--hm-text)]">
+                  <p className="text-[var(--lr-text)]">
                     {entry.name}{" "}
                     <Badge kind="status" status="pending">
                       Fila de acesso
                     </Badge>
                   </p>
-                  <p className="text-sm text-[var(--hm-text-2)]">
+                  <p className="text-sm text-[var(--lr-text-secondary)]">
                     {entry.email}
                   </p>
                 </div>
@@ -172,16 +172,16 @@ export function AdminPage() {
             {invites.map((invite) => (
               <div
                 key={invite.id}
-                className="flex items-center justify-between rounded-[var(--hm-r-lg)] border border-[var(--hm-border)] p-4"
+                className="flex items-center justify-between rounded-[var(--lr-r-lg)] border border-[var(--lr-border)] p-4"
               >
                 <div>
-                  <p className="text-[var(--hm-text)]">
+                  <p className="text-[var(--lr-text)]">
                     {invite.inviteeName}{" "}
                     <Badge kind="status" status="pending">
                       Convite
                     </Badge>
                   </p>
-                  <p className="text-sm text-[var(--hm-text-2)]">
+                  <p className="text-sm text-[var(--lr-text-secondary)]">
                     {invite.inviteeEmail}
                   </p>
                 </div>
@@ -214,17 +214,17 @@ export function AdminPage() {
       </section>
 
       <section>
-        <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-[var(--hm-text-2)]">
+        <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-[var(--lr-text-secondary)]">
           Usuários
         </h2>
         <div className="flex flex-col gap-2">
           {users.map((u) => (
             <div
               key={u.id}
-              className="flex flex-col gap-3 rounded-[var(--hm-r-lg)] border border-[var(--hm-border)] p-4 sm:flex-row sm:items-center sm:justify-between"
+              className="flex flex-col gap-3 rounded-[var(--lr-r-lg)] border border-[var(--lr-border)] p-4 sm:flex-row sm:items-center sm:justify-between"
             >
               <div>
-                <p className="text-[var(--hm-text)]">
+                <p className="text-[var(--lr-text)]">
                   {u.name}{" "}
                   <Badge
                     kind="status"
@@ -233,7 +233,7 @@ export function AdminPage() {
                     {u.role === "admin" ? "Admin" : "Usuário"}
                   </Badge>
                 </p>
-                <p className="text-sm text-[var(--hm-text-2)]">
+                <p className="text-sm text-[var(--lr-text-secondary)]">
                   {u.email} · {u.accountCount} contas · {u.cardCount} cartões ·{" "}
                   {u.transactionCount} transações
                 </p>
@@ -280,53 +280,53 @@ export function AdminPage() {
       </section>
 
       <section className="mt-10">
-        <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-[var(--hm-text-2)]">
+        <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-[var(--lr-text-secondary)]">
           Frequência de uso
         </h2>
         {usageQuery.data ? (
           <div className="flex flex-col gap-4">
             <div className="grid grid-cols-3 gap-4">
-              <div className="rounded-[var(--hm-r-lg)] border border-[var(--hm-border)] p-4">
-                <p className="text-xs uppercase tracking-wide text-[var(--hm-text-2)]">
+              <div className="rounded-[var(--lr-r-lg)] border border-[var(--lr-border)] p-4">
+                <p className="text-xs uppercase tracking-wide text-[var(--lr-text-secondary)]">
                   DAU
                 </p>
-                <p className="text-lg font-semibold text-[var(--hm-text)]">
+                <p className="text-lg font-semibold text-[var(--lr-text)]">
                   {usageQuery.data.dau}
                 </p>
               </div>
-              <div className="rounded-[var(--hm-r-lg)] border border-[var(--hm-border)] p-4">
-                <p className="text-xs uppercase tracking-wide text-[var(--hm-text-2)]">
+              <div className="rounded-[var(--lr-r-lg)] border border-[var(--lr-border)] p-4">
+                <p className="text-xs uppercase tracking-wide text-[var(--lr-text-secondary)]">
                   WAU
                 </p>
-                <p className="text-lg font-semibold text-[var(--hm-text)]">
+                <p className="text-lg font-semibold text-[var(--lr-text)]">
                   {usageQuery.data.wau}
                 </p>
               </div>
-              <div className="rounded-[var(--hm-r-lg)] border border-[var(--hm-border)] p-4">
-                <p className="text-xs uppercase tracking-wide text-[var(--hm-text-2)]">
+              <div className="rounded-[var(--lr-r-lg)] border border-[var(--lr-border)] p-4">
+                <p className="text-xs uppercase tracking-wide text-[var(--lr-text-secondary)]">
                   MAU
                 </p>
-                <p className="text-lg font-semibold text-[var(--hm-text)]">
+                <p className="text-lg font-semibold text-[var(--lr-text)]">
                   {usageQuery.data.mau}
                 </p>
               </div>
             </div>
-            <div className="rounded-[var(--hm-r-lg)] border border-[var(--hm-border)] p-4">
-              <p className="mb-2 text-xs uppercase tracking-wide text-[var(--hm-text-2)]">
+            <div className="rounded-[var(--lr-r-lg)] border border-[var(--lr-border)] p-4">
+              <p className="mb-2 text-xs uppercase tracking-wide text-[var(--lr-text-secondary)]">
                 Retenção
               </p>
-              <p className="text-sm text-[var(--hm-text)]">
+              <p className="text-sm text-[var(--lr-text)]">
                 D1: {usageQuery.data.retention.d1}% · D7:{" "}
                 {usageQuery.data.retention.d7}% · D30:{" "}
                 {usageQuery.data.retention.d30}%
               </p>
             </div>
-            <div className="rounded-[var(--hm-r-lg)] border border-[var(--hm-border)] p-4">
-              <p className="mb-2 text-xs uppercase tracking-wide text-[var(--hm-text-2)]">
+            <div className="rounded-[var(--lr-r-lg)] border border-[var(--lr-border)] p-4">
+              <p className="mb-2 text-xs uppercase tracking-wide text-[var(--lr-text-secondary)]">
                 Funil de ativação ({usageQuery.data.activationFunnel.totalUsers}{" "}
                 usuários)
               </p>
-              <p className="text-sm text-[var(--hm-text)]">
+              <p className="text-sm text-[var(--lr-text)]">
                 Carteira: {usageQuery.data.activationFunnel.wallet} · Contas:{" "}
                 {usageQuery.data.activationFunnel.accounts} · Cartões:{" "}
                 {usageQuery.data.activationFunnel.cards} · Completou os 3:{" "}
@@ -338,14 +338,14 @@ export function AdminPage() {
       </section>
 
       <section className="mt-10">
-        <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-[var(--hm-text-2)]">
+        <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-[var(--lr-text-secondary)]">
           Saúde do sistema
         </h2>
         {healthQuery.data ? (
           <div className="flex flex-col gap-4">
             <div className="grid grid-cols-2 gap-4">
-              <div className="rounded-[var(--hm-r-lg)] border border-[var(--hm-border)] p-4">
-                <p className="text-xs uppercase tracking-wide text-[var(--hm-text-2)]">
+              <div className="rounded-[var(--lr-r-lg)] border border-[var(--lr-border)] p-4">
+                <p className="text-xs uppercase tracking-wide text-[var(--lr-text-secondary)]">
                   Banco de dados
                 </p>
                 <Badge
@@ -357,8 +357,8 @@ export function AdminPage() {
                   {healthQuery.data.database === "ok" ? "OK" : "Erro"}
                 </Badge>
               </div>
-              <div className="rounded-[var(--hm-r-lg)] border border-[var(--hm-border)] p-4">
-                <p className="text-xs uppercase tracking-wide text-[var(--hm-text-2)]">
+              <div className="rounded-[var(--lr-r-lg)] border border-[var(--lr-border)] p-4">
+                <p className="text-xs uppercase tracking-wide text-[var(--lr-text-secondary)]">
                   Redis
                 </p>
                 <Badge
@@ -370,11 +370,11 @@ export function AdminPage() {
               </div>
             </div>
             {healthQuery.data.notAvailable.length > 0 ? (
-              <div className="rounded-[var(--hm-r-lg)] border border-[var(--hm-border)] p-4">
-                <p className="mb-2 text-xs uppercase tracking-wide text-[var(--hm-text-2)]">
+              <div className="rounded-[var(--lr-r-lg)] border border-[var(--lr-border)] p-4">
+                <p className="mb-2 text-xs uppercase tracking-wide text-[var(--lr-text-secondary)]">
                   Ainda não disponível
                 </p>
-                <p className="text-sm text-[var(--hm-text-2)]">
+                <p className="text-sm text-[var(--lr-text-secondary)]">
                   {healthQuery.data.notAvailable
                     .map((key) => NOT_AVAILABLE_LABEL[key] ?? key)
                     .join(" · ")}

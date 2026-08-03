@@ -150,7 +150,7 @@ export function RecurringPage() {
   });
 
   if (isBooting) {
-    return <p className="p-6 text-[var(--hm-text-2)]">Carregando…</p>;
+    return <p className="p-6 text-[var(--lr-text-secondary)]">Carregando…</p>;
   }
   if (!user) {
     return <Navigate to="/login" />;
@@ -182,13 +182,13 @@ export function RecurringPage() {
 
   return (
     <div className="mx-auto max-w-3xl px-4 py-8">
-      <h1 className="mb-6 text-xl font-bold text-[var(--hm-text)]">
+      <h1 className="mb-6 text-xl font-bold text-[var(--lr-text)]">
         Recorrências
       </h1>
 
       <form
         onSubmit={onSubmit}
-        className="mb-8 grid gap-4 rounded-xl border border-[var(--hm-border)] p-4"
+        className="mb-8 grid gap-4 rounded-xl border border-[var(--lr-border)] p-4"
       >
         <Segmented
           label="Tipo"
@@ -257,11 +257,11 @@ export function RecurringPage() {
       </form>
 
       <section>
-        <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-[var(--hm-text-2)]">
+        <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-[var(--lr-text-secondary)]">
           Séries
         </h2>
         {seriesQuery.isLoading ? (
-          <p className="text-[var(--hm-text-2)]">Carregando…</p>
+          <p className="text-[var(--lr-text-secondary)]">Carregando…</p>
         ) : null}
         {!seriesQuery.isLoading && series.length === 0 ? (
           <EmptyState

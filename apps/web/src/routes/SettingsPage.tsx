@@ -141,7 +141,7 @@ export function SettingsPage() {
   });
 
   if (isBooting) {
-    return <p className="p-6 text-[var(--hm-text-2)]">Carregando…</p>;
+    return <p className="p-6 text-[var(--lr-text-secondary)]">Carregando…</p>;
   }
   if (!user) {
     return <Navigate to="/login" />;
@@ -171,14 +171,14 @@ export function SettingsPage() {
 
   return (
     <div className="mx-auto max-w-2xl px-4 py-8">
-      <h1 className="mb-6 text-xl font-bold text-[var(--hm-text)]">
+      <h1 className="mb-6 text-xl font-bold text-[var(--lr-text)]">
         Configurações
       </h1>
 
       <section className="mb-8" aria-labelledby="dados-pessoais">
         <h2
           id="dados-pessoais"
-          className="mb-3 text-sm font-semibold uppercase tracking-wide text-[var(--hm-text-2)]"
+          className="mb-3 text-sm font-semibold uppercase tracking-wide text-[var(--lr-text-secondary)]"
         >
           Dados pessoais
         </h2>
@@ -218,7 +218,7 @@ export function SettingsPage() {
       <section className="mb-8" aria-labelledby="avatar">
         <h2
           id="avatar"
-          className="mb-3 text-sm font-semibold uppercase tracking-wide text-[var(--hm-text-2)]"
+          className="mb-3 text-sm font-semibold uppercase tracking-wide text-[var(--lr-text-secondary)]"
         >
           Avatar
         </h2>
@@ -256,7 +256,7 @@ export function SettingsPage() {
       <section className="mb-8" aria-labelledby="aparencia">
         <h2
           id="aparencia"
-          className="mb-3 text-sm font-semibold uppercase tracking-wide text-[var(--hm-text-2)]"
+          className="mb-3 text-sm font-semibold uppercase tracking-wide text-[var(--lr-text-secondary)]"
         >
           Aparência
         </h2>
@@ -274,7 +274,7 @@ export function SettingsPage() {
         <section className="mb-8" aria-labelledby="senha">
           <h2
             id="senha"
-            className="mb-3 text-sm font-semibold uppercase tracking-wide text-[var(--hm-text-2)]"
+            className="mb-3 text-sm font-semibold uppercase tracking-wide text-[var(--lr-text-secondary)]"
           >
             Senha
           </h2>
@@ -320,7 +320,7 @@ export function SettingsPage() {
       <section aria-labelledby="zona-de-risco">
         <h2
           id="zona-de-risco"
-          className="mb-3 text-sm font-semibold uppercase tracking-wide text-[var(--hm-clay-600)] dark:text-[var(--hm-clay-300)]"
+          className="mb-3 text-sm font-semibold uppercase tracking-wide text-[var(--lr-negative)] dark:text-[var(--lr-negative)]"
         >
           Zona de risco
         </h2>
