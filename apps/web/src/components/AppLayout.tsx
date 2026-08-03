@@ -1,5 +1,5 @@
 // apps/web/src/components/AppLayout.tsx
-// Sidebar shell for authenticated routes — design_handoff_harmon/README.md
+// Sidebar shell for authenticated routes — design_handoff_lurem/README.md
 // "Shell do app" + design/Harmon.dc.html's <aside> (248px sticky, ink-900).
 // Markup/icons are a 1:1 port of that reference; Tailwind arbitrary-value
 // utilities instead of the handoff's raw inline styles, matching how the

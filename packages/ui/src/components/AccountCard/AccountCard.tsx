@@ -60,7 +60,7 @@ function InstitutionMark({
   );
 }
 
-// design_handoff_harmon/design/Harmon.dc.html ("Contas e cartões" screen):
+// design_handoff_lurem/design/Harmon.dc.html ("Contas e cartões" screen):
 // carteira never carries an institution or a cheque-especial limit, so its
 // meta line is a fixed sentence rather than a formatted limit value.
 function accountMeta(type: AccountType, overdraftLimitCents: number): string {
