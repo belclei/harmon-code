@@ -66,6 +66,12 @@
      já usado como override de --lr-negative em [data-theme="dark"]
      abaixo. --lr-money-out referencia var(--lr-negative), que resolve
      para esse valor no escuro — sem token duplicado. */
+  /* v1.3 — tints restantes da família negative, hex mantido verbatim do
+     antigo --hm-clay-{100,500,650} (Task 1.1/1.1b já fixaram essa regra
+     para a família terracota: valores literais, sem recálculo). */
+  --lr-negative-100: #f5e3e0; /* era --hm-clay-100 — fundo tintado do Alert/Badge de erro */
+  --lr-negative-on-tint: #ac483b; /* era --hm-clay-650 — texto/ícone escuro sobre --lr-negative-100 */
+  --lr-negative-500: #c25b4e; /* era --hm-clay-500 — acento só-ícone, checado contra 3:1 (não-texto), não 4.5:1 */
 
   /* ---- Semântica (tema claro) ---- */
   --lr-bg: var(--lr-ivory-100);

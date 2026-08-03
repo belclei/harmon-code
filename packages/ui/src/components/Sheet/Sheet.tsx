@@ -31,7 +31,7 @@ export function Sheet({
 
   return createPortal(
     <div
-      className="fixed inset-0 z-50 flex items-end bg-[var(--hm-ink-900)]/40 backdrop-blur-[2px]"
+      className="fixed inset-0 z-50 flex items-end bg-[var(--lr-night-900)]/40 backdrop-blur-[2px]"
       onMouseDown={(event) => {
         if (event.target === event.currentTarget) onClose();
       }}
@@ -44,17 +44,17 @@ export function Sheet({
         aria-labelledby={title ? titleId : undefined}
         tabIndex={-1}
         className={[
-          "w-full rounded-t-[var(--hm-r-lg)] border-t border-[var(--hm-border)]",
-          "bg-[var(--hm-surface)] p-[var(--hm-s3)] pb-[var(--hm-s4)] shadow-[var(--hm-e2)]",
+          "w-full rounded-t-[var(--lr-r-lg)] border-t border-[var(--lr-border)]",
+          "bg-[var(--lr-surface)] p-[var(--lr-s3)] pb-[var(--lr-s4)] shadow-[var(--lr-e2)]",
           className,
         ].join(" ")}
       >
         <div
           aria-hidden="true"
-          className="mx-auto mb-[var(--hm-s3)] h-1 w-9 rounded-full bg-[var(--hm-border)]"
+          className="mx-auto mb-[var(--lr-s3)] h-1 w-9 rounded-full bg-[var(--lr-border)]"
         />
         {title ? (
-          <p id={titleId} className="hm-label mb-3">
+          <p id={titleId} className="lr-label mb-3">
             {title}
           </p>
         ) : null}

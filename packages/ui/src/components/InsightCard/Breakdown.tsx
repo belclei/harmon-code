@@ -20,7 +20,7 @@ export function Breakdown({ lines, className = "" }: BreakdownProps) {
   return (
     <ul
       className={[
-        "flex flex-col gap-1.5 border-t border-[var(--hm-border)] pt-3",
+        "flex flex-col gap-1.5 border-t border-[var(--lr-border)] pt-3",
         className,
       ].join(" ")}
     >
@@ -32,7 +32,7 @@ export function Breakdown({ lines, className = "" }: BreakdownProps) {
           className={[
             "flex items-center justify-between gap-3 text-[.875rem]",
             line.isEstimate
-              ? "border-l-2 border-dashed border-[var(--hm-sand-500)] pl-2"
+              ? "border-l-2 border-dashed border-[var(--lr-gold-500)] pl-2"
               : "",
           ].join(" ")}
         >

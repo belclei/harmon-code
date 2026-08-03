@@ -32,17 +32,17 @@ const ICON_PATHS: Record<Exclude<ToastVariant, "neutral">, ReactNode> = {
 
 // Same "AA against a neutral surface, both themes" pairing already
 // established by Alert's INLINE_TONE and Badge's `text` tone (sand-700
-// dark:sand-300 etc.) — Toast's icon sits directly on --hm-surface, not a
+// dark:sand-300 etc.) — Toast's icon sits directly on --lr-surface, not a
 // tinted wash, so it needs the same light/dark pair rather than the
 // dark-only tone this used when the surface was hardcoded to ink-900.
 const ICON_TONE: Record<Exclude<ToastVariant, "neutral">, string> = {
-  success: "text-[var(--hm-sage-700)] dark:text-[var(--hm-sage-300)]",
-  danger: "text-[var(--hm-clay-600)] dark:text-[var(--hm-clay-300)]",
+  success: "text-[var(--lr-petrol-700)] dark:text-[var(--lr-petrol-300)]",
+  danger: "text-[var(--lr-negative)] dark:text-[var(--lr-negative)]",
 };
 
 /**
  * Harmon's toast (index.html id="dialogo"). Themed panel — follows
- * Dialog/Sheet's --hm-surface + --hm-border + shadow pattern instead of a
+ * Dialog/Sheet's --lr-surface + --lr-border + shadow pattern instead of a
  * fixed dark surface, so it switches with [data-theme="dark"] like the
  * rest of the elevated-surface components. Purely presentational: a single
  * item with no queue, stacking, portal, or auto-dismiss timer of its own —
@@ -58,9 +58,9 @@ export function Toast({
     <div
       role={variant === "danger" ? "alert" : "status"}
       className={[
-        "flex max-w-[400px] items-start gap-3 rounded-[var(--hm-r-md)] p-3.5",
-        "border border-[var(--hm-border)] bg-[var(--hm-surface)]",
-        "text-[.875rem] text-[var(--hm-text)] shadow-[var(--hm-e2)]",
+        "flex max-w-[400px] items-start gap-3 rounded-[var(--lr-r-md)] p-3.5",
+        "border border-[var(--lr-border)] bg-[var(--lr-surface)]",
+        "text-[.875rem] text-[var(--lr-text)] shadow-[var(--lr-e2)]",
         className,
       ].join(" ")}
     >
@@ -84,7 +84,7 @@ export function Toast({
         <button
           type="button"
           onClick={action.onClick}
-          className="flex-none cursor-pointer bg-transparent text-[.8125rem] text-[var(--hm-sand-700)] dark:text-[var(--hm-sand-300)]"
+          className="flex-none cursor-pointer bg-transparent text-[.8125rem] text-[var(--lr-gold-700)] dark:text-[var(--lr-gold-300)]"
         >
           {action.label}
         </button>

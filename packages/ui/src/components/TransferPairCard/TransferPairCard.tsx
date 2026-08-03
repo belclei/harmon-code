@@ -35,7 +35,7 @@ export function TransferPairCard({
           fill="none"
           stroke="currentColor"
           strokeWidth={2}
-          className="h-5 w-5 flex-none text-[var(--hm-text-2)]"
+          className="h-5 w-5 flex-none text-[var(--lr-text-secondary)]"
         >
           <path d="M7 16a1 1 0 0 1-1-1V9a1 1 0 0 1 1-1h10m-10 12h10a1 1 0 0 0 1-1v-6a1 1 0 0 0-1-1M7 5l-3 3m3-3l3 3m10 6l-3-3m3 3l-3-3" />
         </svg>
@@ -48,14 +48,14 @@ export function TransferPairCard({
       </div>
 
       {/* From account row */}
-      <div className="mb-3 flex items-center gap-3 border-t border-[var(--hm-border)] pt-3">
+      <div className="mb-3 flex items-center gap-3 border-t border-[var(--lr-border)] pt-3">
         <svg
           aria-hidden="true"
           viewBox="0 0 24 24"
           fill="none"
           stroke="currentColor"
           strokeWidth={2}
-          className="h-5 w-5 flex-none text-[var(--hm-text-2)]"
+          className="h-5 w-5 flex-none text-[var(--lr-text-secondary)]"
         >
           <path d="M5 12h14M12 5l7 7-7 7" />
         </svg>
@@ -80,7 +80,7 @@ export function TransferPairCard({
           fill="none"
           stroke="currentColor"
           strokeWidth={2}
-          className="h-5 w-5 flex-none text-[var(--hm-text-2)]"
+          className="h-5 w-5 flex-none text-[var(--lr-text-secondary)]"
         >
           <path d="M5 12h14M12 5l7 7-7 7" />
         </svg>
@@ -98,7 +98,7 @@ export function TransferPairCard({
       </div>
 
       {/* Footer: disclaimer */}
-      <div className="mt-4 border-t border-[var(--hm-border)] pt-3">
+      <div className="mt-4 border-t border-[var(--lr-border)] pt-3">
         <Body muted className="text-[.75rem]">
           Não conta como receita nem despesa.
         </Body>

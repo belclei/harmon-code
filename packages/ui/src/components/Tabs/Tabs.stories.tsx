@@ -11,7 +11,7 @@ const meta: Meta<typeof Tabs> = {
       description: {
         component:
           'Tabs do Harmon (index.html id="tabs"). A tab ativa é marcada em areia ' +
-          "(--hm-sand-500) — a mesma cor do fragmento e do foco. Navegação por Left/Right/Home/End.",
+          "(--lr-gold-500) — a mesma cor do fragmento e do foco. Navegação por Left/Right/Home/End.",
       },
     },
   },

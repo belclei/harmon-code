@@ -57,8 +57,8 @@ export function Tooltip({
           id={tooltipId}
           className={[
             "pointer-events-none absolute left-1/2 z-20 w-max max-w-[260px] -translate-x-1/2",
-            "rounded-[var(--hm-r-sm)] bg-[var(--hm-ink-900)] px-2.5 py-[7px]",
-            "text-[.8125rem] text-[var(--hm-bone-100)] shadow-[var(--hm-e2)]",
+            "rounded-[var(--lr-r-sm)] bg-[var(--lr-night-900)] px-2.5 py-[7px]",
+            "text-[.8125rem] text-[var(--lr-ivory-100)] shadow-[var(--lr-e2)]",
             side === "top" ? "bottom-full mb-2" : "top-full mt-2",
             className,
           ].join(" ")}

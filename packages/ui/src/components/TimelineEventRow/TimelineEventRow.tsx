@@ -237,7 +237,7 @@ export function TimelineEventRow({
         fill="none"
         stroke="currentColor"
         strokeWidth={1.8}
-        className="h-[18px] w-[18px] flex-none text-[var(--hm-text-2)]"
+        className="h-[18px] w-[18px] flex-none text-[var(--lr-text-secondary)]"
       >
         {eventIcon(type)}
       </svg>
@@ -247,7 +247,7 @@ export function TimelineEventRow({
       <Mono
         variant="number"
         tone="default"
-        className="flex-none text-[.75rem] text-[var(--hm-text-2)]"
+        className="flex-none text-[.75rem] text-[var(--lr-text-secondary)]"
       >
         {formatDate(createdAt)}
       </Mono>

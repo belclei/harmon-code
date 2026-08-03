@@ -39,9 +39,12 @@ function ConfidencePips({ pips }: { pips: 1 | 2 | 3 }) {
           aria-hidden="true"
           className={[
             "h-1.5 w-1.5 rounded-full",
+            // REBRAND (Task 1.3): blue-700/300 -> petrol-700/300, per the
+            // task-1.3 brief's explicit classification of this "filled"
+            // confidence-pip indicator alongside other selection-state uses.
             i <= pips
-              ? "bg-[var(--hm-blue-700)] dark:bg-[var(--hm-blue-300)]"
-              : "bg-[var(--hm-surface-sunken)]",
+              ? "bg-[var(--lr-petrol-700)] dark:bg-[var(--lr-petrol-300)]"
+              : "bg-[var(--lr-surface-sunken)]",
           ].join(" ")}
         />
       ))}
@@ -126,7 +129,7 @@ export function StagingReviewRow({
         </Mono>
       </div>
       {status === "pending" ? (
-        <div className="mt-3 flex gap-2 border-t border-[var(--hm-border)] pt-3">
+        <div className="mt-3 flex gap-2 border-t border-[var(--lr-border)] pt-3">
           {onConfirm ? (
             <Button variant="primary" size="sm" onClick={onConfirm}>
               Confirmar

@@ -78,7 +78,7 @@ function RowHeader(props: TransactionRowProps) {
       {props.categoryIcon ? (
         <span
           aria-hidden="true"
-          className="h-5 w-5 flex-none text-[var(--hm-text-2)]"
+          className="h-5 w-5 flex-none text-[var(--lr-text-secondary)]"
         >
           {props.categoryIcon}
         </span>
@@ -131,7 +131,7 @@ function InstallmentDetails({
   );
 
   return (
-    <div className="mt-3 flex flex-col gap-2 border-t border-[var(--hm-border)] pt-3 text-[.8125rem]">
+    <div className="mt-3 flex flex-col gap-2 border-t border-[var(--lr-border)] pt-3 text-[.8125rem]">
       <div className="flex justify-between">
         <Body as="span" muted>
           Compra original ({formatDate(installment.originalDate)})
@@ -166,10 +166,10 @@ function InstallmentDetails({
             // biome-ignore lint/suspicious/noArrayIndexKey: fixed-length progress segments, no identity beyond position
             key={i}
             className={[
-              "h-1.5 flex-1 rounded-[var(--hm-r-full)]",
+              "h-1.5 flex-1 rounded-[var(--lr-r-full)]",
               paid
-                ? "bg-[var(--hm-sage-600)] dark:bg-[var(--hm-sage-300)]"
-                : "bg-[var(--hm-surface-sunken)]",
+                ? "bg-[var(--lr-petrol-600)] dark:bg-[var(--lr-petrol-300)]"
+                : "bg-[var(--lr-surface-sunken)]",
             ].join(" ")}
           />
         ))}
@@ -220,7 +220,7 @@ export function TransactionRow(props: TransactionRowProps) {
         </div>
       ) : null}
       {props.variant === "scheduled" ? (
-        <div className="mt-3 flex gap-2 border-t border-[var(--hm-border)] pt-3">
+        <div className="mt-3 flex gap-2 border-t border-[var(--lr-border)] pt-3">
           <Button variant="primary" size="sm" onClick={props.onConfirm}>
             Confirmar
           </Button>

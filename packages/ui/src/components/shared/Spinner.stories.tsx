@@ -35,7 +35,7 @@ export const InlineComTexto: Story = {
         width: "18rem",
       }}
     >
-      <Spinner className="mt-0.5 flex-none text-[var(--hm-ink-600)]" />
+      <Spinner className="mt-0.5 flex-none text-[var(--lr-night-600)]" />
       <Body style={{ fontSize: ".8125rem" }} muted>
         Lendo a fatura… isso leva alguns segundos.
       </Body>

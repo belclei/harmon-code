@@ -10,7 +10,7 @@ const meta: Meta<typeof Card> = {
       description: {
         component:
           "Container base do Harmon — padding, borda e sombra vêm dos tokens " +
-          "(`.hm-card` em harmon-tokens.css). Sem estado, sem lógica de negócio.",
+          "(`.lr-card` em harmon-tokens.css). Sem estado, sem lógica de negócio.",
       },
     },
   },

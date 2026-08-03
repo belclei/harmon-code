@@ -31,15 +31,15 @@ export function Skeleton({
     shape === "circle"
       ? "rounded-full"
       : shape === "text"
-        ? "rounded-[var(--hm-r-sm)]"
-        : "rounded-[var(--hm-r-md)]";
+        ? "rounded-[var(--lr-r-sm)]"
+        : "rounded-[var(--lr-r-md)]";
 
   return (
     <span
       aria-hidden="true"
       style={style}
       className={[
-        "relative block overflow-hidden bg-[var(--hm-border)]/50",
+        "relative block overflow-hidden bg-[var(--lr-border)]/50",
         shape === "circle" ? "aspect-square" : "",
         radius,
         className,
@@ -52,11 +52,11 @@ export function Skeleton({
           "absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent to-transparent",
           "via-white/50 dark:via-white/15",
           // index.html id="carregando", `.hmc-skeleton`: 1600ms, and eased
-          // with the same --hm-ease-settle token every other "things
+          // with the same --lr-ease-settle token every other "things
           // settling into place" motion in this system uses (not a
           // hardcoded ease-in-out) — timing already matched, this was the
           // one real drift from the reference's shimmer.
-          "animate-[hm-skeleton-shimmer_1.6s_var(--hm-ease-settle)_infinite]",
+          "animate-[lr-skeleton-shimmer_1.6s_var(--lr-ease-settle)_infinite]",
         ].join(" ")}
       />
     </span>

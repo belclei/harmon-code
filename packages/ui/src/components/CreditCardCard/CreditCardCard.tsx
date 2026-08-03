@@ -34,14 +34,17 @@ function InstitutionMark({
         src={logoUrl}
         alt=""
         aria-hidden="true"
-        className="h-12 w-12 flex-none rounded-[var(--hm-r-md)] object-contain"
+        className="h-12 w-12 flex-none rounded-[var(--lr-r-md)] object-contain"
       />
     );
   }
   return (
+    // REBRAND (Task 1.3): blue-100/700/300 -> petrol-100/700/300 and
+    // blue-on-tint -> positive-on-tint — same institution-icon-chip
+    // treatment as AccountCard.tsx, spec-backed by DESIGN_SYSTEM.md §1.2.
     <span
       aria-hidden="true"
-      className="flex h-12 w-12 flex-none items-center justify-center rounded-[var(--hm-r-md)] bg-[var(--hm-blue-100)] text-[1.0625rem] font-bold text-[var(--hm-blue-on-tint)] dark:bg-[var(--hm-blue-700)]/20 dark:text-[var(--hm-blue-300)]"
+      className="flex h-12 w-12 flex-none items-center justify-center rounded-[var(--lr-r-md)] bg-[var(--lr-petrol-100)] text-[1.0625rem] font-bold text-[var(--lr-positive-on-tint)] dark:bg-[var(--lr-petrol-700)]/20 dark:text-[var(--lr-petrol-300)]"
     >
       {institutionName.charAt(0).toUpperCase()}
     </span>
@@ -64,12 +67,12 @@ function cardMeta(
 // business decision — see Task 2's judgment-call note above.
 function usageBarTone(usagePercent: number): string {
   if (usagePercent > 100) {
-    return "bg-[var(--hm-clay-650)] dark:bg-[var(--hm-clay-300)]";
+    return "bg-[var(--lr-negative-on-tint)] dark:bg-[var(--lr-negative)]";
   }
   if (usagePercent >= 75) {
-    return "bg-[var(--hm-sand-600)] dark:bg-[var(--hm-sand-300)]";
+    return "bg-[var(--lr-gold-600)] dark:bg-[var(--lr-gold-300)]";
   }
-  return "bg-[var(--hm-sage-600)] dark:bg-[var(--hm-sage-300)]";
+  return "bg-[var(--lr-petrol-600)] dark:bg-[var(--lr-petrol-300)]";
 }
 
 /**
@@ -139,12 +142,12 @@ export function CreditCardCard({
           aria-valuenow={Math.round(usagePercent)}
           aria-valuemin={0}
           aria-valuemax={100}
-          className="h-1.5 flex-1 overflow-hidden rounded-[var(--hm-r-full)] bg-[var(--hm-surface-sunken)]"
+          className="h-1.5 flex-1 overflow-hidden rounded-[var(--lr-r-full)] bg-[var(--lr-surface-sunken)]"
         >
           <div
             style={{ width: `${barWidthPercent}%` }}
             className={[
-              "h-full rounded-[var(--hm-r-full)]",
+              "h-full rounded-[var(--lr-r-full)]",
               usageBarTone(usagePercent),
             ].join(" ")}
           />

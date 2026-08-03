@@ -233,11 +233,11 @@ function FilterPopover({
         aria-label={label}
         onClick={() => onOpenChange(!open)}
         className={[
-          "flex items-center gap-2 rounded-[var(--hm-r-md)] border px-3.5 py-2 text-[.875rem]",
-          "bg-[var(--hm-surface)] text-[var(--hm-text)] transition-colors duration-150",
+          "flex items-center gap-2 rounded-[var(--lr-r-md)] border px-3.5 py-2 text-[.875rem]",
+          "bg-[var(--lr-surface)] text-[var(--lr-text)] transition-colors duration-150",
           open
-            ? "border-[var(--hm-ink-300)]"
-            : "border-[var(--hm-border)] hover:border-[var(--hm-ink-300)]",
+            ? "border-[var(--lr-night-300)]"
+            : "border-[var(--lr-border)] hover:border-[var(--lr-night-300)]",
         ].join(" ")}
       >
         {triggerLabel}
@@ -246,7 +246,7 @@ function FilterPopover({
           viewBox="0 0 20 20"
           fill="currentColor"
           className={[
-            "h-3.5 w-3.5 flex-none text-[var(--hm-text-2)] transition-transform duration-150",
+            "h-3.5 w-3.5 flex-none text-[var(--lr-text-secondary)] transition-transform duration-150",
             open ? "rotate-180" : "",
           ].join(" ")}
         >
@@ -642,9 +642,9 @@ function resolveTransferParty(
 function TimelineSkeleton() {
   return (
     <div className="flex flex-col gap-3">
-      <Skeleton className="h-6 w-32 rounded-[var(--hm-r-md)]" />
-      <Skeleton className="h-16 w-full rounded-[var(--hm-r-lg)]" />
-      <Skeleton className="h-16 w-full rounded-[var(--hm-r-lg)]" />
+      <Skeleton className="h-6 w-32 rounded-[var(--lr-r-md)]" />
+      <Skeleton className="h-16 w-full rounded-[var(--lr-r-lg)]" />
+      <Skeleton className="h-16 w-full rounded-[var(--lr-r-lg)]" />
     </div>
   );
 }
@@ -697,7 +697,7 @@ function WalletDialog({
   return (
     <Dialog open={open} onClose={onClose} title="Carteira">
       <form onSubmit={onSubmit} className="flex flex-col gap-3">
-        <p className="text-[.9375rem] text-[var(--hm-text-2)]">
+        <p className="text-[.9375rem] text-[var(--lr-text-secondary)]">
           Quanto de dinheiro físico você tem hoje?
         </p>
         <Input
@@ -967,7 +967,7 @@ export function TimelinePage() {
   const netWorthCents = netBalanceCents - totalInvoicesCents;
 
   if (isBooting) {
-    return <p className="p-6 text-[var(--hm-text-2)]">Carregando…</p>;
+    return <p className="p-6 text-[var(--lr-text-secondary)]">Carregando…</p>;
   }
   if (!user) {
     return <Navigate to="/login" />;
@@ -999,7 +999,7 @@ export function TimelinePage() {
               <Body as="p" muted className="text-[.8125rem]">
                 {dateLabel}
               </Body>
-              <h1 className="mt-1 text-xl font-bold text-[var(--hm-text)]">
+              <h1 className="mt-1 text-xl font-bold text-[var(--lr-text)]">
                 {greeting}, {user.name}.
               </h1>
               <Body muted className="mt-1">
@@ -1027,7 +1027,7 @@ export function TimelinePage() {
 
           {pendingActivation.length > 0 ? (
             <div>
-              <p className="mb-4 text-sm text-[var(--hm-text-2)]">
+              <p className="mb-4 text-sm text-[var(--lr-text-secondary)]">
                 {activationDoneCount} de 3 concluídos
               </p>
               <div className="flex flex-col gap-3">
@@ -1099,7 +1099,7 @@ export function TimelinePage() {
             </div>
           ) : (
             <>
-              <div className="mb-4 flex flex-wrap items-center gap-2 border-y border-[var(--hm-border)] py-3">
+              <div className="mb-4 flex flex-wrap items-center gap-2 border-y border-[var(--lr-border)] py-3">
                 {chips.length > 0 ? (
                   <FilterPopover
                     label="Filtrar por conta ou cartão"
@@ -1111,7 +1111,7 @@ export function TimelinePage() {
                     open={accountsOpen}
                     onOpenChange={setAccountsOpen}
                   >
-                    <div className="flex w-64 flex-col gap-2.5 rounded-[var(--hm-r-md)] border border-[var(--hm-border)] bg-[var(--hm-surface)] p-3.5 shadow-[var(--hm-e2)]">
+                    <div className="flex w-64 flex-col gap-2.5 rounded-[var(--lr-r-md)] border border-[var(--lr-border)] bg-[var(--lr-surface)] p-3.5 shadow-[var(--lr-e2)]">
                       {chips.map((chip) => {
                         const checked = !hiddenChipIds.has(chip.id);
                         // Same guard as the event-type filter above: an empty
@@ -1192,7 +1192,7 @@ export function TimelinePage() {
                   open={eventTypesOpen}
                   onOpenChange={setEventTypesOpen}
                 >
-                  <div className="flex w-64 flex-col gap-2.5 rounded-[var(--hm-r-md)] border border-[var(--hm-border)] bg-[var(--hm-surface)] p-3.5 shadow-[var(--hm-e2)]">
+                  <div className="flex w-64 flex-col gap-2.5 rounded-[var(--lr-r-md)] border border-[var(--lr-border)] bg-[var(--lr-surface)] p-3.5 shadow-[var(--lr-e2)]">
                     {EVENT_TYPE_GROUPS.map((group) => {
                       const checked = !hiddenEventGroupIds.has(group.id);
                       const isLastVisible =
@@ -1218,7 +1218,7 @@ export function TimelinePage() {
                   open={categoryOpen}
                   onOpenChange={setCategoryOpen}
                 >
-                  <div className="flex w-56 flex-col overflow-hidden rounded-[var(--hm-r-md)] border border-[var(--hm-border)] bg-[var(--hm-surface)] py-1 shadow-[var(--hm-e2)]">
+                  <div className="flex w-56 flex-col overflow-hidden rounded-[var(--lr-r-md)] border border-[var(--lr-border)] bg-[var(--lr-surface)] py-1 shadow-[var(--lr-e2)]">
                     {[
                       {
                         id: null as string | null,
@@ -1238,9 +1238,18 @@ export function TimelinePage() {
                         }}
                         className={[
                           "px-3.5 py-2 text-left text-[.875rem]",
+                          // REBRAND (Task 1.3): blue-100/700 -> petrol-100/700.
+                          // Not in the task-1.3 brief's original site list (this
+                          // usage was missed by the recon grep) but structurally
+                          // identical to Select.tsx's "selected item" treatment
+                          // (same classes, same purpose: a selected filter
+                          // option) — classified as selection-state/Petrol per
+                          // DESIGN_SYSTEM.md §1.2, not the info/link/graphite
+                          // bucket, despite living in the same file as the
+                          // graphite-classified plain link further down.
                           categoryFilterId === option.id
-                            ? "bg-[var(--hm-blue-100)] font-bold text-[var(--hm-text)] dark:bg-[var(--hm-blue-700)]/30"
-                            : "text-[var(--hm-text)] hover:bg-[var(--hm-surface-sunken)]",
+                            ? "bg-[var(--lr-petrol-100)] font-bold text-[var(--lr-text)] dark:bg-[var(--lr-petrol-700)]/30"
+                            : "text-[var(--lr-text)] hover:bg-[var(--lr-surface-sunken)]",
                         ].join(" ")}
                       >
                         {option.label}
@@ -1254,7 +1263,7 @@ export function TimelinePage() {
               {timelineQuery.isError ? (
                 <p
                   role="alert"
-                  className="text-[var(--hm-clay-600)] dark:text-[var(--hm-clay-300)]"
+                  className="text-[var(--lr-negative)] dark:text-[var(--lr-negative)]"
                 >
                   Não foi possível carregar a timeline.
                 </p>
@@ -1276,12 +1285,12 @@ export function TimelinePage() {
                       key={day.date}
                       className={
                         today
-                          ? "rounded-[var(--hm-r-md)] bg-[var(--hm-surface-sunken)] p-4"
+                          ? "rounded-[var(--lr-r-md)] bg-[var(--lr-surface-sunken)] p-4"
                           : ""
                       }
                     >
                       <div className="mb-3 flex items-center justify-between gap-2">
-                        <h2 className="flex items-center gap-2 text-sm font-semibold uppercase tracking-wide text-[var(--hm-text-2)]">
+                        <h2 className="flex items-center gap-2 text-sm font-semibold uppercase tracking-wide text-[var(--lr-text-secondary)]">
                           {today ? "HOJE · " : ""}
                           {day.date}
                           {today ? (
@@ -1290,13 +1299,13 @@ export function TimelinePage() {
                             </Badge>
                           ) : null}
                         </h2>
-                        <div className="flex items-baseline gap-2 rounded-full bg-[var(--hm-surface)] px-3 py-1 text-[.75rem]">
-                          <span className="uppercase tracking-widest text-[var(--hm-text-2)]">
+                        <div className="flex items-baseline gap-2 rounded-full bg-[var(--lr-surface)] px-3 py-1 text-[.75rem]">
+                          <span className="uppercase tracking-widest text-[var(--lr-text-secondary)]">
                             Saldo do dia
                           </span>
                           <Mono
                             variant="number"
-                            className="text-[.8125rem] text-[var(--hm-text)]"
+                            className="text-[.8125rem] text-[var(--lr-text)]"
                           >
                             {formatMoney(day.balanceCents)}
                           </Mono>
@@ -1391,16 +1400,16 @@ export function TimelinePage() {
 
         <aside className="flex flex-col gap-4">
           <Card>
-            <p className="hm-label mb-1">Saldo líquido</p>
+            <p className="lr-label mb-1">Saldo líquido</p>
             <Mono
               variant="number"
-              className="text-lg font-semibold text-[var(--hm-text)]"
+              className="text-lg font-semibold text-[var(--lr-text)]"
             >
               {formatMoney(netBalanceCents)}
             </Mono>
             {/* §6.12 item 6 — quebra por conta/instituição sob o total. */}
             {(accountsQuery.data ?? []).length > 0 ? (
-              <div className="mt-4 flex flex-col gap-2 border-t border-[var(--hm-border)] pt-3">
+              <div className="mt-4 flex flex-col gap-2 border-t border-[var(--lr-border)] pt-3">
                 {(accountsQuery.data ?? []).map((a) => (
                   <div
                     key={a.id}
@@ -1431,7 +1440,7 @@ export function TimelinePage() {
                 {formatMoney(totalInvoicesCents)}
               </Mono>
             </div>
-            <div className="mt-3 flex items-baseline justify-between border-t border-[var(--hm-border)] pt-3">
+            <div className="mt-3 flex items-baseline justify-between border-t border-[var(--lr-border)] pt-3">
               <Body as="span" muted>
                 Patrimônio total
               </Body>
@@ -1444,7 +1453,7 @@ export function TimelinePage() {
               </Mono>
             </div>
             {openInvoices.length > 0 ? (
-              <ul className="mt-3 flex flex-col gap-1 border-t border-[var(--hm-border)] pt-3">
+              <ul className="mt-3 flex flex-col gap-1 border-t border-[var(--lr-border)] pt-3">
                 {openInvoices.map((c) => (
                   <li
                     key={c.id}
@@ -1469,17 +1478,22 @@ export function TimelinePage() {
           <Card sunken>
             <div className="flex items-end justify-between gap-2">
               <div>
-                <p className="hm-label mb-1 text-[.625rem]">DISPONÍVEL HOJE</p>
+                <p className="lr-label mb-1 text-[.625rem]">DISPONÍVEL HOJE</p>
                 <Mono
                   variant="number"
-                  className="text-xl font-semibold text-[var(--hm-text)]"
+                  className="text-xl font-semibold text-[var(--lr-text)]"
                 >
                   {formatMoney(netWorthCents)}
                 </Mono>
               </div>
+              {/* REBRAND (Task 1.3): blue-700 -> graphite-700 for this plain
+                  text link. Same open blue->graphite product question as
+                  Alert's info variant / Button's link variant / Badge's blue
+                  category color — not a settled design decision, flagging
+                  for product sign-off (see task-1.3 report). */}
               <Link
                 to="/dashboard"
-                className="inline-flex text-xs text-[var(--hm-blue-700)] hover:underline"
+                className="inline-flex text-xs text-[var(--lr-graphite-700)] hover:underline"
               >
                 Ver análise →
               </Link>

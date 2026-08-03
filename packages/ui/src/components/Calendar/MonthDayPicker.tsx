@@ -29,7 +29,7 @@ export function MonthDayPicker({
 }: MonthDayPickerProps) {
   return (
     <div className={["grid gap-1.5", className].join(" ")}>
-      <span className="text-[.9375rem] font-medium text-[var(--hm-text)]">
+      <span className="text-[.9375rem] font-medium text-[var(--lr-text)]">
         {label}
       </span>
       <div
@@ -47,15 +47,15 @@ export function MonthDayPicker({
               onClick={() => onChange?.(day)}
               aria-pressed={isSelected}
               className={[
-                "min-h-8 cursor-pointer rounded-[var(--hm-r-sm)] border border-transparent font-mono text-[.8125rem]",
+                "min-h-8 cursor-pointer rounded-[var(--lr-r-sm)] border border-transparent font-mono text-[.8125rem]",
                 "transition-colors duration-150",
                 isSelected
-                  ? "bg-[var(--hm-ink-900)] text-[var(--hm-bone-000)] dark:bg-[var(--hm-ink-700)]"
+                  ? "bg-[var(--lr-night-900)] text-[var(--lr-ivory-000)] dark:bg-[var(--lr-night-700)]"
                   : [
-                      "hover:bg-[var(--hm-surface-sunken)]",
+                      "hover:bg-[var(--lr-surface-sunken)]",
                       MUTED_DAYS.has(day)
-                        ? "text-[var(--hm-text-2)]"
-                        : "text-[var(--hm-text)]",
+                        ? "text-[var(--lr-text-secondary)]"
+                        : "text-[var(--lr-text)]",
                     ].join(" "),
               ].join(" ")}
             >
@@ -68,11 +68,11 @@ export function MonthDayPicker({
           onClick={() => onChange?.("last")}
           aria-pressed={value === "last"}
           className={[
-            "min-h-8 cursor-pointer rounded-[var(--hm-r-sm)] border border-transparent font-mono text-[.625rem]",
+            "min-h-8 cursor-pointer rounded-[var(--lr-r-sm)] border border-transparent font-mono text-[.625rem]",
             "transition-colors duration-150",
             value === "last"
-              ? "bg-[var(--hm-ink-900)] text-[var(--hm-bone-000)] dark:bg-[var(--hm-ink-700)]"
-              : "text-[var(--hm-text)] hover:bg-[var(--hm-surface-sunken)]",
+              ? "bg-[var(--lr-night-900)] text-[var(--lr-ivory-000)] dark:bg-[var(--lr-night-700)]"
+              : "text-[var(--lr-text)] hover:bg-[var(--lr-surface-sunken)]",
           ].join(" ")}
         >
           fim

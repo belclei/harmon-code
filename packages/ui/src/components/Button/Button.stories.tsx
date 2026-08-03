@@ -83,8 +83,8 @@ export const Matriz: Story = {
       {["Default", "Hover", "Active", "Disabled", "Loading"].map((label) => (
         <span
           key={label}
-          className="hm-label"
-          style={{ fontSize: ".6875rem", color: "var(--hm-text-2)" }}
+          className="lr-label"
+          style={{ fontSize: ".6875rem", color: "var(--lr-text-secondary)" }}
         >
           {label}
         </span>

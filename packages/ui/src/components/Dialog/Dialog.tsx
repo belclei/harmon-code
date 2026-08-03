@@ -39,7 +39,7 @@ export function Dialog({
 
   return createPortal(
     <div
-      className="fixed inset-0 z-50 grid place-items-center bg-[var(--hm-ink-900)]/40 p-4 backdrop-blur-[2px]"
+      className="fixed inset-0 z-50 grid place-items-center bg-[var(--lr-night-900)]/40 p-4 backdrop-blur-[2px]"
       onMouseDown={(event) => {
         if (event.target === event.currentTarget) onClose();
       }}
@@ -53,28 +53,28 @@ export function Dialog({
         aria-describedby={description ? descId : undefined}
         tabIndex={-1}
         className={[
-          "w-full max-w-[480px] rounded-[var(--hm-r-lg)] border border-[var(--hm-border)]",
-          "bg-[var(--hm-surface)] p-[var(--hm-s4)] shadow-[var(--hm-e2)]",
+          "w-full max-w-[480px] rounded-[var(--lr-r-lg)] border border-[var(--lr-border)]",
+          "bg-[var(--lr-surface)] p-[var(--lr-s4)] shadow-[var(--lr-e2)]",
           className,
         ].join(" ")}
       >
         <h2
           id={titleId}
-          className="m-0 mb-2 text-[1.25rem] font-normal tracking-[-0.01em] text-[var(--hm-text)]"
+          className="m-0 mb-2 text-[1.25rem] font-normal tracking-[-0.01em] text-[var(--lr-text)]"
         >
           {title}
         </h2>
         {description ? (
           <p
             id={descId}
-            className="m-0 mb-[var(--hm-s3)] text-[.9375rem] text-[var(--hm-text-2)]"
+            className="m-0 mb-[var(--lr-s3)] text-[.9375rem] text-[var(--lr-text-secondary)]"
           >
             {description}
           </p>
         ) : null}
         {children}
         {footer ? (
-          <div className="mt-[var(--hm-s3)] flex justify-end gap-2.5">
+          <div className="mt-[var(--lr-s3)] flex justify-end gap-2.5">
             {footer}
           </div>
         ) : null}

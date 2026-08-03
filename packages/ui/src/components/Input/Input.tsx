@@ -87,20 +87,20 @@ export function Input({
       aria-describedby={hasError ? errorId : hint ? hintId : undefined}
       className={[
         "w-full min-h-11 px-3.5 text-[.9375rem]",
-        "bg-[var(--hm-surface)] text-[var(--hm-text)] border transition-colors duration-150",
-        "placeholder:text-[var(--hm-text-2)]",
-        "disabled:bg-[var(--hm-surface-sunken)] disabled:text-[var(--hm-text-2)]",
+        "bg-[var(--lr-surface)] text-[var(--lr-text)] border transition-colors duration-150",
+        "placeholder:text-[var(--lr-text-secondary)]",
+        "disabled:bg-[var(--lr-surface-sunken)] disabled:text-[var(--lr-text-secondary)]",
         "disabled:cursor-not-allowed disabled:pointer-events-none",
         hasAffix
-          ? "rounded-l-none rounded-r-[var(--hm-r-md)] border-l-0"
-          : "rounded-[var(--hm-r-md)]",
+          ? "rounded-l-none rounded-r-[var(--lr-r-md)] border-l-0"
+          : "rounded-[var(--lr-r-md)]",
         // index.html id="campo": readonly is dashed + sunken, distinct from
         // disabled — the value is still visible/selectable, just not editable.
         readOnly
-          ? "border-dashed border-[var(--hm-border)] bg-[var(--hm-surface-sunken)]"
+          ? "border-dashed border-[var(--lr-border)] bg-[var(--lr-surface-sunken)]"
           : hasError
-            ? "border-[var(--hm-clay-600)]"
-            : "border-[var(--hm-border)] hover:border-[var(--hm-ink-300)]",
+            ? "border-[var(--lr-negative)]"
+            : "border-[var(--lr-border)] hover:border-[var(--lr-night-300)]",
         // index.html id="campo", `.hmc-input--money`.
         money
           ? "text-right font-mono text-[1.125rem] [font-variant-numeric:tabular-nums]"
@@ -114,19 +114,19 @@ export function Input({
     <div className="grid gap-1.5">
       <label
         htmlFor={inputId}
-        className="text-[.9375rem] font-medium text-[var(--hm-text)]"
+        className="text-[.9375rem] font-medium text-[var(--lr-text)]"
       >
         {label}
         {required ? (
           // Same dark-mode contrast gap just found and fixed in
-          // FieldMessage's error text (--hm-clay-600 measures 3.17:1 on
-          // the dark theme's --hm-bg, and even --hm-clay-500 only reaches
+          // FieldMessage's error text (--lr-negative measures 3.17:1 on
+          // the dark theme's --lr-bg, and even --lr-negative-500 only reaches
           // 3.95:1 for text) — this asterisk uses the identical token and
           // was never exercised by a story, so axe-core never caught it.
-          // Same fix: --hm-clay-300, the brand's AA-checked clay tone for a
-          // dark surface (also Badge.tsx's precedent, also --hm-money-out's
+          // Same fix: --lr-negative, the brand's AA-checked clay tone for a
+          // dark surface (also Badge.tsx's precedent, also --lr-money-out's
           // dark value).
-          <span className="text-[var(--hm-clay-600)] dark:text-[var(--hm-clay-300)]">
+          <span className="text-[var(--lr-negative)] dark:text-[var(--lr-negative)]">
             {" "}
             *
           </span>
@@ -153,7 +153,7 @@ export function Input({
               meaningful text (a currency prefix like "R$") that a screen
               reader user needs — the caller is responsible for passing an
               aria-hidden icon here if the affix is purely decorative. */}
-          <span className="grid flex-none place-items-center rounded-l-[var(--hm-r-md)] border border-r-0 border-[var(--hm-border)] bg-[var(--hm-surface-sunken)] px-3 font-mono text-[.875rem] text-[var(--hm-text-2)]">
+          <span className="grid flex-none place-items-center rounded-l-[var(--lr-r-md)] border border-r-0 border-[var(--lr-border)] bg-[var(--lr-surface-sunken)] px-3 font-mono text-[.875rem] text-[var(--lr-text-secondary)]">
             {affix}
           </span>
           {inputEl}

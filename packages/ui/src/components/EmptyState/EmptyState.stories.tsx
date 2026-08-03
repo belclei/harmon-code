@@ -28,7 +28,7 @@ const NoDataIcon = (
     strokeWidth={2.2}
   >
     <path d="M10 32a22 22 0 0 1 22-22M54 32a22 22 0 0 1-22 22" />
-    <circle cx="32" cy="32" r="4" fill="var(--hm-sand-500)" stroke="none" />
+    <circle cx="32" cy="32" r="4" fill="var(--lr-gold-500)" stroke="none" />
   </svg>
 );
 

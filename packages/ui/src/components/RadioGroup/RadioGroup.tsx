@@ -38,7 +38,7 @@ export function RadioGroup({
 
   return (
     <fieldset className={["m-0 grid gap-2 border-0 p-0", className].join(" ")}>
-      <legend className="mb-0.5 p-0 text-[.9375rem] font-medium text-[var(--hm-text)]">
+      <legend className="mb-0.5 p-0 text-[.9375rem] font-medium text-[var(--lr-text)]">
         {label}
       </legend>
       {options.map((option) => {
@@ -48,7 +48,7 @@ export function RadioGroup({
           <label
             key={option.value}
             className={[
-              "inline-flex items-start gap-2.5 text-[.9375rem] text-[var(--hm-text)]",
+              "inline-flex items-start gap-2.5 text-[.9375rem] text-[var(--lr-text)]",
               optionDisabled
                 ? "cursor-not-allowed opacity-45"
                 : "cursor-pointer",
@@ -69,11 +69,11 @@ export function RadioGroup({
                 className={[
                   "pointer-events-none absolute inset-0 rounded-full transition-colors duration-150",
                   isChecked
-                    ? "border-[6px] border-[var(--hm-ink-900)] bg-[var(--hm-surface)] dark:border-[var(--hm-ink-700)]"
+                    ? "border-[6px] border-[var(--lr-night-900)] bg-[var(--lr-surface)] dark:border-[var(--lr-night-700)]"
                     : error
-                      ? "border border-[var(--hm-clay-600)] bg-[var(--hm-surface)]"
-                      : "border border-[var(--hm-ink-300)] bg-[var(--hm-surface)]",
-                  "peer-focus-visible:outline peer-focus-visible:outline-2 peer-focus-visible:outline-offset-2 peer-focus-visible:outline-[var(--hm-focus-ring)]",
+                      ? "border border-[var(--lr-negative)] bg-[var(--lr-surface)]"
+                      : "border border-[var(--lr-night-300)] bg-[var(--lr-surface)]",
+                  "peer-focus-visible:outline peer-focus-visible:outline-2 peer-focus-visible:outline-offset-2 peer-focus-visible:outline-[var(--lr-focus-ring)]",
                 ].join(" ")}
               />
             </span>

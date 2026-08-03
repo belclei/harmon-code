@@ -55,8 +55,8 @@ export const Matriz: Story = {
     >
       <div className="grid gap-1.5">
         <span
-          className="hm-label"
-          style={{ fontSize: ".6875rem", color: "var(--hm-text-2)" }}
+          className="lr-label"
+          style={{ fontSize: ".6875rem", color: "var(--lr-text-secondary)" }}
         >
           Closed
         </span>
@@ -64,8 +64,8 @@ export const Matriz: Story = {
       </div>
       <div className="grid gap-1.5">
         <span
-          className="hm-label"
-          style={{ fontSize: ".6875rem", color: "var(--hm-text-2)" }}
+          className="lr-label"
+          style={{ fontSize: ".6875rem", color: "var(--lr-text-secondary)" }}
         >
           Open
         </span>
@@ -73,8 +73,8 @@ export const Matriz: Story = {
       </div>
       <div className="grid gap-1.5">
         <span
-          className="hm-label"
-          style={{ fontSize: ".6875rem", color: "var(--hm-text-2)" }}
+          className="lr-label"
+          style={{ fontSize: ".6875rem", color: "var(--lr-text-secondary)" }}
         >
           Option selected
         </span>
@@ -82,8 +82,8 @@ export const Matriz: Story = {
       </div>
       <div className="grid gap-1.5">
         <span
-          className="hm-label"
-          style={{ fontSize: ".6875rem", color: "var(--hm-text-2)" }}
+          className="lr-label"
+          style={{ fontSize: ".6875rem", color: "var(--lr-text-secondary)" }}
         >
           Focused
         </span>
@@ -91,8 +91,8 @@ export const Matriz: Story = {
       </div>
       <div className="grid gap-1.5">
         <span
-          className="hm-label"
-          style={{ fontSize: ".6875rem", color: "var(--hm-text-2)" }}
+          className="lr-label"
+          style={{ fontSize: ".6875rem", color: "var(--lr-text-secondary)" }}
         >
           Error
         </span>
@@ -104,8 +104,8 @@ export const Matriz: Story = {
       </div>
       <div className="grid gap-1.5">
         <span
-          className="hm-label"
-          style={{ fontSize: ".6875rem", color: "var(--hm-text-2)" }}
+          className="lr-label"
+          style={{ fontSize: ".6875rem", color: "var(--lr-text-secondary)" }}
         >
           Disabled
         </span>
