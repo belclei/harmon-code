@@ -10,7 +10,7 @@
 // existe como ação própria (POST /v1/invites/:id/resend) pra cobrir esse
 // caso, em vez de best-effort silencioso.
 import { randomBytes } from "node:crypto";
-import type { Prisma } from "@harmon/db";
+import type { Prisma } from "@lurem/db";
 import type { FastifyInstance } from "fastify";
 import { z } from "zod";
 import { TOKEN_TTL_MS } from "../access/tokens.js";

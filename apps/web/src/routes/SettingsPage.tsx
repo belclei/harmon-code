@@ -9,7 +9,7 @@ import {
   Input,
   RadioGroup,
   Switch,
-} from "@harmon/ui";
+} from "@lurem/ui";
 import { useMutation } from "@tanstack/react-query";
 import { Navigate } from "@tanstack/react-router";
 import { type FormEvent, useState } from "react";

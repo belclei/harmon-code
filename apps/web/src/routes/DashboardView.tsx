@@ -3,9 +3,9 @@
 // calculados; sem fetch/estado de rede aqui (isso é do DashboardPage). O
 // herói (Disponível Hoje) é bespoke para carregar a escala .lr-money--hero
 // (§4.1: no máximo um número-herói por tela); os outros dois usam InsightCard.
-import type { Money } from "@harmon/domain";
-import { Body, Breakdown, Button, Card, InsightCard, Mono } from "@harmon/ui";
-import { formatMoney } from "@harmon/ui";
+import type { Money } from "@lurem/domain";
+import { Body, Breakdown, Button, Card, InsightCard, Mono } from "@lurem/ui";
+import { formatMoney } from "@lurem/ui";
 import { useState } from "react";
 
 export interface DashboardInsights {

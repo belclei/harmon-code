@@ -4,7 +4,7 @@
 // fora deste ciclo de trabalho. Esta é uma versão mínima standalone dentro
 // do SPA, só para o endpoint ter um lugar clicável antes da landing existir;
 // mover/reestilizar para a landing quando ela for construída.
-import { Alert, Button, Input } from "@harmon/ui";
+import { Alert, Button, Input } from "@lurem/ui";
 import { type FormEvent, useState } from "react";
 import { ApiError, apiFetchJson } from "../auth/api-client";
 

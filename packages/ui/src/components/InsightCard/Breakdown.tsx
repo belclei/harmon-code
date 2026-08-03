@@ -1,4 +1,4 @@
-import type { Money } from "@harmon/domain";
+import type { Money } from "@lurem/domain";
 import { Body } from "../Typography/Body";
 import { Mono } from "../Typography/Mono";
 import { formatMoney } from "../shared/formatMoney";

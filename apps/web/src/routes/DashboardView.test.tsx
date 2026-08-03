@@ -1,5 +1,5 @@
-import type { Money } from "@harmon/domain";
-import { formatMoney } from "@harmon/ui";
+import type { Money } from "@lurem/domain";
+import { formatMoney } from "@lurem/ui";
 // apps/web/src/routes/DashboardView.test.tsx
 // BACKLOG.md US-3.11 — critérios de UI vinculantes (§4.1/§4.2) como teste de CI:
 //   §4.1 no máximo UM número em escala herói por rota (.lr-money--hero ≤ 1);

@@ -26,13 +26,13 @@ import {
   TransactionRow,
   TransferPairCard,
   formatMoney,
-} from "@harmon/ui";
+} from "@lurem/ui";
 import type {
   AlertedEntity,
   CalendarRange,
   DomainEventType,
   TransferAccount,
-} from "@harmon/ui";
+} from "@lurem/ui";
 import {
   useInfiniteQuery,
   useMutation,

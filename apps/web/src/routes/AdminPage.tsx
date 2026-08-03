@@ -2,7 +2,7 @@
 // BACKLOG.md US-7.1/US-7.2 — painéis Acessos e Usuários. role=user é
 // bloqueado na UI (espelha o 403 admin.forbidden do backend); nunca mostra
 // valor financeiro, só contagens (§6.2).
-import { Badge, Button, EmptyState, Switch } from "@harmon/ui";
+import { Badge, Button, EmptyState, Switch } from "@lurem/ui";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Navigate } from "@tanstack/react-router";
 import { useAuth } from "../auth/AuthContext";

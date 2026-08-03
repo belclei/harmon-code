@@ -2,7 +2,7 @@
 // BACKLOG.md US-6.1 — Transaction + DomainEvent interleaved, agregado por dia
 // (ARQUITETURA.md §6.12). Função pura: I/O (filtros, fetch) fica em routes.ts;
 // aqui só agrupamento + paginação por cursor, testável sem banco.
-import type { DomainEvent, Transaction } from "@harmon/db";
+import type { DomainEvent, Transaction } from "@lurem/db";
 import {
   type InstallmentDetail,
   toTransactionResponse,
@@ -48,8 +48,8 @@ export interface TimelinePageWithoutBalance {
 // ler com getters UTC direto (mesmo padrão de transactions/serialize.ts's
 // `ymd`). Eventos carregam um instante real (createdAt) — dia calendário é
 // América/Sao_Paulo (§0 do projeto: "fuso America/Sao_Paulo para lógica de
-// data"), lido via Intl com timeZone fixo (mesmo padrão de @harmon/core's
-// saoPauloYMD, reimplementado aqui só para não puxar @harmon/core por uma
+// data"), lido via Intl com timeZone fixo (mesmo padrão de @lurem/core's
+// saoPauloYMD, reimplementado aqui só para não puxar @lurem/core por uma
 // formatação de data que não é matemática de dinheiro).
 const SAO_PAULO_DAY = new Intl.DateTimeFormat("en-CA", {
   timeZone: "America/Sao_Paulo",

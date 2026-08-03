@@ -2,7 +2,7 @@
 // BACKLOG.md US-3.10 — GET /v1/insights/dashboard?asOf=…: os 3 cards (§6.9),
 // cada um Money com breakdown (§3). Cache Redis 60s invalidado por escrita
 // (§5.6/§7.8) — ver cache.ts para a estratégia de geração por usuário.
-import { saoPauloYMD } from "@harmon/core";
+import { saoPauloYMD } from "@lurem/core";
 import type { FastifyInstance } from "fastify";
 import { z } from "zod";
 import { requireUser } from "../auth/authenticate.js";

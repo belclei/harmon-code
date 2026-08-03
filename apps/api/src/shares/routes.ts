@@ -4,7 +4,7 @@
 // entidade/saldo/transações) ou edit (tudo de view + criar/editar
 // transações e dados da entidade, exceto apagar — deleção fica só com o
 // dono, sempre).
-import type { Prisma } from "@harmon/db";
+import type { Prisma } from "@lurem/db";
 import type { FastifyInstance } from "fastify";
 import { z } from "zod";
 import { requireUser } from "../auth/authenticate.js";

@@ -1,7 +1,7 @@
 // apps/api/scripts/seed-demo-user.ts
 // Cria um usuário com senha + conta/cartão/categorias para validação visual
 // local das telas do Sprint 5. NÃO é seed de produção — é fixture de dev.
-import { PrismaClient } from "@harmon/db";
+import { PrismaClient } from "@lurem/db";
 import { hashPassword } from "../src/auth/password.js";
 
 const EMAIL = "demo@harmon.dev";

@@ -4,7 +4,7 @@
 // loading (skeleton sereno), error (acionável, com retry) e ready. Não há
 // estado "empty" distinto — o endpoint sempre devolve os 3 cards (mesmo que
 // zerados); a ativação (Timeline vazia, §6.11) é a Sprint 7, não esta tela.
-import { Skeleton } from "@harmon/ui";
+import { Skeleton } from "@lurem/ui";
 import { useQuery } from "@tanstack/react-query";
 import { Navigate } from "@tanstack/react-router";
 import { useAuth } from "../auth/AuthContext";

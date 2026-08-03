@@ -1,4 +1,4 @@
-import type { PrismaClient } from "@harmon/db";
+import type { PrismaClient } from "@lurem/db";
 import { evaluateFlag } from "./evaluate.js";
 
 export async function resolveFlags(

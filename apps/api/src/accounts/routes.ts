@@ -4,7 +4,7 @@
 // a permission=edit SharedItem grant on this account, not just the owner.
 // Delete stays owner-only regardless of share permission (§6.10: "tudo de
 // view + criar/editar... exceto apagar").
-import type { Account } from "@harmon/db";
+import type { Account } from "@lurem/db";
 import type { FastifyInstance } from "fastify";
 import { z } from "zod";
 import { requireUser } from "../auth/authenticate.js";

@@ -1,5 +1,5 @@
 // apps/web/src/routes/LoginPage.tsx
-import { Button, Input } from "@harmon/ui";
+import { Button, Input } from "@lurem/ui";
 import { useNavigate } from "@tanstack/react-router";
 import { type FormEvent, useState } from "react";
 import { useAuth } from "../auth/AuthContext";

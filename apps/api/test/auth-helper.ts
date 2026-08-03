@@ -1,7 +1,7 @@
 // apps/api/test/auth-helper.ts
 // Shared test helper: create a user and sign a valid access token for it,
 // bypassing the full login flow (auth itself is covered by auth/routes.test.ts).
-import type { PrismaClient } from "@harmon/db";
+import type { PrismaClient } from "@lurem/db";
 import { signAccessToken } from "../src/auth/jwt.js";
 
 export async function createAuthedUser(

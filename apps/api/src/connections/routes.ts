@@ -17,7 +17,7 @@
 // (sem token/estado) — ver docs/superpowers/specs/2026-07-28-invite-
 // connection-cancel-resend-design.md.
 import { randomBytes } from "node:crypto";
-import type { Prisma } from "@harmon/db";
+import type { Prisma } from "@lurem/db";
 import type { FastifyInstance } from "fastify";
 import { z } from "zod";
 import { requireUser } from "../auth/authenticate.js";

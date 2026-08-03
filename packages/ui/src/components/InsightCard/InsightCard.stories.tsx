@@ -1,4 +1,4 @@
-import type { Money } from "@harmon/domain";
+import type { Money } from "@lurem/domain";
 import type { Meta, StoryObj } from "@storybook/react-vite";
 import { InsightCard } from "./InsightCard";
 

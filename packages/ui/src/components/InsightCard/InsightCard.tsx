@@ -1,4 +1,4 @@
-import type { Money } from "@harmon/domain";
+import type { Money } from "@lurem/domain";
 import { useState } from "react";
 import { Button } from "../Button/Button";
 import { Card } from "../Card/Card";

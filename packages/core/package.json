@@ -1,5 +1,5 @@
 {
-  "name": "@harmon/core",
+  "name": "@lurem/core",
   "version": "0.0.0",
   "private": true,
   "type": "module",
@@ -10,7 +10,7 @@
     "test": "vitest run --coverage"
   },
   "dependencies": {
-    "@harmon/domain": "*"
+    "@lurem/domain": "*"
   },
   "devDependencies": {
     "@vitest/coverage-v8": "^2.1.8",

@@ -27,7 +27,7 @@
 // navegador, GET /v1/portador/pending nunca esvaziava depois de aceito (a
 // original mantém portadorUserId indefinidamente por design). "Pendente"
 // agora exclui originais que já têm um espelho apontando pra elas.
-import type { Prisma } from "@harmon/db";
+import type { Prisma } from "@lurem/db";
 import type { FastifyInstance } from "fastify";
 import { z } from "zod";
 import { requireUser } from "../auth/authenticate.js";

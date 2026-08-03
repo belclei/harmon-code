@@ -7,7 +7,7 @@ import type {
   BreakdownLine,
   Money,
   TransactionLike,
-} from "@harmon/domain";
+} from "@lurem/domain";
 import { compareDates, todayAsDate } from "./dates.js";
 
 export interface BalanceParams {

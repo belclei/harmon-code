@@ -12,8 +12,8 @@ import {
   findClosedNotDueInvoiceMonth,
   sumCardTransactionsForInvoiceMonth,
   todayAsDate,
-} from "@harmon/core";
-import type { CreditCardLike, Money, TransactionLike } from "@harmon/domain";
+} from "@lurem/core";
+import type { CreditCardLike, Money, TransactionLike } from "@lurem/domain";
 
 export interface CardInvoiceStatus {
   usedCents: number;

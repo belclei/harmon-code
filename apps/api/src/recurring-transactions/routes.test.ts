@@ -83,7 +83,7 @@ describe("recurring-transactions (US-3.9b)", () => {
   });
 
   // Bug report: a new series never showed up on the Timeline. Root cause —
-  // TimelineEventRow/EVENT_TEXT (@harmon/ui) already has copy for
+  // TimelineEventRow/EVENT_TEXT (@lurem/ui) already has copy for
   // recurring.created/paused/ended, and GET /v1/timeline already reads
   // straight from DomainEvent, but this route never wrote one.
   it("emits a recurring.created DomainEvent on creation, so it shows up on the Timeline", async () => {

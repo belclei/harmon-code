@@ -7,7 +7,7 @@ import type {
   RecurringFulfillmentLike,
   RecurringTransactionLike,
   TransactionLike,
-} from "@harmon/domain";
+} from "@lurem/domain";
 import fc from "fast-check";
 import { describe, expect, it } from "vitest";
 import { balance } from "./balance.js";

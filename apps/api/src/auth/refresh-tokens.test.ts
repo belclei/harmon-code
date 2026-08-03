@@ -1,4 +1,4 @@
-import { PrismaClient } from "@harmon/db";
+import { PrismaClient } from "@lurem/db";
 // apps/api/src/auth/refresh-tokens.test.ts
 import { afterAll, afterEach, beforeAll, describe, expect, it } from "vitest";
 import { resetTestDb } from "../../test/db.js";

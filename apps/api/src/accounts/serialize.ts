@@ -2,8 +2,8 @@
 // Shared balance/isOverLimit derivation (IMPLEMENTACAO.md §2.1/§2.3) for the
 // account list/detail responses. Reuses packages/core — never recomputes the
 // formula locally (single source of truth for "what is the real balance").
-import { balance } from "@harmon/core";
-import type { Account, Institution, Transaction } from "@harmon/db";
+import { balance } from "@lurem/core";
+import type { Account, Institution, Transaction } from "@lurem/db";
 import { institutionLogoUrl } from "../institutions/logo-url.js";
 
 /** Rows já escopadas a esta conta (ambas as pernas de transfer) → contrato do core. */

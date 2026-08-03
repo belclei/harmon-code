@@ -4,7 +4,7 @@ import type {
   RecurringFulfillmentLike,
   RecurringTransactionLike,
   TransactionLike,
-} from "@harmon/domain";
+} from "@lurem/domain";
 import { describe, expect, it } from "vitest";
 import { disponivelHoje } from "./disponivel-hoje.js";
 

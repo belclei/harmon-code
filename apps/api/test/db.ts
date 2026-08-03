@@ -1,5 +1,5 @@
 // apps/api/test/db.ts
-import type { PrismaClient } from "@harmon/db";
+import type { PrismaClient } from "@lurem/db";
 
 // Truncates every table in the schema between tests — keeps integration
 // tests independent without needing a full migrate reset per test.

@@ -1,5 +1,5 @@
 // apps/api/src/cards/serialize.ts
-import type { CreditCard, Institution, Transaction } from "@harmon/db";
+import type { CreditCard, Institution, Transaction } from "@lurem/db";
 import { institutionLogoUrl } from "../institutions/logo-url.js";
 import { cardInvoiceStatus } from "./invoice-status.js";
 

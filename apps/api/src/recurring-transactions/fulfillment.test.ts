@@ -1,4 +1,4 @@
-import type { PrismaClient } from "@harmon/db";
+import type { PrismaClient } from "@lurem/db";
 // apps/api/src/recurring-transactions/fulfillment.test.ts
 import { afterAll, afterEach, beforeAll, describe, expect, it } from "vitest";
 import { createAuthedUser } from "../../test/auth-helper.js";
