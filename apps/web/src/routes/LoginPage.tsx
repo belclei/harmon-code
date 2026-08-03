@@ -74,7 +74,7 @@ export function LoginPage() {
   return (
     <div className="mx-auto flex min-h-screen max-w-sm flex-col justify-center gap-6 px-4">
       <h1 className="text-xl font-bold text-[var(--lr-text)]">
-        Entrar no Harmon
+        Entrar no Lurem
       </h1>
       {googleAvailable ? (
         <>

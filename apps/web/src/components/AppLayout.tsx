@@ -86,7 +86,7 @@ const NAV_ITEMS: NavItemConfig[] = [
   },
 ];
 
-function HarmonSymbol() {
+function LuremSymbol() {
   return (
     <svg viewBox="0 0 64 64" width="30" height="30" aria-hidden="true">
       <path
@@ -136,8 +136,8 @@ export function AppLayout() {
     <div className="flex min-h-screen bg-[var(--lr-bg)]">
       <aside className="sticky top-0 flex h-screen w-[248px] flex-none flex-col bg-[var(--lr-night-900)] px-4 py-6 text-[var(--lr-ivory-100)]">
         <div className="flex items-center gap-3 px-2 pt-2 pb-7">
-          <HarmonSymbol />
-          <span className="text-[1.2rem] tracking-[-0.01em]">Harmon</span>
+          <LuremSymbol />
+          <span className="text-[1.2rem] tracking-[-0.01em]">Lurem</span>
         </div>
 
         <nav className="flex flex-col gap-0.5">

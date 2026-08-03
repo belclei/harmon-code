@@ -1271,7 +1271,7 @@ export function TimelinePage() {
               {!timelineQuery.isLoading && days.length === 0 ? (
                 <EmptyState
                   title="Nada por aqui ainda"
-                  description="Suas contas, cartões e transações vão aparecer aqui conforme você usar o Harmon."
+                  description="Suas contas, cartões e transações vão aparecer aqui conforme você usar o Lurem."
                 />
               ) : null}
 

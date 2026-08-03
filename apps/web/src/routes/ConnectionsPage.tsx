@@ -73,7 +73,7 @@ function NewConnectionForm({ onCreated }: { onCreated: () => void }) {
       <Input
         type="email"
         label="E-mail do conectado"
-        hint="A pessoa já precisa ter uma conta no Harmon."
+        hint="A pessoa já precisa ter uma conta no Lurem."
         value={email}
         onChange={(event) => setEmail(event.target.value)}
       />
@@ -714,7 +714,7 @@ export function ConnectionsPage() {
 
       <section className="mb-8">
         <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-[var(--lr-text-secondary)]">
-          Convidar para o Harmon
+          Convidar para o Lurem
         </h2>
         <NewInviteForm
           onCreated={() =>
