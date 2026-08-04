@@ -19,7 +19,7 @@
 // - settle: soma o saldo líquido entre os dois (mesma fórmula de
 //   connections/routes.ts) e registra uma transação real na conta do
 //   usuário que está acertando — nenhuma tentativa de sincronizar as duas
-//   pontas automaticamente, já que Harmon não vê a transferência bancária
+//   pontas automaticamente, já que Lurem não vê a transferência bancária
 //   real entre contas de pessoas diferentes.
 //
 // `portadorMirrorOfTransactionId` (emenda 27/07/2026, IMPLEMENTACAO.md §1.4)
@@ -27,7 +27,7 @@
 // navegador, GET /v1/portador/pending nunca esvaziava depois de aceito (a
 // original mantém portadorUserId indefinidamente por design). "Pendente"
 // agora exclui originais que já têm um espelho apontando pra elas.
-import type { Prisma } from "@harmon/db";
+import type { Prisma } from "@lurem/db";
 import type { FastifyInstance } from "fastify";
 import { z } from "zod";
 import { requireUser } from "../auth/authenticate.js";

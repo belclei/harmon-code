@@ -1,8 +1,8 @@
 // apps/api/src/jobs/run-fulfillment.ts
 // Entrypoint do job diário de recorrências (US-3.8). O scheduler de deploy
-// (cron/worker) invoca `npm run job:fulfillment --workspace=@harmon/api` uma
+// (cron/worker) invoca `npm run job:fulfillment --workspace=@lurem/api` uma
 // vez por dia; a lógica idempotente vive em recurring-transactions/fulfillment.
-import { PrismaClient } from "@harmon/db";
+import { PrismaClient } from "@lurem/db";
 import { fulfillDueRecurrences } from "../recurring-transactions/fulfillment.js";
 
 async function main(): Promise<void> {

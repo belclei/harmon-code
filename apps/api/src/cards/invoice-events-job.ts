@@ -20,9 +20,9 @@ import {
   makeDate,
   saoPauloYMD,
   sumCardTransactionsForInvoiceMonth,
-} from "@harmon/core";
-import type { PrismaClient, Transaction } from "@harmon/db";
-import type { CreditCardLike, TransactionLike } from "@harmon/domain";
+} from "@lurem/core";
+import type { PrismaClient, Transaction } from "@lurem/db";
+import type { CreditCardLike, TransactionLike } from "@lurem/domain";
 
 function previousYearMonth(
   year: number,

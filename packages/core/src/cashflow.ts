@@ -38,7 +38,7 @@ import type {
   RecurringFulfillmentLike,
   RecurringTransactionLike,
   TransactionLike,
-} from "@harmon/domain";
+} from "@lurem/domain";
 import { balance } from "./balance.js";
 import {
   addMonths,

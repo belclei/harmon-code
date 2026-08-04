@@ -1,4 +1,4 @@
-import type { AccountLike, TransactionLike } from "@harmon/domain";
+import type { AccountLike, TransactionLike } from "@lurem/domain";
 import { describe, expect, it } from "vitest";
 import { balance } from "./balance.js";
 

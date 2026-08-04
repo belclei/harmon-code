@@ -16,7 +16,7 @@ export interface SegmentedProps {
 }
 
 /**
- * Harmon's segmented control (index.html id="tabs", "segmented"). Unlike
+ * Lurem's segmented control (index.html id="tabs", "segmented"). Unlike
  * `Tabs`, this never switches visible panel content — it's a mutually
  * exclusive filter/period toggle — so it uses the WAI-ARIA `radiogroup`/
  * `radio` pattern instead of `tablist`/`tab`.
@@ -72,8 +72,8 @@ export function Segmented({
       aria-label={label}
       onKeyDown={handleKeyDown}
       className={[
-        "inline-flex gap-0.5 rounded-[var(--hm-r-md)] border border-[var(--hm-border)]",
-        "bg-[var(--hm-surface-sunken)] p-[3px]",
+        "inline-flex gap-0.5 rounded-[var(--lr-r-md)] border border-[var(--lr-border)]",
+        "bg-[var(--lr-surface-sunken)] p-[3px]",
         className,
       ].join(" ")}
     >
@@ -90,10 +90,10 @@ export function Segmented({
             tabIndex={isActive ? 0 : -1}
             onClick={() => onChange(option.value)}
             className={[
-              "cursor-pointer rounded-[6px] px-4 py-2 text-[.8125rem] text-[var(--hm-text-2)]",
+              "cursor-pointer rounded-[6px] px-4 py-2 text-[.8125rem] text-[var(--lr-text-secondary)]",
               "transition-colors duration-150",
               isActive
-                ? "bg-[var(--hm-surface)] text-[var(--hm-text)] shadow-[var(--hm-e1)]"
+                ? "bg-[var(--lr-surface)] text-[var(--lr-text)] shadow-[var(--lr-e1)]"
                 : "",
               "disabled:pointer-events-none disabled:opacity-45",
             ].join(" ")}

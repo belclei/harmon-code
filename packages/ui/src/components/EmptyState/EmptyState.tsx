@@ -8,7 +8,7 @@ export interface EmptyStateAction {
 }
 
 export interface EmptyStateProps {
-  /** Decorative — always `aria-hidden`. index.html's own examples are line-art SVGs in `--hm-ink-300`. */
+  /** Decorative — always `aria-hidden`. index.html's own examples are line-art SVGs in `--lr-night-300`. */
   icon?: ReactNode;
   title: string;
   description?: string;
@@ -21,7 +21,7 @@ export interface EmptyStateProps {
   className?: string;
 }
 
-/** Harmon's empty/no-results state. Dumb component: it renders whatever copy and actions the caller passes. */
+/** Lurem's empty/no-results state. Dumb component: it renders whatever copy and actions the caller passes. */
 export function EmptyState({
   icon,
   title,
@@ -32,24 +32,24 @@ export function EmptyState({
   return (
     <div
       className={[
-        "rounded-[var(--hm-r-md)] border border-dashed border-[var(--hm-border)]",
-        "px-[var(--hm-s3)] py-[var(--hm-s8)] text-center",
+        "rounded-[var(--lr-r-md)] border border-dashed border-[var(--lr-border)]",
+        "px-[var(--lr-s3)] py-[var(--lr-s8)] text-center",
         className,
       ].join(" ")}
     >
       {icon ? (
         <span
           aria-hidden="true"
-          className="inline-flex h-10 w-10 items-center justify-center text-[var(--hm-ink-300)] [&>svg]:h-full [&>svg]:w-full"
+          className="inline-flex h-10 w-10 items-center justify-center text-[var(--lr-night-300)] [&>svg]:h-full [&>svg]:w-full"
         >
           {icon}
         </span>
       ) : null}
-      <p className="m-0 mt-[var(--hm-s2)] mb-1.5 text-[1.0625rem] text-[var(--hm-text)]">
+      <p className="m-0 mt-[var(--lr-s2)] mb-1.5 text-[1.0625rem] text-[var(--lr-text)]">
         {title}
       </p>
       {description ? (
-        <p className="mx-auto mb-[var(--hm-s3)] max-w-[42ch] text-[.875rem] text-[var(--hm-text-2)]">
+        <p className="mx-auto mb-[var(--lr-s3)] max-w-[42ch] text-[.875rem] text-[var(--lr-text-secondary)]">
           {description}
         </p>
       ) : null}

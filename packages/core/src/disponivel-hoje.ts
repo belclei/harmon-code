@@ -30,7 +30,7 @@ import type {
   RecurringFulfillmentLike,
   RecurringTransactionLike,
   TransactionLike,
-} from "@harmon/domain";
+} from "@lurem/domain";
 import { balance } from "./balance.js";
 import { clampDay, compareDates, endOfMonth, saoPauloYMD } from "./dates.js";
 import { faturaFechadaNaoVencida } from "./invoice.js";

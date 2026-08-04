@@ -8,7 +8,7 @@ import { buildServer } from "../server.js";
 const TEST_ENV = {
   DATABASE_URL:
     process.env.DATABASE_URL ??
-    "postgresql://harmon:harmon@localhost:5433/harmon",
+    "postgresql://lurem_test:lurem_test@localhost:5433/lurem_test",
   REDIS_URL: "redis://localhost:6379",
   JWT_SECRET: "x".repeat(32),
   GOOGLE_CLIENT_ID: "placeholder",
@@ -83,7 +83,7 @@ describe("recurring-transactions (US-3.9b)", () => {
   });
 
   // Bug report: a new series never showed up on the Timeline. Root cause —
-  // TimelineEventRow/EVENT_TEXT (@harmon/ui) already has copy for
+  // TimelineEventRow/EVENT_TEXT (@lurem/ui) already has copy for
   // recurring.created/paused/ended, and GET /v1/timeline already reads
   // straight from DomainEvent, but this route never wrote one.
   it("emits a recurring.created DomainEvent on creation, so it shows up on the Timeline", async () => {

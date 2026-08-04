@@ -25,7 +25,7 @@ export function Body({
       className={[
         "m-0 text-[.9375rem] leading-relaxed font-sans",
         weight === "medium" ? "font-medium" : "font-normal",
-        muted ? "text-[var(--hm-text-2)]" : "text-[var(--hm-text)]",
+        muted ? "text-[var(--lr-text-secondary)]" : "text-[var(--lr-text)]",
         className,
       ].join(" ")}
     >

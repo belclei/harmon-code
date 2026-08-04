@@ -30,7 +30,7 @@ function describeEntity(entity: AlertedEntity): string {
 }
 
 /**
- * Harmon's fixed Timeline alert banner (§6.4/§6.12). Dumb component: the
+ * Lurem's fixed Timeline alert banner (§6.4/§6.12). Dumb component: the
  * caller decides which accounts/cards are in the alert state; this only
  * composes the exact copy pattern and renders `Alert` — never computes
  * over-limit state itself.

@@ -3,8 +3,8 @@
 // (sem depender de uma transação existente), edição/pausa/encerramento/exclusão.
 // Nunca cascateia sobre ocorrências passadas: as ocorrências são Transactions
 // ligadas por recurringTransactionId — mexer na série não toca nelas.
-import { makeDate } from "@harmon/core";
-import type { Prisma, RecurringTransaction } from "@harmon/db";
+import { makeDate } from "@lurem/core";
+import type { Prisma, RecurringTransaction } from "@lurem/db";
 import type { FastifyInstance } from "fastify";
 import { z } from "zod";
 import { requireUser } from "../auth/authenticate.js";
@@ -49,7 +49,7 @@ function parseDate(ymd: string): Date {
 }
 
 // Timeline structural events for the series' own lifecycle (§6.7/§6.12) —
-// TimelineEventRow/EVENT_TEXT (@harmon/ui) already has copy for these 3
+// TimelineEventRow/EVENT_TEXT (@lurem/ui) already has copy for these 3
 // types ("Nova recorrência cadastrada"/"pausada"/"encerrada"); this route
 // just never wrote the DomainEvent that GET /v1/timeline reads.
 async function fireEvent(

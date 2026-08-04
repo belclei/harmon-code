@@ -1,7 +1,7 @@
 // apps/api/src/cards/routes.ts
 // BACKLOG.md US-3.2 — GET/POST /v1/cards, PATCH/DELETE /v1/cards/:id,
 // GET /v1/cards/:id/invoice?ref=YYYY-MM.
-import { sumCardTransactionsForInvoiceMonth } from "@harmon/core";
+import { sumCardTransactionsForInvoiceMonth } from "@lurem/core";
 import type { FastifyInstance } from "fastify";
 import { z } from "zod";
 import { requireUser } from "../auth/authenticate.js";

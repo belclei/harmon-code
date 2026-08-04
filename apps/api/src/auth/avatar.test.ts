@@ -61,13 +61,13 @@ describe("computeAvatarUrls", () => {
   it("the Gravatar hash is deterministic and trims/lowercases the e-mail", () => {
     const a = computeAvatarUrls({
       name: "Ana",
-      email: "  Ana@Harmon.DEV ",
+      email: "  Ana@Lurem.DEV ",
       avatarMode: "gravatar",
       googleAvatarUrl: null,
     });
     const b = computeAvatarUrls({
       name: "Ana",
-      email: "ana@harmon.dev",
+      email: "ana@lurem.dev",
       avatarMode: "gravatar",
       googleAvatarUrl: null,
     });

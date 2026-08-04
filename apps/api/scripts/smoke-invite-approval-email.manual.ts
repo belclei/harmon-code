@@ -7,8 +7,8 @@
 // the raw Resend client.
 //
 // Usage: cd apps/api && npx tsx --env-file=.env scripts/smoke-invite-approval-email.manual.ts you@example.com
-// Requires the API dev server running locally (npm run dev --workspace=@harmon/api).
-import { PrismaClient } from "@harmon/db";
+// Requires the API dev server running locally (npm run dev --workspace=@lurem/api).
+import { PrismaClient } from "@lurem/db";
 import { signAccessToken } from "../src/auth/jwt.js";
 import { loadEnv } from "../src/env.js";
 

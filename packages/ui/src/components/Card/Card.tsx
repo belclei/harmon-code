@@ -3,7 +3,7 @@ import type { HTMLAttributes } from "react";
 export type CardPadding = "none" | "sm" | "md" | "lg";
 
 export interface CardProps extends HTMLAttributes<HTMLDivElement> {
-  /** Padding scale, in Harmon's base-8 spacing tokens. `md` (24px) is the default from harmon-tokens.css's `.hm-card` primitive. */
+  /** Padding scale, in Lurem's base-8 spacing tokens. `md` (24px) is the default from lurem-tokens.css's `.lr-card` primitive. */
   padding?: CardPadding;
   /** Recessed background — nest a card inside another surface without a heavier border. */
   sunken?: boolean;
@@ -13,19 +13,19 @@ export interface CardProps extends HTMLAttributes<HTMLDivElement> {
   interactive?: boolean;
 }
 
-// Only overridden inline when it differs from the `.hm-card` primitive's
-// built-in padding (var(--hm-s3)), so we never fight CSS cascade-layer
+// Only overridden inline when it differs from the `.lr-card` primitive's
+// built-in padding (var(--lr-s3)), so we never fight CSS cascade-layer
 // ordering between an unlayered token stylesheet and Tailwind's utilities.
 const PADDING_OVERRIDE: Record<CardPadding, string | undefined> = {
   none: "0",
-  sm: "var(--hm-s2)",
+  sm: "var(--lr-s2)",
   md: undefined,
-  lg: "var(--hm-s4)",
+  lg: "var(--lr-s4)",
 };
 
 /**
- * Harmon's base surface container. Purely presentational: padding, border
- * and shadow come from `--hm-*` tokens via the `.hm-card` primitive; this
+ * Lurem's base surface container. Purely presentational: padding, border
+ * and shadow come from `--lr-*` tokens via the `.lr-card` primitive; this
  * component adds no state and no behavior of its own.
  */
 export function Card({
@@ -71,18 +71,18 @@ export function Card({
           : style
       }
       className={[
-        "hm-card",
-        // `!` (Tailwind v4 important-modifier) is required here: harmon-tokens.css's
-        // `.hm-card` sets `background`/`border` as an unlayered shorthand rule, and
+        "lr-card",
+        // `!` (Tailwind v4 important-modifier) is required here: lurem-tokens.css's
+        // `.lr-card` sets `background`/`border` as an unlayered shorthand rule, and
         // unlayered CSS always wins over Tailwind's utilities (emitted inside
         // `@layer utilities`) regardless of source order or specificity — without
         // it, `sunken`/`dashed` silently no-op (e.g. TransactionRow's "agendada"
         // card rendered a solid border instead of dashed). Same class of bug
         // already flagged/fixed with `!` on Alert.tsx's action button text color.
-        sunken ? "bg-[var(--hm-surface-sunken)]!" : "",
+        sunken ? "bg-[var(--lr-surface-sunken)]!" : "",
         dashed ? "border-dashed! bg-transparent!" : "",
         interactive
-          ? "cursor-pointer transition-[box-shadow,border-color] duration-150 hover:border-[var(--hm-ink-300)] hover:shadow-[var(--hm-e1)]"
+          ? "cursor-pointer transition-[box-shadow,border-color] duration-150 hover:border-[var(--lr-night-300)] hover:shadow-[var(--lr-e1)]"
           : "",
         className,
       ]

@@ -1,4 +1,4 @@
-import { balance } from "@harmon/core";
+import { balance } from "@lurem/core";
 // apps/api/src/timeline/routes.ts
 // BACKLOG.md US-6.1 — GET /v1/timeline: Transaction+DomainEvent interleaved,
 // agregado por dia, paginado por cursor, filtrável por período/conta-cartão
@@ -8,7 +8,7 @@ import { balance } from "@harmon/core";
 // própria aqui — ambos derivam de GET /v1/accounts e GET /v1/cards, que já
 // expõem isOverLimit/balanceCents/usedCents; duplicar esse cálculo numa rota
 // nova seria uma segunda fonte de verdade para o mesmo número (§0).
-import type { Prisma } from "@harmon/db";
+import type { Prisma } from "@lurem/db";
 import type { FastifyInstance } from "fastify";
 import { z } from "zod";
 import { requireUser } from "../auth/authenticate.js";

@@ -1,4 +1,4 @@
-import type { Money } from "@harmon/domain";
+import type { Money } from "@lurem/domain";
 import { useState } from "react";
 import { Button } from "../Button/Button";
 import { Card } from "../Card/Card";
@@ -16,7 +16,7 @@ export interface InsightCardProps {
 }
 
 /**
- * Harmon's dashboard hero card: one value + its explainable breakdown
+ * Lurem's dashboard hero card: one value + its explainable breakdown
  * (§6.9 "explicabilidade acima de autoridade"). Dumb component — `money`
  * arrives fully computed from `packages/core`; this only renders it.
  */

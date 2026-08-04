@@ -1,6 +1,6 @@
 // apps/api/src/auth/refresh-tokens.ts
 import { createHash, randomBytes, randomUUID } from "node:crypto";
-import type { PrismaClient } from "@harmon/db";
+import type { PrismaClient } from "@lurem/db";
 import type { FastifyReply } from "fastify";
 
 const REFRESH_TOKEN_TTL_MS = 30 * 24 * 60 * 60 * 1000; // 30 days

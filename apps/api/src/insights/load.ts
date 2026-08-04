@@ -5,10 +5,10 @@ import type {
   RecurringFulfillment as PrismaFulfillment,
   RecurringTransaction as PrismaRecurring,
   Transaction as PrismaTransaction,
-} from "@harmon/db";
+} from "@lurem/db";
 // apps/api/src/insights/load.ts
 // Carrega o dataset financeiro de um usuário e o mapeia dos modelos Prisma
-// para os contratos *Like de @harmon/domain — a forma pura que packages/core
+// para os contratos *Like de @lurem/domain — a forma pura que packages/core
 // consome (§3). Nenhuma matemática de dinheiro aqui: só I/O + mapeamento.
 import type {
   AccountLike,
@@ -16,7 +16,7 @@ import type {
   RecurringFulfillmentLike,
   RecurringTransactionLike,
   TransactionLike,
-} from "@harmon/domain";
+} from "@lurem/domain";
 
 export interface InsightsDataset {
   accounts: Array<{ account: AccountLike; transactions: TransactionLike[] }>;

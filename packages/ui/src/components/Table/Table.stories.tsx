@@ -19,7 +19,7 @@ const meta: Meta<typeof Table> = {
     docs: {
       description: {
         component:
-          'Tabela do Harmon (index.html id="tabela"). Coluna de valor sempre à direita, mono e ' +
+          'Tabela do Lurem (index.html id="tabela"). Coluna de valor sempre à direita, mono e ' +
           "tabular. A linha agendada usa a cor de estimativa mesmo dentro da tabela — o princípio não tem exceção contextual.",
       },
     },
@@ -35,8 +35,8 @@ export const Extrato: Story = {
     <div
       style={{
         width: "38rem",
-        borderRadius: "var(--hm-r-md)",
-        border: "1px solid var(--hm-border)",
+        borderRadius: "var(--lr-r-md)",
+        border: "1px solid var(--lr-border)",
         overflow: "hidden",
       }}
     >

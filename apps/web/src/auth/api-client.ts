@@ -173,7 +173,7 @@ export async function downloadMyDataExport(): Promise<void> {
   const url = URL.createObjectURL(blob);
   const anchor = document.createElement("a");
   anchor.href = url;
-  anchor.download = "harmon-exportacao.json";
+  anchor.download = "lurem-exportacao.json";
   anchor.click();
   URL.revokeObjectURL(url);
 }

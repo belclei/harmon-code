@@ -21,7 +21,7 @@ vi.mock("resend", () => ({
 const TEST_ENV = {
   DATABASE_URL:
     process.env.DATABASE_URL ??
-    "postgresql://harmon:harmon@localhost:5433/harmon",
+    "postgresql://lurem_test:lurem_test@localhost:5433/lurem_test",
   REDIS_URL: "redis://localhost:6379",
   JWT_SECRET: "x".repeat(32),
   GOOGLE_CLIENT_ID: "placeholder",

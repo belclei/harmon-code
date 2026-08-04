@@ -10,7 +10,7 @@ const meta: Meta<typeof Checkbox> = {
     docs: {
       description: {
         component:
-          'Checkbox do Harmon (index.html id="selecao"). Componente burro e controlado — ' +
+          'Checkbox do Lurem (index.html id="selecao"). Componente burro e controlado — ' +
           "`checked`/`indeterminate` vêm inteiramente do chamador.",
       },
     },

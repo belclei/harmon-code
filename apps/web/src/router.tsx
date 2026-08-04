@@ -41,7 +41,7 @@ const indexRoute = createRoute({
   },
 });
 
-// Wraps the sidebar shell (design_handoff_harmon README "Shell do app")
+// Wraps the sidebar shell (design_handoff_lurem README "Shell do app")
 // around every route that needs it. Login/register/waitlist stay outside —
 // full-screen, no nav — per the same doc's screen list.
 const appLayoutRoute = createRoute({

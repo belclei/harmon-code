@@ -2,7 +2,7 @@ import type {
   AccountLike,
   CreditCardLike,
   TransactionLike,
-} from "@harmon/domain";
+} from "@lurem/domain";
 import { describe, expect, it } from "vitest";
 import { patrimonioTotal } from "./patrimonio.js";
 

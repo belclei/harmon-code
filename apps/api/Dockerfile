@@ -27,11 +27,11 @@ RUN npm ci
 
 COPY . .
 
-RUN npm run generate --workspace=@harmon/db
+RUN npm run generate --workspace=@lurem/db
 
 EXPOSE 3001
 
 HEALTHCHECK --interval=10s --timeout=3s --start-period=10s --retries=5 \
   CMD wget -qO- http://127.0.0.1:3001/health || exit 1
 
-CMD ["npm", "run", "start", "--workspace=@harmon/api"]
+CMD ["npm", "run", "start", "--workspace=@lurem/api"]

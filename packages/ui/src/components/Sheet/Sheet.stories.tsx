@@ -13,7 +13,7 @@ const meta: Meta<typeof Sheet> = {
     docs: {
       description: {
         component:
-          'Sheet mobile do Harmon (index.html id="dialogo") — mesmo comportamento modal do ' +
+          'Sheet mobile do Lurem (index.html id="dialogo") — mesmo comportamento modal do ' +
           "`Dialog` (foco preso, Escape fecha), ancorado à borda inferior.",
       },
     },

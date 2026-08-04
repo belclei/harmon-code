@@ -10,7 +10,7 @@
 // quando status já é "registered". Reenviar só quando status é "approved"
 // (nada foi aprovado/enviado antes disso).
 import { randomBytes } from "node:crypto";
-import type { Prisma } from "@harmon/db";
+import type { Prisma } from "@lurem/db";
 import type { FastifyInstance } from "fastify";
 import { z } from "zod";
 import { TOKEN_TTL_MS } from "../access/tokens.js";

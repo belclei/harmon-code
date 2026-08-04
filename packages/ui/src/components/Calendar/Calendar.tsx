@@ -103,7 +103,7 @@ function formatDayLabel(date: Date, isToday: boolean): string {
 }
 
 /**
- * Harmon's calendar (index.html id="calendario", origin react-day-picker).
+ * Lurem's calendar (index.html id="calendario", origin react-day-picker).
  * Locale pt-BR only (week starts Sunday, lowercase names, no i18n
  * abstraction — this product has no other locale, see PRODUCT.md). A dumb,
  * controlled component: `month` and `selected` are both owned by the
@@ -151,12 +151,12 @@ export function Calendar({
   return (
     <div
       className={[
-        "w-[300px] rounded-[var(--hm-r-md)] border border-[var(--hm-border)]",
-        "bg-[var(--hm-surface)] p-[var(--hm-s2)] shadow-[var(--hm-e2)]",
+        "w-[300px] rounded-[var(--lr-r-md)] border border-[var(--lr-border)]",
+        "bg-[var(--lr-surface)] p-[var(--lr-s2)] shadow-[var(--lr-e2)]",
         className,
       ].join(" ")}
     >
-      <div className="mb-[var(--hm-s2)] flex items-center justify-between">
+      <div className="mb-[var(--lr-s2)] flex items-center justify-between">
         <Button
           variant="tertiary"
           size="sm"
@@ -164,7 +164,7 @@ export function Calendar({
           aria-label="Mês anterior"
           onClick={() => onMonthChange(addMonths(month, -1))}
         />
-        <span className="font-mono text-[.875rem] text-[var(--hm-text)]">
+        <span className="font-mono text-[.875rem] text-[var(--lr-text)]">
           {MONTH_NAMES[month.getMonth()]} {month.getFullYear()}
         </span>
         <Button
@@ -187,7 +187,7 @@ export function Calendar({
             // biome-ignore lint/suspicious/noArrayIndexKey: fixed 7-item static list, no identity beyond position
             key={index}
             aria-hidden="true"
-            className="pb-1.5 text-center text-[.625rem] tracking-[.1em] text-[var(--hm-label)] uppercase"
+            className="pb-1.5 text-center text-[.625rem] tracking-[.1em] text-[var(--lr-label)] uppercase"
           >
             {weekday}
           </span>
@@ -220,17 +220,17 @@ export function Calendar({
           // same-specificity utilities equal precedence, so the winner is
           // whichever lands last in the compiled stylesheet — not whichever
           // comes last in this class list. Stacking e.g. the default
-          // text-[var(--hm-text)] alongside a conditional text-[var(--hm-bone-000)]
+          // text-[var(--lr-text)] alongside a conditional text-[var(--lr-ivory-000)]
           // let the base class silently win in the built CSS, which made
-          // selected days (ink-900 bg) render their digit in --hm-text
+          // selected days (ink-900 bg) render their digit in --lr-text
           // (also ink-900) — invisible. Compute one winner up front instead.
           const textColorClass = disabled
-            ? "text-[var(--hm-ink-300)]"
+            ? "text-[var(--lr-night-300)]"
             : isSelected
-              ? "text-[var(--hm-bone-000)]"
+              ? "text-[var(--lr-ivory-000)]"
               : outside
-                ? "text-[var(--hm-ink-300)]"
-                : "text-[var(--hm-text)]";
+                ? "text-[var(--lr-night-300)]"
+                : "text-[var(--lr-text)]";
 
           return (
             <button
@@ -247,24 +247,27 @@ export function Calendar({
                 textColorClass,
                 isSelected || inRange
                   ? ""
-                  : "hover:bg-[var(--hm-surface-sunken)]",
-                isToday ? "border-[var(--hm-sand-600)]" : "",
+                  : "hover:bg-[var(--lr-surface-sunken)]",
+                isToday ? "border-[var(--lr-gold-600)]" : "",
+                // REBRAND (Task 1.3): blue-100/700 -> petrol-100/700, same
+                // DESIGN_SYSTEM.md §1.2 "componentes selecionados" -> Petrol
+                // spec basis as Select.tsx's selected-item treatment.
                 inRange
-                  ? "rounded-none bg-[var(--hm-blue-100)] dark:bg-[var(--hm-blue-700)]/30"
-                  : "rounded-[var(--hm-r-sm)]",
+                  ? "rounded-none bg-[var(--lr-petrol-100)] dark:bg-[var(--lr-petrol-700)]/30"
+                  : "rounded-[var(--lr-r-sm)]",
                 isRangeStart ? "rounded-r-none" : "",
                 isRangeEnd ? "rounded-l-none" : "",
                 // dark:bg-ink-700 alone measures 1.29:1 against this card's
-                // --hm-surface (ink-800) — Button's primary variant made the
+                // --lr-surface (ink-800) — Button's primary variant made the
                 // same ink-900→ink-700 dark-mode step, but that one sits
-                // directly on --hm-bg (ink-900 page), not a --hm-surface
+                // directly on --lr-bg (ink-900 page), not a --lr-surface
                 // card, so its fill/background gap survives. The border
                 // gives the same 3:1 boundary Card/Dialog/Sheet already lean
-                // on for definition against --hm-surface, without touching
+                // on for definition against --lr-surface, without touching
                 // the fill (bone-000 text on ink-700 is already 10.7:1, no
                 // need to trade that away for a lighter fill).
                 isSelected
-                  ? "bg-[var(--hm-ink-900)] dark:border-[var(--hm-ink-500)] dark:bg-[var(--hm-ink-700)]"
+                  ? "bg-[var(--lr-night-900)] dark:border-[var(--lr-night-500)] dark:bg-[var(--lr-night-700)]"
                   : "",
                 disabled ? "cursor-not-allowed hover:bg-transparent" : "",
               ].join(" ")}
@@ -277,11 +280,11 @@ export function Calendar({
                     "absolute bottom-[5px] left-1/2 h-1 w-1 -translate-x-1/2 rounded-full",
                     status === "scheduled"
                       ? isSelected
-                        ? "border border-[var(--hm-bone-000)] bg-transparent"
-                        : "border border-[var(--hm-estimate)] bg-transparent"
+                        ? "border border-[var(--lr-ivory-000)] bg-transparent"
+                        : "border border-[var(--lr-estimate)] bg-transparent"
                       : isSelected
-                        ? "bg-[var(--hm-bone-000)]"
-                        : "bg-[var(--hm-ink-600)]",
+                        ? "bg-[var(--lr-ivory-000)]"
+                        : "bg-[var(--lr-night-600)]",
                   ].join(" ")}
                 />
               ) : null}
@@ -291,7 +294,7 @@ export function Calendar({
       </div>
 
       {footer ? (
-        <div className="mt-[var(--hm-s2)] flex gap-2 border-t border-[var(--hm-border)] pt-[var(--hm-s2)]">
+        <div className="mt-[var(--lr-s2)] flex gap-2 border-t border-[var(--lr-border)] pt-[var(--lr-s2)]">
           {footer}
         </div>
       ) : null}

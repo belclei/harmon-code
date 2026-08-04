@@ -10,7 +10,7 @@ const meta: Meta<typeof Switch> = {
     docs: {
       description: {
         component:
-          'Switch do Harmon (index.html id="selecao"). Aplica na hora (preferência) — ' +
+          'Switch do Lurem (index.html id="selecao"). Aplica na hora (preferência) — ' +
           'diferente do Checkbox, que espera um "Salvar" de formulário. Ação destrutiva ou com custo nunca é switch.',
       },
     },

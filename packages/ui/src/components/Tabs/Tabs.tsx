@@ -18,7 +18,7 @@ export interface TabsProps {
 }
 
 /**
- * Harmon's tab list (index.html id="tabs", WAI-ARIA Tabs pattern). A dumb,
+ * Lurem's tab list (index.html id="tabs", WAI-ARIA Tabs pattern). A dumb,
  * controlled component: it never owns which panel is "active" — the caller
  * does, via `value`/`onChange` — it only renders the trigger row and its
  * keyboard behavior (Left/Right/Home/End, roving tabindex).
@@ -77,7 +77,7 @@ export function Tabs({
       aria-label={label}
       onKeyDown={handleKeyDown}
       className={[
-        "flex gap-[var(--hm-s3)] border-b border-[var(--hm-border)]",
+        "flex gap-[var(--lr-s3)] border-b border-[var(--lr-border)]",
         className,
       ].join(" ")}
     >
@@ -96,10 +96,10 @@ export function Tabs({
             onClick={() => onChange(item.value)}
             className={[
               "-mb-px cursor-pointer border-b-2 border-transparent bg-transparent px-0.5 py-3",
-              "text-[.9375rem] text-[var(--hm-text-2)] transition-colors duration-150",
-              "hover:text-[var(--hm-text)]",
+              "text-[.9375rem] text-[var(--lr-text-secondary)] transition-colors duration-150",
+              "hover:text-[var(--lr-text)]",
               isActive
-                ? "border-b-[var(--hm-sand-500)] text-[var(--hm-text)]"
+                ? "border-b-[var(--lr-gold-500)] text-[var(--lr-text)]"
                 : "",
               "disabled:pointer-events-none disabled:opacity-45",
             ].join(" ")}

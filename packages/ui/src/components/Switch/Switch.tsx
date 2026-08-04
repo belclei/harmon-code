@@ -21,7 +21,7 @@ export type SwitchProps =
     });
 
 /**
- * Harmon's toggle (index.html id="selecao"). A real `role="switch"` button,
+ * Lurem's toggle (index.html id="selecao"). A real `role="switch"` button,
  * not a checkbox — WAI-ARIA's own recommended pattern for an on/off control
  * that applies immediately (a preference), as opposed to `Checkbox`, which
  * waits for a form's own "Salvar".
@@ -55,20 +55,20 @@ export function Switch({
         disabled={disabled}
         onClick={toggle}
         className={[
-          "inline-flex h-[26px] w-11 flex-none cursor-pointer items-center rounded-[var(--hm-r-full)] border border-transparent p-[3px]",
+          "inline-flex h-[26px] w-11 flex-none cursor-pointer items-center rounded-[var(--lr-r-full)] border border-transparent p-[3px]",
           "transition-colors duration-150 ease-out",
-          // index.html's raw --hm-ink-200 track is light-mode-only (same gap
-          // already fixed elsewhere in this file set) — --hm-border steps to
-          // --hm-ink-700 in dark automatically, so the off-track never
+          // index.html's raw --lr-night-200 track is light-mode-only (same gap
+          // already fixed elsewhere in this file set) — --lr-border steps to
+          // --lr-night-700 in dark automatically, so the off-track never
           // disappears against a dark page.
-          checked ? "bg-[var(--hm-sage-600)]" : "bg-[var(--hm-border)]",
+          checked ? "bg-[var(--lr-petrol-600)]" : "bg-[var(--lr-border)]",
           "disabled:cursor-not-allowed disabled:opacity-45",
         ].join(" ")}
       >
         <span
           aria-hidden="true"
           className={[
-            "h-5 w-5 rounded-full bg-white shadow-[var(--hm-e1)] transition-transform duration-300",
+            "h-5 w-5 rounded-full bg-white shadow-[var(--lr-e1)] transition-transform duration-300",
             checked ? "translate-x-[18px]" : "translate-x-0",
           ].join(" ")}
         />
@@ -77,7 +77,7 @@ export function Switch({
         <span
           id={labelId}
           className={[
-            "text-[.9375rem] text-[var(--hm-text)]",
+            "text-[.9375rem] text-[var(--lr-text)]",
             disabled ? "opacity-45" : "",
           ].join(" ")}
         >

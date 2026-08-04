@@ -1,4 +1,4 @@
-import type { CreditCardLike, TransactionLike } from "@harmon/domain";
+import type { CreditCardLike, TransactionLike } from "@lurem/domain";
 import { describe, expect, it } from "vitest";
 import { faturaFechadaNaoVencida } from "./invoice.js";
 

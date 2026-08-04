@@ -10,7 +10,7 @@ const meta: Meta<typeof Button> = {
     docs: {
       description: {
         component:
-          "Gatilho de ação base do Harmon. Componente burro: nunca decide o que " +
+          "Gatilho de ação base do Lurem. Componente burro: nunca decide o que " +
           "acontece ao ser clicado — isso é responsabilidade do `onClick` recebido via prop.",
       },
     },
@@ -83,8 +83,8 @@ export const Matriz: Story = {
       {["Default", "Hover", "Active", "Disabled", "Loading"].map((label) => (
         <span
           key={label}
-          className="hm-label"
-          style={{ fontSize: ".6875rem", color: "var(--hm-text-2)" }}
+          className="lr-label"
+          style={{ fontSize: ".6875rem", color: "var(--lr-text-secondary)" }}
         >
           {label}
         </span>

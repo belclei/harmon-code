@@ -11,7 +11,7 @@ const meta: Meta<typeof Input> = {
     docs: {
       description: {
         component:
-          "Campo de texto base do Harmon. Sempre com label visível; validação " +
+          "Campo de texto base do Lurem. Sempre com label visível; validação " +
           "é responsabilidade de quem usa o componente — o `error` chega pronto via prop.",
       },
     },
@@ -71,8 +71,8 @@ export const Matriz: Story = {
       {["Default", "Focused", "Filled", "Error", "Disabled"].map((label) => (
         <span
           key={label}
-          className="hm-label"
-          style={{ fontSize: ".6875rem", color: "var(--hm-text-2)" }}
+          className="lr-label"
+          style={{ fontSize: ".6875rem", color: "var(--lr-text-secondary)" }}
         >
           {label}
         </span>
@@ -100,7 +100,7 @@ export const Matriz: Story = {
   ),
 };
 
-/** Campo obrigatório — o asterisco usa o mesmo tom (--hm-clay-600) do texto de erro, então precisa do mesmo passo de contraste no tema escuro. */
+/** Campo obrigatório — o asterisco usa o mesmo tom (--lr-negative) do texto de erro, então precisa do mesmo passo de contraste no tema escuro. */
 export const Obrigatorio: Story = {
   name: "Obrigatório",
   args: { label: "Dia do vencimento", required: true },

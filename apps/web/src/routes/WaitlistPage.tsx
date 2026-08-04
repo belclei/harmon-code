@@ -4,7 +4,7 @@
 // fora deste ciclo de trabalho. Esta é uma versão mínima standalone dentro
 // do SPA, só para o endpoint ter um lugar clicável antes da landing existir;
 // mover/reestilizar para a landing quando ela for construída.
-import { Alert, Button, Input } from "@harmon/ui";
+import { Alert, Button, Input } from "@lurem/ui";
 import { type FormEvent, useState } from "react";
 import { ApiError, apiFetchJson } from "../auth/api-client";
 
@@ -53,8 +53,8 @@ export function WaitlistPage() {
 
   return (
     <div className="mx-auto flex min-h-screen max-w-sm flex-col justify-center gap-6 px-4">
-      <h1 className="text-xl font-bold text-[var(--hm-text)]">
-        Pedir acesso ao Harmon
+      <h1 className="text-xl font-bold text-[var(--lr-text)]">
+        Pedir acesso ao Lurem
       </h1>
       <form className="grid gap-4" onSubmit={onSubmit} noValidate>
         <Input

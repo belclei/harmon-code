@@ -1,11 +1,11 @@
 // apps/api/scripts/seed-demo-user.ts
 // Cria um usuário com senha + conta/cartão/categorias para validação visual
 // local das telas do Sprint 5. NÃO é seed de produção — é fixture de dev.
-import { PrismaClient } from "@harmon/db";
+import { PrismaClient } from "@lurem/db";
 import { hashPassword } from "../src/auth/password.js";
 
 const EMAIL = "demo@harmon.dev";
-const PASSWORD = "harmon123";
+const PASSWORD = "lurem123";
 
 async function main(): Promise<void> {
   const prisma = new PrismaClient();
@@ -25,7 +25,7 @@ async function main(): Promise<void> {
     const user = await prisma.user.create({
       data: {
         email: EMAIL,
-        name: "Demo Harmon",
+        name: "Demo Lurem",
         birthDate: new Date("1990-01-01"),
         passwordHash: await hashPassword(PASSWORD),
       },

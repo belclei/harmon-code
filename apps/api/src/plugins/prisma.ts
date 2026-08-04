@@ -1,4 +1,4 @@
-import { PrismaClient } from "@harmon/db";
+import { PrismaClient } from "@lurem/db";
 import type { FastifyInstance } from "fastify";
 // apps/api/src/plugins/prisma.ts
 import fp from "fastify-plugin";

@@ -8,15 +8,15 @@
 //
 // §7.5: "rollup noturno excluindo admins" — DAU/WAU/MAU contam só role=user.
 //
-// ⚠ Armadilha de fuso (mesma documentada em @harmon/core/dates.ts): uma data-
+// ⚠ Armadilha de fuso (mesma documentada em @lurem/core/dates.ts): uma data-
 // calendário pura (meia-noite UTC representando um dia de São Paulo) NÃO pode
 // passar de novo por `saoPauloYMD` — meia-noite UTC já é 21h do dia anterior
 // em São Paulo (UTC−3), então reconverter desloca um dia pra trás. `asOf`
 // (um instante real) passa por `saoPauloYMD` exatamente uma vez, aqui em
 // `computeDailyRollup`; toda aritmética de dia depois disso (cohort de
 // retenção, etc.) soma/subtrai milissegundos na data-calendário pura direto.
-import { saoPauloYMD } from "@harmon/core";
-import type { PrismaClient } from "@harmon/db";
+import { saoPauloYMD } from "@lurem/core";
+import type { PrismaClient } from "@lurem/db";
 
 const DAY_MS = 24 * 60 * 60 * 1000;
 

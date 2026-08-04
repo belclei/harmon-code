@@ -1,11 +1,11 @@
 // apps/web/src/routes/DashboardView.tsx
 // US-3.11 — apresentação pura do dashboard (§6.9). Recebe os 3 cards já
 // calculados; sem fetch/estado de rede aqui (isso é do DashboardPage). O
-// herói (Disponível Hoje) é bespoke para carregar a escala .hm-money--hero
+// herói (Disponível Hoje) é bespoke para carregar a escala .lr-money--hero
 // (§4.1: no máximo um número-herói por tela); os outros dois usam InsightCard.
-import type { Money } from "@harmon/domain";
-import { Body, Breakdown, Button, Card, InsightCard, Mono } from "@harmon/ui";
-import { formatMoney } from "@harmon/ui";
+import type { Money } from "@lurem/domain";
+import { Body, Breakdown, Button, Card, InsightCard, Mono } from "@lurem/ui";
+import { formatMoney } from "@lurem/ui";
 import { useState } from "react";
 
 export interface DashboardInsights {
@@ -26,7 +26,7 @@ function HeroCard({ money }: { money: Money }) {
       <Body muted className="text-[.8125rem]">
         Disponível Hoje
       </Body>
-      <Mono variant="number" className="mt-1 block hm-money--hero">
+      <Mono variant="number" className="mt-1 block lr-money--hero">
         {formatMoney(money.valueCents)}
       </Mono>
       <Button

@@ -9,7 +9,7 @@ const meta: Meta<typeof Toast> = {
     docs: {
       description: {
         component:
-          'Toast do Harmon (index.html id="dialogo"). Componente de apresentação única — ' +
+          'Toast do Lurem (index.html id="dialogo"). Componente de apresentação única — ' +
           'fila, empilhamento e o timer de auto-dismiss (8s para "Desfazer") são responsabilidade de um gerenciador da aplicação, não deste componente.',
       },
     },

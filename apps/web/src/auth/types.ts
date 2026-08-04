@@ -1,7 +1,7 @@
 // apps/web/src/auth/types.ts
 //
 // Mirrors the backend contract's response shapes verbatim (see the sprint
-// spec). Not sourced from @harmon/domain: Money/BreakdownLine there model
+// spec). Not sourced from @lurem/domain: Money/BreakdownLine there model
 // packages/core's decomposed-calculation output (net worth, projections),
 // a different shape than these flat list-endpoint DTOs — reusing them here
 // would be forcing a fit, not deduplication.
@@ -55,7 +55,7 @@ export type TxSource = "manual" | "import";
 export type TxDirection = "out" | "in";
 
 // Mirrors apps/api/src/transactions/serialize.ts's InstallmentDetail —
-// same field names as @harmon/ui's TransactionRow InstallmentDetail, so this
+// same field names as @lurem/ui's TransactionRow InstallmentDetail, so this
 // passes through untouched from API response to TransactionRow prop.
 export interface InstallmentDetailDto {
   originalAmountCents: number;

@@ -2,7 +2,7 @@
 // IMPLEMENTACAO.md §2.3 — decisão de escrita sob cheque especial. Não recalcula
 // saldo: recebe o saldo atual (derivado por core.balance, fonte única) e o
 // delta da escrita, e decide gravar / pedir confirmação / rejeitar.
-import type { Account } from "@harmon/db";
+import type { Account } from "@lurem/db";
 import {
   ACCOUNT_CASH_CANNOT_BE_NEGATIVE,
   ACCOUNT_OVERDRAFT_CONFIRMATION_REQUIRED,

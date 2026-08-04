@@ -10,7 +10,7 @@ const meta: Meta<typeof Tooltip> = {
     docs: {
       description: {
         component:
-          'Tooltip do Harmon (index.html id="dialogo"). Sempre escuro (--hm-ink-900), ' +
+          'Tooltip do Lurem (index.html id="dialogo"). Sempre escuro (--lr-night-900), ' +
           "nas duas temas — lê como um carimbo, não como uma superfície do tema. Posicionamento fixo (sem detecção de colisão).",
       },
     },

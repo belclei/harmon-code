@@ -2,7 +2,7 @@
 // Resposta de transação — campos que a lista (US-3.9, TransactionRow) e as ações
 // (US-3.7) consomem. Sinal do dinheiro vem de kind/transferDirection, nunca do
 // valor (§1.4): amountCents/amountBRLCents são sempre positivos.
-import type { Transaction } from "@harmon/db";
+import type { Transaction } from "@lurem/db";
 
 export interface InstallmentDetail {
   originalAmountCents: number;

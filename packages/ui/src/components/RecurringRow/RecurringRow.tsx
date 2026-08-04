@@ -30,7 +30,7 @@ export interface RecurringRowProps {
 }
 
 /**
- * Harmon's recurring-series summary row. Dumb component: `status` and
+ * Lurem's recurring-series summary row. Dumb component: `status` and
  * `hasVariationAlert` arrive via props — no divergence math happens here
  * (§6.7, BACKLOG US-2.5).
  */

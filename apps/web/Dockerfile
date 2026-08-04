@@ -1,6 +1,6 @@
 # apps/web/Dockerfile
 # Build context is the repo root (npm workspaces monorepo) — apps/web
-# depends on @harmon/ui, resolved via the workspace.
+# depends on @lurem/ui, resolved via the workspace.
 FROM node:20-alpine AS build
 
 WORKDIR /app
@@ -23,7 +23,7 @@ RUN npm ci
 
 COPY . .
 
-RUN npm run build --workspace=@harmon/web
+RUN npm run build --workspace=@lurem/web
 
 FROM nginx:1.27-alpine
 

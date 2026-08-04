@@ -13,7 +13,7 @@ import {
   Input,
   Select,
   formatMoney,
-} from "@harmon/ui";
+} from "@lurem/ui";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Navigate } from "@tanstack/react-router";
 import { type FormEvent, useState } from "react";
@@ -68,12 +68,12 @@ function NewConnectionForm({ onCreated }: { onCreated: () => void }) {
   return (
     <form
       onSubmit={onSubmit}
-      className="mb-6 flex flex-col gap-3 rounded-[var(--hm-r-lg)] border border-[var(--hm-border)] p-4"
+      className="mb-6 flex flex-col gap-3 rounded-[var(--lr-r-lg)] border border-[var(--lr-border)] p-4"
     >
       <Input
         type="email"
         label="E-mail do conectado"
-        hint="A pessoa já precisa ter uma conta no Harmon."
+        hint="A pessoa já precisa ter uma conta no Lurem."
         value={email}
         onChange={(event) => setEmail(event.target.value)}
       />
@@ -131,7 +131,7 @@ function NewInviteForm({ onCreated }: { onCreated: () => void }) {
   return (
     <form
       onSubmit={onSubmit}
-      className="mb-6 flex flex-col gap-3 rounded-[var(--hm-r-lg)] border border-[var(--hm-border)] p-4"
+      className="mb-6 flex flex-col gap-3 rounded-[var(--lr-r-lg)] border border-[var(--lr-border)] p-4"
     >
       <Input
         label="Nome de quem você quer convidar"
@@ -390,7 +390,7 @@ function NewShareForm({
         event.preventDefault();
         createMutation.mutate();
       }}
-      className="mb-6 flex flex-col gap-3 rounded-[var(--hm-r-lg)] border border-[var(--hm-border)] p-4"
+      className="mb-6 flex flex-col gap-3 rounded-[var(--lr-r-lg)] border border-[var(--lr-border)] p-4"
     >
       <Select
         label="Conta ou cartão"
@@ -526,7 +526,7 @@ export function ConnectionsPage() {
   });
 
   if (isBooting) {
-    return <p className="p-6 text-[var(--hm-text-2)]">Carregando…</p>;
+    return <p className="p-6 text-[var(--lr-text-secondary)]">Carregando…</p>;
   }
   if (!user) {
     return <Navigate to="/login" />;
@@ -545,10 +545,10 @@ export function ConnectionsPage() {
 
   return (
     <div className="mx-auto max-w-4xl px-4 py-8">
-      <h1 className="mb-6 text-xl font-bold text-[var(--hm-text)]">Conexões</h1>
+      <h1 className="mb-6 text-xl font-bold text-[var(--lr-text)]">Conexões</h1>
 
       <section className="mb-8">
-        <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-[var(--hm-text-2)]">
+        <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-[var(--lr-text-secondary)]">
           Conectar
         </h2>
         <NewConnectionForm
@@ -560,18 +560,18 @@ export function ConnectionsPage() {
 
       {pendingInvites.length > 0 ? (
         <section className="mb-8">
-          <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-[var(--hm-text-2)]">
+          <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-[var(--lr-text-secondary)]">
             Convites recebidos
           </h2>
           <div className="flex flex-col gap-2">
             {pendingInvites.map((c) => (
               <div
                 key={c.id}
-                className="flex items-center justify-between rounded-[var(--hm-r-lg)] border border-[var(--hm-border)] p-4"
+                className="flex items-center justify-between rounded-[var(--lr-r-lg)] border border-[var(--lr-border)] p-4"
               >
                 <div>
-                  <p className="text-[var(--hm-text)]">{c.counterpartName}</p>
-                  <p className="text-sm text-[var(--hm-text-2)]">
+                  <p className="text-[var(--lr-text)]">{c.counterpartName}</p>
+                  <p className="text-sm text-[var(--lr-text-secondary)]">
                     {c.counterpartEmail}
                   </p>
                 </div>
@@ -598,23 +598,23 @@ export function ConnectionsPage() {
 
       {sentInvites.length > 0 ? (
         <section className="mb-8">
-          <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-[var(--hm-text-2)]">
+          <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-[var(--lr-text-secondary)]">
             Convites enviados
           </h2>
           <div className="flex flex-col gap-2">
             {sentInvites.map((c) => (
               <div
                 key={c.id}
-                className="flex items-center justify-between rounded-[var(--hm-r-lg)] border border-[var(--hm-border)] p-4"
+                className="flex items-center justify-between rounded-[var(--lr-r-lg)] border border-[var(--lr-border)] p-4"
               >
                 <div>
-                  <p className="text-[var(--hm-text)]">{c.counterpartName}</p>
-                  <p className="text-sm text-[var(--hm-text-2)]">
+                  <p className="text-[var(--lr-text)]">{c.counterpartName}</p>
+                  <p className="text-sm text-[var(--lr-text-secondary)]">
                     {c.counterpartEmail}
                   </p>
                 </div>
                 <div className="flex items-center gap-2">
-                  <p className="text-sm text-[var(--hm-text-2)]">
+                  <p className="text-sm text-[var(--lr-text-secondary)]">
                     Aguardando resposta
                   </p>
                   <Button
@@ -639,7 +639,7 @@ export function ConnectionsPage() {
       ) : null}
 
       <section className="mb-8">
-        <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-[var(--hm-text-2)]">
+        <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-[var(--lr-text-secondary)]">
           Conectados
         </h2>
         {accepted.length === 0 ? (
@@ -652,11 +652,11 @@ export function ConnectionsPage() {
             {accepted.map((c) => (
               <div
                 key={c.id}
-                className="flex items-center justify-between rounded-[var(--hm-r-lg)] border border-[var(--hm-border)] p-4"
+                className="flex items-center justify-between rounded-[var(--lr-r-lg)] border border-[var(--lr-border)] p-4"
               >
                 <div>
-                  <p className="text-[var(--hm-text)]">{c.counterpartName}</p>
-                  <p className="text-sm text-[var(--hm-text-2)]">
+                  <p className="text-[var(--lr-text)]">{c.counterpartName}</p>
+                  <p className="text-sm text-[var(--lr-text-secondary)]">
                     {settlementCopy(
                       c.settlementBalanceCents,
                       c.counterpartName,
@@ -679,18 +679,18 @@ export function ConnectionsPage() {
 
       {pendingQuery.data && pendingQuery.data.length > 0 ? (
         <section className="mb-8">
-          <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-[var(--hm-text-2)]">
+          <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-[var(--lr-text-secondary)]">
             Transações para validar
           </h2>
           <div className="flex flex-col gap-2">
             {pendingQuery.data.map((item) => (
               <div
                 key={item.id}
-                className="flex items-center justify-between rounded-[var(--hm-r-lg)] border border-[var(--hm-border)] p-4"
+                className="flex items-center justify-between rounded-[var(--lr-r-lg)] border border-[var(--lr-border)] p-4"
               >
                 <div>
-                  <p className="text-[var(--hm-text)]">{item.description}</p>
-                  <p className="text-sm text-[var(--hm-text-2)]">
+                  <p className="text-[var(--lr-text)]">{item.description}</p>
+                  <p className="text-sm text-[var(--lr-text-secondary)]">
                     {formatMoney(item.amountCents)} · de {item.ownerName}
                   </p>
                 </div>
@@ -713,8 +713,8 @@ export function ConnectionsPage() {
       ) : null}
 
       <section className="mb-8">
-        <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-[var(--hm-text-2)]">
-          Convidar para o Harmon
+        <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-[var(--lr-text-secondary)]">
+          Convidar para o Lurem
         </h2>
         <NewInviteForm
           onCreated={() =>
@@ -726,16 +726,16 @@ export function ConnectionsPage() {
             {invitesQuery.data.map((invite) => (
               <div
                 key={invite.id}
-                className="flex items-center justify-between rounded-[var(--hm-r-lg)] border border-[var(--hm-border)] p-4"
+                className="flex items-center justify-between rounded-[var(--lr-r-lg)] border border-[var(--lr-border)] p-4"
               >
                 <div>
-                  <p className="text-[var(--hm-text)]">{invite.inviteeName}</p>
-                  <p className="text-sm text-[var(--hm-text-2)]">
+                  <p className="text-[var(--lr-text)]">{invite.inviteeName}</p>
+                  <p className="text-sm text-[var(--lr-text-secondary)]">
                     {invite.inviteeEmail}
                   </p>
                 </div>
                 <div className="flex items-center gap-2">
-                  <p className="text-sm text-[var(--hm-text-2)]">
+                  <p className="text-sm text-[var(--lr-text-secondary)]">
                     {INVITE_STATUS_LABEL[invite.status]}
                   </p>
                   {invite.status === "approved" ? (
@@ -764,7 +764,7 @@ export function ConnectionsPage() {
       </section>
 
       <section>
-        <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-[var(--hm-text-2)]">
+        <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-[var(--lr-text-secondary)]">
           Compartilhamentos
         </h2>
         <NewShareForm
@@ -784,10 +784,10 @@ export function ConnectionsPage() {
             return (
               <div
                 key={share.id}
-                className="flex items-center justify-between rounded-[var(--hm-r-lg)] border border-[var(--hm-border)] p-4"
+                className="flex items-center justify-between rounded-[var(--lr-r-lg)] border border-[var(--lr-border)] p-4"
               >
                 <div className="flex items-center gap-3">
-                  <p className="text-[var(--hm-text)]">
+                  <p className="text-[var(--lr-text)]">
                     {item?.name || item?.institutionName || share.itemType}
                   </p>
                   <Badge

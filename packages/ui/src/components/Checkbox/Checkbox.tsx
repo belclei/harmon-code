@@ -21,7 +21,7 @@ export interface CheckboxProps
   error?: boolean;
 }
 
-/** Harmon's checkbox. A dumb, controlled component — `checked` and `indeterminate` are owned entirely by the caller. */
+/** Lurem's checkbox. A dumb, controlled component — `checked` and `indeterminate` are owned entirely by the caller. */
 export function Checkbox({
   label,
   checked = false,
@@ -46,7 +46,7 @@ export function Checkbox({
     <label
       htmlFor={inputId}
       className={[
-        "inline-flex items-start gap-2.5 text-[.9375rem] text-[var(--hm-text)]",
+        "inline-flex items-start gap-2.5 text-[.9375rem] text-[var(--lr-text)]",
         disabled ? "cursor-not-allowed opacity-45" : "cursor-pointer",
         className,
       ].join(" ")}
@@ -64,17 +64,17 @@ export function Checkbox({
         <span
           aria-hidden="true"
           className={[
-            "pointer-events-none absolute inset-0 grid place-items-center rounded-[var(--hm-r-sm)] border transition-colors duration-150",
+            "pointer-events-none absolute inset-0 grid place-items-center rounded-[var(--lr-r-sm)] border transition-colors duration-150",
             isFilled
-              ? "border-[var(--hm-ink-900)] bg-[var(--hm-ink-900)] dark:border-[var(--hm-ink-700)] dark:bg-[var(--hm-ink-700)]"
+              ? "border-[var(--lr-night-900)] bg-[var(--lr-night-900)] dark:border-[var(--lr-night-700)] dark:bg-[var(--lr-night-700)]"
               : error
-                ? "border-[var(--hm-clay-600)] bg-[var(--hm-surface)]"
-                : "border-[var(--hm-ink-300)] bg-[var(--hm-surface)]",
-            "peer-focus-visible:outline peer-focus-visible:outline-2 peer-focus-visible:outline-offset-2 peer-focus-visible:outline-[var(--hm-focus-ring)]",
+                ? "border-[var(--lr-negative)] bg-[var(--lr-surface)]"
+                : "border-[var(--lr-night-300)] bg-[var(--lr-surface)]",
+            "peer-focus-visible:outline peer-focus-visible:outline-2 peer-focus-visible:outline-offset-2 peer-focus-visible:outline-[var(--lr-focus-ring)]",
           ].join(" ")}
         >
           {indeterminate ? (
-            <span className="h-0.5 w-2.5 rounded-full bg-[var(--hm-bone-000)]" />
+            <span className="h-0.5 w-2.5 rounded-full bg-[var(--lr-ivory-000)]" />
           ) : checked ? (
             <svg
               aria-hidden="true"
@@ -84,7 +84,7 @@ export function Checkbox({
               fill="none"
               stroke="currentColor"
               strokeWidth={3}
-              className="text-[var(--hm-bone-000)]"
+              className="text-[var(--lr-ivory-000)]"
             >
               <path d="m5 13 4 4L19 7" />
             </svg>

@@ -2,8 +2,8 @@ import type { Decorator, Preview } from "@storybook/react-vite";
 import React, { useEffect } from "react";
 import "../src/styles/tailwind.css";
 
-// Global toolbar control to flip the whole preview between Harmon's light
-// and dark theme. The design tokens (harmon-tokens.css) key dark mode off
+// Global toolbar control to flip the whole preview between Lurem's light
+// and dark theme. The design tokens (lurem-tokens.css) key dark mode off
 // `data-theme="dark"` on an ancestor element — see US-1.6.
 const withTheme: Decorator = (Story, context) => {
   const theme = context.globals.theme ?? "light";
@@ -60,7 +60,7 @@ const preview: Preview = {
   globalTypes: {
     theme: {
       name: "Theme",
-      description: "Harmon light/dark theme",
+      description: "Lurem light/dark theme",
       defaultValue: "light",
       toolbar: {
         icon: "mirror",

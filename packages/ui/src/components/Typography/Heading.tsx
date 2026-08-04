@@ -28,7 +28,7 @@ export function Heading({
     <Tag
       {...rest}
       className={[
-        "m-0 font-sans font-bold text-[var(--hm-text)]",
+        "m-0 font-sans font-bold text-[var(--lr-text)]",
         SIZE_CLASSES[level],
         className,
       ].join(" ")}

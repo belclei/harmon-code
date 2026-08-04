@@ -19,7 +19,10 @@ export function FieldMessage({
   }
   if (hint) {
     return (
-      <p id={hintId} className="text-[.8125rem] text-[var(--hm-text-2)]">
+      <p
+        id={hintId}
+        className="text-[.8125rem] text-[var(--lr-text-secondary)]"
+      >
         {hint}
       </p>
     );

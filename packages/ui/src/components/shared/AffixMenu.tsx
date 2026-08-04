@@ -117,10 +117,10 @@ export function AffixMenu({
         }}
         onKeyDown={handleKeyDown}
         className={[
-          "flex h-full cursor-pointer items-center gap-1.5 rounded-l-[var(--hm-r-md)]",
-          "border border-r-[var(--hm-border)] bg-[var(--hm-surface-sunken)] px-3",
-          "font-mono text-[.875rem] text-[var(--hm-text-2)] transition-colors duration-150",
-          "hover:bg-[var(--hm-border)]/30 hover:text-[var(--hm-text)]",
+          "flex h-full cursor-pointer items-center gap-1.5 rounded-l-[var(--lr-r-md)]",
+          "border border-r-[var(--lr-border)] bg-[var(--lr-surface-sunken)] px-3",
+          "font-mono text-[.875rem] text-[var(--lr-text-secondary)] transition-colors duration-150",
+          "hover:bg-[var(--lr-border)]/30 hover:text-[var(--lr-text)]",
           "disabled:cursor-not-allowed disabled:opacity-50",
         ].join(" ")}
       >
@@ -146,8 +146,8 @@ export function AffixMenu({
           aria-label={label}
           tabIndex={-1}
           className={[
-            "absolute left-0 top-full z-10 mt-1 w-56 overflow-hidden rounded-[var(--hm-r-md)]",
-            "border border-[var(--hm-border)] bg-[var(--hm-surface)] py-1 shadow-[var(--hm-e2)]",
+            "absolute left-0 top-full z-10 mt-1 w-56 overflow-hidden rounded-[var(--lr-r-md)]",
+            "border border-[var(--lr-border)] bg-[var(--lr-surface)] py-1 shadow-[var(--lr-e2)]",
           ].join(" ")}
         >
           {options.map((option, index) => {
@@ -168,21 +168,24 @@ export function AffixMenu({
                 onMouseEnter={() => setHighlighted(index)}
                 className={[
                   "flex cursor-pointer items-center gap-3 px-3.5 py-2 text-[.875rem]",
+                  // REBRAND (Task 1.3): blue-100/700 -> petrol-100/700 — spec-backed
+                  // (DESIGN_SYSTEM.md §1.2, "componentes selecionados" -> Petrol),
+                  // same as Select.tsx's identical selected-item treatment.
                   isSelected
-                    ? "bg-[var(--hm-blue-100)] dark:bg-[var(--hm-blue-700)]/30"
+                    ? "bg-[var(--lr-petrol-100)] dark:bg-[var(--lr-petrol-700)]/30"
                     : isHighlighted
-                      ? "bg-[var(--hm-surface-sunken)]"
+                      ? "bg-[var(--lr-surface-sunken)]"
                       : "",
                 ].join(" ")}
               >
-                <span className="w-10 flex-none font-mono font-bold text-[var(--hm-text)]">
+                <span className="w-10 flex-none font-mono font-bold text-[var(--lr-text)]">
                   {option.code}
                 </span>
-                <span className="flex-1 text-[var(--hm-text-2)]">
+                <span className="flex-1 text-[var(--lr-text-secondary)]">
                   {option.label}
                 </span>
                 {option.symbol ? (
-                  <span className="flex-none font-mono text-[var(--hm-text-2)]">
+                  <span className="flex-none font-mono text-[var(--lr-text-secondary)]">
                     {option.symbol}
                   </span>
                 ) : null}

@@ -7,7 +7,7 @@
 // descreveu "ou Google" como opção aqui, mas só e-mail/senha tinha sido
 // construído — a API (POST /v1/auth/google, `token` opcional) já suportava
 // isso desde o gate de convite do Sprint 15, só faltava este botão.
-import { Alert, Button, Input } from "@harmon/ui";
+import { Alert, Button, Input } from "@lurem/ui";
 import { useQuery } from "@tanstack/react-query";
 import { useNavigate } from "@tanstack/react-router";
 import { type FormEvent, useState } from "react";
@@ -77,7 +77,7 @@ export function RegisterPage() {
   if (previewQuery.isLoading) {
     return (
       <div className="mx-auto flex min-h-screen max-w-sm flex-col justify-center gap-6 px-4">
-        <p className="text-[var(--hm-text-2)]">Carregando…</p>
+        <p className="text-[var(--lr-text-secondary)]">Carregando…</p>
       </div>
     );
   }
@@ -128,25 +128,25 @@ export function RegisterPage() {
 
   return (
     <div className="mx-auto flex min-h-screen max-w-sm flex-col justify-center gap-6 px-4">
-      <h1 className="text-xl font-bold text-[var(--hm-text)]">
-        Criar sua conta no Harmon
+      <h1 className="text-xl font-bold text-[var(--lr-text)]">
+        Criar sua conta no Lurem
       </h1>
       {preview?.inviterName ? (
-        <p className="text-sm text-[var(--hm-text-2)]">
+        <p className="text-sm text-[var(--lr-text-secondary)]">
           Convite de <strong>{preview.inviterName}</strong>.
         </p>
       ) : null}
       {googleAvailable ? (
         <>
           <div ref={googleButtonRef} className="flex justify-center" />
-          <p className="text-center text-xs text-[var(--hm-text-2)]">
+          <p className="text-center text-xs text-[var(--lr-text-secondary)]">
             Use a conta Google de <strong>{preview?.email}</strong> para que o
             convite seja reconhecido.
           </p>
           <div className="flex items-center gap-3">
-            <hr className="flex-1 border-[var(--hm-border)]" />
-            <span className="text-sm text-[var(--hm-text-2)]">ou</span>
-            <hr className="flex-1 border-[var(--hm-border)]" />
+            <hr className="flex-1 border-[var(--lr-border)]" />
+            <span className="text-sm text-[var(--lr-text-secondary)]">ou</span>
+            <hr className="flex-1 border-[var(--lr-border)]" />
           </div>
         </>
       ) : null}

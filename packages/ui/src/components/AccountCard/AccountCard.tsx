@@ -42,21 +42,25 @@ function InstitutionMark({
         src={logoUrl}
         alt=""
         aria-hidden="true"
-        className="h-12 w-12 flex-none rounded-[var(--hm-r-md)] object-contain"
+        className="h-12 w-12 flex-none rounded-[var(--lr-r-md)] object-contain"
       />
     );
   }
   return (
+    // REBRAND (Task 1.3): blue-100/700/300 -> petrol-100/700/300 and
+    // blue-on-tint -> positive-on-tint — spec-backed (DESIGN_SYSTEM.md
+    // §1.2 lists "componentes selecionados" as Petrol; this institution-icon
+    // chip is grouped with that selection-state family per the task brief).
     <span
       aria-hidden="true"
-      className="flex h-12 w-12 flex-none items-center justify-center rounded-[var(--hm-r-md)] bg-[var(--hm-blue-100)] text-[1.0625rem] font-bold text-[var(--hm-blue-on-tint)] dark:bg-[var(--hm-blue-700)]/20 dark:text-[var(--hm-blue-300)]"
+      className="flex h-12 w-12 flex-none items-center justify-center rounded-[var(--lr-r-md)] bg-[var(--lr-petrol-100)] text-[1.0625rem] font-bold text-[var(--lr-positive-on-tint)] dark:bg-[var(--lr-petrol-700)]/20 dark:text-[var(--lr-petrol-300)]"
     >
       {institutionName.charAt(0).toUpperCase()}
     </span>
   );
 }
 
-// design_handoff_harmon/design/Harmon.dc.html ("Contas e cartões" screen):
+// design_handoff_lurem/design/Harmon.dc.html ("Contas e cartões" screen):
 // carteira never carries an institution or a cheque-especial limit, so its
 // meta line is a fixed sentence rather than a formatted limit value.
 function accountMeta(type: AccountType, overdraftLimitCents: number): string {
@@ -68,7 +72,7 @@ function accountMeta(type: AccountType, overdraftLimitCents: number): string {
 }
 
 /**
- * Harmon's account summary row. Dumb component: `overLimit` and `isActive`
+ * Lurem's account summary row. Dumb component: `overLimit` and `isActive`
  * arrive as props — it never computes whether a balance breaches the
  * overdraft limit (§6.4, BACKLOG US-2.1). Layout matches the design
  * handoff's `.hmc-account` row: icon, name/meta, balance — stacked as a

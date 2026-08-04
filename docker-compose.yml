@@ -3,15 +3,15 @@ services:
   postgres:
     image: postgres:16-alpine
     environment:
-      POSTGRES_USER: harmon
-      POSTGRES_PASSWORD: harmon
-      POSTGRES_DB: harmon
+      POSTGRES_USER: lurem
+      POSTGRES_PASSWORD: lurem
+      POSTGRES_DB: lurem
     ports:
       - "5433:5432"
     volumes:
-      - harmon_postgres_data:/var/lib/postgresql/data
+      - lurem_postgres_data:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U harmon"]
+      test: ["CMD-SHELL", "pg_isready -U lurem"]
       interval: 5s
       timeout: 3s
       retries: 10
@@ -27,4 +27,4 @@ services:
       retries: 10
 
 volumes:
-  harmon_postgres_data:
+  lurem_postgres_data:

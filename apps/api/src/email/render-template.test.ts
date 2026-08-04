@@ -22,10 +22,10 @@ describe("substituteVars", () => {
 
 describe("renderTemplate", () => {
   it("reads a real template file from templates/ and substitutes vars", () => {
-    const result = renderTemplate("harmon-convite.txt", {
-      link: "https://harmon.fasolo.tech/register?token=abc",
+    const result = renderTemplate("lurem-convite.txt", {
+      link: "https://lurem.fasolo.tech/register?token=abc",
     });
-    expect(result).toContain("https://harmon.fasolo.tech/register?token=abc");
+    expect(result).toContain("https://lurem.fasolo.tech/register?token=abc");
     expect(result).not.toContain("{{link}}");
   });
 });

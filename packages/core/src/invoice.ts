@@ -20,7 +20,7 @@ import type {
   CreditCardLike,
   Money,
   TransactionLike,
-} from "@harmon/domain";
+} from "@lurem/domain";
 import {
   closingDate,
   compareDates,

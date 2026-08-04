@@ -4,8 +4,8 @@
 // usuário depois confirma (US-3.7). Idempotente: não duplica se a ocorrência do
 // mês já existe. É uma função pura de orquestração — o scheduler (cron/worker)
 // só a chama com `asOf = agora`.
-import { clampDay, daysInMonth, makeDate, saoPauloYMD } from "@harmon/core";
-import type { PrismaClient, Transaction } from "@harmon/db";
+import { clampDay, daysInMonth, makeDate, saoPauloYMD } from "@lurem/core";
+import type { PrismaClient, Transaction } from "@lurem/db";
 
 export async function fulfillDueRecurrences(
   prisma: PrismaClient,

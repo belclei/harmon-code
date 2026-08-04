@@ -1,8 +1,8 @@
-import type { Money } from "@harmon/domain";
-import { formatMoney } from "@harmon/ui";
+import type { Money } from "@lurem/domain";
+import { formatMoney } from "@lurem/ui";
 // apps/web/src/routes/DashboardView.test.tsx
 // BACKLOG.md US-3.11 — critérios de UI vinculantes (§4.1/§4.2) como teste de CI:
-//   §4.1 no máximo UM número em escala herói por rota (.hm-money--hero ≤ 1);
+//   §4.1 no máximo UM número em escala herói por rota (.lr-money--hero ≤ 1);
 //   §4.2 todo card abre sua decomposição ("de onde vem esse número?").
 import { fireEvent, render, screen } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
@@ -46,7 +46,7 @@ const INSIGHTS = {
 describe("DashboardView (US-3.11)", () => {
   it("renders at most one hero-scale number (§4.1)", () => {
     const { container } = render(<DashboardView insights={INSIGHTS} />);
-    expect(container.querySelectorAll(".hm-money--hero")).toHaveLength(1);
+    expect(container.querySelectorAll(".lr-money--hero")).toHaveLength(1);
   });
 
   it("shows the three cards with their totals (Disponível Hoje is the hero)", () => {

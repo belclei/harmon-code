@@ -1,6 +1,6 @@
-# @harmon/ui
+# @lurem/ui
 
-Harmon's design-system component library — dumb, presentational React components, documented and developed in Storybook. No business logic, no data fetching: components only ever receive data via props.
+Lurem's design-system component library — dumb, presentational React components, documented and developed in Storybook. No business logic, no data fetching: components only ever receive data via props.
 
 ## Layout choice
 
@@ -8,9 +8,9 @@ Storybook lives *inside* this package (`packages/ui/.storybook`) rather than as 
 
 ## Design tokens
 
-`src/tokens/harmon-tokens.css` is a **copy** of `brand/tokens/harmon-tokens.css` from the private `docs`/`brand` repo. This workspace will eventually live in its own public repo with no access to that private repo, so the token file is vendored here rather than imported by relative path across the repo boundary.
+`src/tokens/lurem-tokens.css` is a **copy** of `brand/tokens/lurem-tokens.css` from the private `docs`/`brand` repo. This workspace will eventually live in its own public repo with no access to that private repo, so the token file is vendored here rather than imported by relative path across the repo boundary.
 
-This copy is **not** kept in sync automatically. If the source token file changes (new color, an AA contrast fix, a new spacing step), someone has to manually re-copy it into `src/tokens/harmon-tokens.css` and re-check every component that hardcodes a hex value the tokens file doesn't cover (see the "token gaps" flagged in the Sprint 1′ report — e.g. the danger button's hover shade, `#9E4438`, has no `--hm-clay-700` token yet). There is no build-time check that would catch a silent drift; this is a real gap worth a follow-up ticket.
+This copy is **not** kept in sync automatically. If the source token file changes (new color, an AA contrast fix, a new spacing step), someone has to manually re-copy it into `src/tokens/lurem-tokens.css` and re-check every component that hardcodes a hex value the tokens file doesn't cover (see the "token gaps" flagged in the Sprint 1′ report — e.g. the danger button's hover shade, `#9E4438`, has no `--lr-negative-700` token yet). There is no build-time check that would catch a silent drift; this is a real gap worth a follow-up ticket.
 
 ## Commands
 

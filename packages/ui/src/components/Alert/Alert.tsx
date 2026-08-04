@@ -45,24 +45,31 @@ export interface AlertProps {
 // Inline layout has no tinted background to carry the color signal, so it
 // needs its own AA-against-neutral-surface text tone per variant — NOT
 // VARIANT_STYLES.icon below, which is only ever verified for a non-text
-// graphic's 3:1 bar (error's icon, e.g., uses --hm-clay-500 at 3.95:1 —
-// clears 3:1 but fails 4.5:1 for text). --hm-clay-600/--hm-clay-300 here
+// graphic's 3:1 bar (error's icon, e.g., uses --lr-negative-500 at 3.95:1 —
+// clears 3:1 but fails 4.5:1 for text). --lr-negative/--lr-negative here
 // are FieldMessage's original error-only precedent for this exact problem,
 // generalized to the other three variants using each hue's own already-AA
-// text tier (harmon-tokens.css v1.1).
+// text tier (lurem-tokens.css v1.1).
+// REBRAND (Task 1.3): "info" has no home in the new Lurem palette — only
+// Night/Petrol/Ivory/Gold/Graphite/Terracota exist, and none is designated
+// "info" by DESIGN_SYSTEM.md. Substituted --lr-graphite-* at the matching
+// numeric stop (the conservative neutral default per DESIGN_SYSTEM.md §1.1)
+// for every blue-* below. NOT a settled design decision — flag for product
+// sign-off before shipping, same as Badge's "blue" category color and
+// Button's "link" variant (see task-1.3 report).
 const INLINE_TONE: Record<AlertVariant, string> = {
-  info: "text-[var(--hm-blue-700)] dark:text-[var(--hm-blue-300)]",
-  success: "text-[var(--hm-sage-700)] dark:text-[var(--hm-sage-300)]",
-  warning: "text-[var(--hm-sand-700)] dark:text-[var(--hm-sand-300)]",
-  error: "text-[var(--hm-clay-600)] dark:text-[var(--hm-clay-300)]",
+  info: "text-[var(--lr-graphite-700)] dark:text-[var(--lr-graphite-300)]",
+  success: "text-[var(--lr-petrol-700)] dark:text-[var(--lr-petrol-300)]",
+  warning: "text-[var(--lr-gold-700)] dark:text-[var(--lr-gold-300)]",
+  error: "text-[var(--lr-negative)] dark:text-[var(--lr-negative)]",
 };
 
-// harmon-tokens.css never redefines the raw --hm-*-100 tints (or the
-// AA-checked --hm-*-700 text tones) for [data-theme="dark"] — they're only
+// lurem-tokens.css never redefines the raw --lr-*-100 tints (or the
+// AA-checked --lr-*-700 text tones) for [data-theme="dark"] — they're only
 // meant as "light wash on a light page". Used as-is, a dark-theme Alert
 // would render a near-white title on a near-white background (title uses
-// var(--hm-text), which becomes --hm-bone-100 in dark mode). Fixed the same
-// way harmon-tokens.css already handles --hm-label/--hm-money-in (a
+// var(--lr-text), which becomes --lr-ivory-100 in dark mode). Fixed the same
+// way lurem-tokens.css already handles --lr-label/--lr-money-in (a
 // lighter, ~300-tier tone for dark) and a translucent wash of the base hue
 // instead of the flat pastel for the background.
 const VARIANT_STYLES: Record<
@@ -70,27 +77,29 @@ const VARIANT_STYLES: Record<
   { bg: string; icon: string; border: string; role: "status" | "alert" }
 > = {
   info: {
-    bg: "bg-[var(--hm-blue-100)] dark:bg-[var(--hm-blue-700)]/20",
-    icon: "text-[var(--hm-blue-700)] dark:text-[var(--hm-blue-300)]",
-    border: "border-[var(--hm-blue-700)] dark:border-[var(--hm-blue-300)]",
+    bg: "bg-[var(--lr-graphite-100)] dark:bg-[var(--lr-graphite-700)]/20",
+    icon: "text-[var(--lr-graphite-700)] dark:text-[var(--lr-graphite-300)]",
+    border:
+      "border-[var(--lr-graphite-700)] dark:border-[var(--lr-graphite-300)]",
     role: "status",
   },
   success: {
-    bg: "bg-[var(--hm-sage-100)] dark:bg-[var(--hm-sage-700)]/20",
-    icon: "text-[var(--hm-sage-700)] dark:text-[var(--hm-sage-300)]",
-    border: "border-[var(--hm-sage-700)] dark:border-[var(--hm-sage-300)]",
+    bg: "bg-[var(--lr-petrol-100)] dark:bg-[var(--lr-petrol-700)]/20",
+    icon: "text-[var(--lr-petrol-700)] dark:text-[var(--lr-petrol-300)]",
+    border: "border-[var(--lr-petrol-700)] dark:border-[var(--lr-petrol-300)]",
     role: "status",
   },
   warning: {
-    bg: "bg-[var(--hm-sand-100)] dark:bg-[var(--hm-sand-700)]/20",
-    icon: "text-[var(--hm-sand-700)] dark:text-[var(--hm-sand-300)]",
-    border: "border-[var(--hm-sand-700)] dark:border-[var(--hm-sand-300)]",
+    bg: "bg-[var(--lr-gold-100)] dark:bg-[var(--lr-gold-700)]/20",
+    icon: "text-[var(--lr-gold-700)] dark:text-[var(--lr-gold-300)]",
+    border: "border-[var(--lr-gold-700)] dark:border-[var(--lr-gold-300)]",
     role: "alert",
   },
   error: {
-    bg: "bg-[var(--hm-clay-100)] dark:bg-[var(--hm-clay-600)]/20",
-    icon: "text-[var(--hm-clay-650)] dark:text-[var(--hm-clay-500)]",
-    border: "border-[var(--hm-clay-650)] dark:border-[var(--hm-clay-500)]",
+    bg: "bg-[var(--lr-negative-100)] dark:bg-[var(--lr-negative)]/20",
+    icon: "text-[var(--lr-negative-on-tint)] dark:text-[var(--lr-negative-500)]",
+    border:
+      "border-[var(--lr-negative-on-tint)] dark:border-[var(--lr-negative-500)]",
     role: "alert",
   },
 };
@@ -140,7 +149,7 @@ const ACTION_VARIANT_MAP = {
 } as const;
 
 /**
- * Harmon's inline notification. Dumb component: it renders whatever
+ * Lurem's inline notification. Dumb component: it renders whatever
  * title/description the caller passes and only reports "the user asked to
  * close this" — it never decides when to appear or disappear on its own.
  */
@@ -196,7 +205,7 @@ export function Alert({
         // (flex-wrap changes the row's own height, which the containment
         // spec excludes to avoid a resize loop), so a self-query like the
         // previous single-div version silently never fired.
-        "@container rounded-[var(--hm-r-md)]",
+        "@container rounded-[var(--lr-r-md)]",
         styles.bg,
         styles.border,
         className,
@@ -216,19 +225,19 @@ export function Alert({
           {ICON_PATHS[variant]}
         </svg>
         <div className="min-w-0 flex-1">
-          <p className="m-0 text-[.875rem] font-bold text-[var(--hm-text)]">
+          <p className="m-0 text-[.875rem] font-bold text-[var(--lr-text)]">
             {title}
           </p>
           {description ? (
-            // NOT --hm-text-2: that token is AA-checked against the neutral
-            // --hm-bg/--hm-surface only (per its own v1.1 comment in
-            // harmon-tokens.css). On top of these variants' tinted washes
+            // NOT --lr-text-secondary: that token is AA-checked against the neutral
+            // --lr-bg/--lr-surface only (per its own v1.1 comment in
+            // lurem-tokens.css). On top of these variants' tinted washes
             // (blue-100/sage-100/clay-100 etc.) it measured 4.12–4.35:1 via
             // axe-core — short of the 4.5:1 this component's own a11y bar
-            // requires. brand/design-system/harmon-components.css's
+            // requires. brand/design-system/lurem-components.css's
             // `.hmc-alert__body` has this identical gap. Full-strength text
             // trades a bit of visual "secondary" softness for guaranteed AA.
-            <p className="m-0 mt-0.5 text-[.875rem] text-[var(--hm-text)]">
+            <p className="m-0 mt-0.5 text-[.875rem] text-[var(--lr-text)]">
               {description}
             </p>
           ) : null}
@@ -237,7 +246,7 @@ export function Alert({
           <div
             className={[
               "flex flex-none items-center gap-2 self-center",
-              "ml-[var(--hm-s2)]",
+              "ml-[var(--lr-s2)]",
               // index.html id="alerta": below 560px the actions stretch to
               // full width, drop the left margin in favor of 30px of
               // left padding (aligns under the text, after the icon), and
@@ -254,7 +263,7 @@ export function Alert({
                 size="sm"
                 variant={ACTION_VARIANT_MAP[action.variant ?? "ghost"]}
                 onClick={action.onClick}
-                // Button's "tertiary"/ghost text color (--hm-text-2) was only
+                // Button's "tertiary"/ghost text color (--lr-text-secondary) was only
                 // ever AA-checked against the plain page surface, not against
                 // Alert's own tinted backgrounds (blue-100/sage-100/etc.) —
                 // axe-core caught exactly that combination here: 4.35:1 on
@@ -262,12 +271,12 @@ export function Alert({
                 // of bug already flagged on Badge/Alert's own title-text
                 // comments elsewhere in this file; the fix is the same one
                 // already applied to this component's title/description:
-                // force full-strength --hm-text instead of the muted tone.
+                // force full-strength --lr-text instead of the muted tone.
                 // The trailing `!` is Tailwind v4's important-utility syntax —
                 // needed because two different arbitrary-value utility
                 // classes targeting `color` don't otherwise have a
                 // predictable winner based on this component's own class order.
-                className="text-[var(--hm-text)]!"
+                className="text-[var(--lr-text)]!"
               >
                 {action.label}
               </Button>
@@ -279,7 +288,7 @@ export function Alert({
             type="button"
             onClick={onClose}
             aria-label="Fechar alerta"
-            className="-m-1 flex-none cursor-pointer rounded-[var(--hm-r-sm)] p-1 text-[var(--hm-text-2)] opacity-70 hover:bg-black/5 hover:opacity-100 dark:hover:bg-white/10"
+            className="-m-1 flex-none cursor-pointer rounded-[var(--lr-r-sm)] p-1 text-[var(--lr-text-secondary)] opacity-70 hover:bg-black/5 hover:opacity-100 dark:hover:bg-white/10"
           >
             <svg
               aria-hidden="true"

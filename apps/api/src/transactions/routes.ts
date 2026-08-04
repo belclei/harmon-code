@@ -2,15 +2,15 @@ import { randomUUID } from "node:crypto";
 // apps/api/src/transactions/routes.ts
 // BACKLOG.md US-3.5–3.9 — POST/GET /v1/transactions, ações de agendada
 // (confirm/skip), PATCH/DELETE. Regra de dinheiro determinística vive em
-// @harmon/core; aqui só orquestra I/O + validação de contrato.
+// @lurem/core; aqui só orquestra I/O + validação de contrato.
 import {
   addMonths,
   balance,
   clampDay,
   makeDate,
   todayAsDate,
-} from "@harmon/core";
-import type { Prisma, Transaction } from "@harmon/db";
+} from "@lurem/core";
+import type { Prisma, Transaction } from "@lurem/db";
 import type { FastifyInstance } from "fastify";
 import { z } from "zod";
 import { requireUser } from "../auth/authenticate.js";

@@ -1,5 +1,5 @@
 {
-  "name": "@harmon/db",
+  "name": "@lurem/db",
   "version": "0.0.0",
   "private": true,
   "type": "module",
@@ -14,7 +14,7 @@
     "migrate:dev": "prisma migrate dev",
     "migrate:deploy": "prisma migrate deploy",
     "seed": "tsx prisma/seed.ts",
-    "test": "echo \"@harmon/db has no unit tests in Sprint 1 (schema is validated via prisma validate + migrate diff, seed is run against a live database)\" && exit 0"
+    "test": "echo \"@lurem/db has no unit tests in Sprint 1 (schema is validated via prisma validate + migrate diff, seed is run against a live database)\" && exit 0"
   },
   "dependencies": {
     "@prisma/client": "^5.22.0"

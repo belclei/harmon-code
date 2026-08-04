@@ -37,7 +37,7 @@ export const CardDeConta: Story = {
   name: "Exemplo — card de conta carregando",
   render: () => (
     <div
-      className="hm-card"
+      className="lr-card"
       style={{ width: "18rem", display: "grid", gap: "0.75rem" }}
     >
       <div style={{ display: "flex", alignItems: "center", gap: "0.75rem" }}>

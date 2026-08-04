@@ -36,7 +36,7 @@ export interface PortadorCardProps {
 }
 
 /**
- * Harmon's portador (shared-cardholder) validation card. Dumb component:
+ * Lurem's portador (shared-cardholder) validation card. Dumb component:
  * status/copy arrive via props; direction of settlement ("a seu favor" vs.
  * reverse) is decided by the caller, never computed here (§6.10, §8.2 —
  * "informação, não julgamento" applies to relationships between people too).
@@ -77,7 +77,7 @@ export function PortadorCard({
         </div>
       </div>
       {status === "pending" && targetOptions && targetOptions.length > 0 ? (
-        <div className="mt-3 flex flex-col gap-2 border-t border-[var(--hm-border)] pt-3">
+        <div className="mt-3 flex flex-col gap-2 border-t border-[var(--lr-border)] pt-3">
           <Select
             label="Atribuir a"
             options={targetOptions.map((option) => ({
@@ -104,7 +104,7 @@ export function PortadorCard({
         </div>
       ) : null}
       {status === "accepted" && settlementLabel ? (
-        <div className="mt-3 flex items-center justify-between gap-3 border-t border-[var(--hm-border)] pt-3">
+        <div className="mt-3 flex items-center justify-between gap-3 border-t border-[var(--lr-border)] pt-3">
           <Body muted className="text-[.8125rem]">
             {settlementLabel}
           </Body>

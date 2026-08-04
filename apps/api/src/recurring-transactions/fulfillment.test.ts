@@ -1,4 +1,4 @@
-import type { PrismaClient } from "@harmon/db";
+import type { PrismaClient } from "@lurem/db";
 // apps/api/src/recurring-transactions/fulfillment.test.ts
 import { afterAll, afterEach, beforeAll, describe, expect, it } from "vitest";
 import { createAuthedUser } from "../../test/auth-helper.js";
@@ -9,7 +9,7 @@ import { fulfillDueRecurrences } from "./fulfillment.js";
 const TEST_ENV = {
   DATABASE_URL:
     process.env.DATABASE_URL ??
-    "postgresql://harmon:harmon@localhost:5433/harmon",
+    "postgresql://lurem_test:lurem_test@localhost:5433/lurem_test",
   REDIS_URL: "redis://localhost:6379",
   JWT_SECRET: "x".repeat(32),
   GOOGLE_CLIENT_ID: "placeholder",

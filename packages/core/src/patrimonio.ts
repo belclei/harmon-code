@@ -19,7 +19,7 @@ import type {
   CreditCardLike,
   Money,
   TransactionLike,
-} from "@harmon/domain";
+} from "@lurem/domain";
 import { balance } from "./balance.js";
 import { compareDates, todayAsDate } from "./dates.js";
 

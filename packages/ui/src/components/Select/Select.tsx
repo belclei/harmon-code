@@ -54,7 +54,7 @@ export interface SelectProps {
 }
 
 /**
- * Harmon's searchable dropdown (combobox pattern, WAI-ARIA 1.2). Open/closed
+ * Lurem's searchable dropdown (combobox pattern, WAI-ARIA 1.2). Open/closed
  * and the search query are local UI state, not business logic: the component
  * never decides *what* the options are or what selecting one means.
  */
@@ -162,7 +162,7 @@ export function Select({
     <div className="grid gap-1.5" ref={containerRef} onBlur={handleBlur}>
       <label
         htmlFor={inputId}
-        className="text-[.9375rem] font-medium text-[var(--hm-text)]"
+        className="text-[.9375rem] font-medium text-[var(--lr-text)]"
       >
         {label}
       </label>
@@ -190,16 +190,16 @@ export function Select({
           }}
           onKeyDown={handleKeyDown}
           className={[
-            "w-full min-h-11 rounded-[var(--hm-r-md)] pl-3.5 pr-9 text-[.9375rem]",
-            "bg-[var(--hm-surface)] text-[var(--hm-text)] border transition-colors duration-150",
-            "placeholder:text-[var(--hm-text-2)]",
-            "disabled:bg-[var(--hm-surface-sunken)] disabled:text-[var(--hm-text-2)]",
+            "w-full min-h-11 rounded-[var(--lr-r-md)] pl-3.5 pr-9 text-[.9375rem]",
+            "bg-[var(--lr-surface)] text-[var(--lr-text)] border transition-colors duration-150",
+            "placeholder:text-[var(--lr-text-secondary)]",
+            "disabled:bg-[var(--lr-surface-sunken)] disabled:text-[var(--lr-text-secondary)]",
             "disabled:cursor-not-allowed disabled:pointer-events-none",
             hasError
-              ? "border-[var(--hm-clay-600)]"
+              ? "border-[var(--lr-negative)]"
               : open
-                ? "border-[var(--hm-ink-300)]"
-                : "border-[var(--hm-border)] hover:border-[var(--hm-ink-300)]",
+                ? "border-[var(--lr-night-300)]"
+                : "border-[var(--lr-border)] hover:border-[var(--lr-night-300)]",
           ].join(" ")}
         />
         <svg
@@ -207,7 +207,7 @@ export function Select({
           viewBox="0 0 20 20"
           fill="currentColor"
           className={[
-            "pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[var(--hm-text-2)]",
+            "pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[var(--lr-text-secondary)]",
             "transition-transform duration-150",
             open ? "rotate-180" : "",
           ].join(" ")}
@@ -240,12 +240,12 @@ export function Select({
             aria-label={label}
             tabIndex={-1}
             className={[
-              "absolute z-10 mt-1 max-h-60 w-full overflow-auto rounded-[var(--hm-r-md)]",
-              "border border-[var(--hm-border)] bg-[var(--hm-surface)] py-1 shadow-[var(--hm-e2)]",
+              "absolute z-10 mt-1 max-h-60 w-full overflow-auto rounded-[var(--lr-r-md)]",
+              "border border-[var(--lr-border)] bg-[var(--lr-surface)] py-1 shadow-[var(--lr-e2)]",
             ].join(" ")}
           >
             {navigableOptions.length === 0 ? (
-              <div className="px-3.5 py-2 text-sm text-[var(--hm-text-2)]">
+              <div className="px-3.5 py-2 text-sm text-[var(--lr-text-secondary)]">
                 {emptyMessage}
               </div>
             ) : (
@@ -259,7 +259,7 @@ export function Select({
                       // biome-ignore lint/suspicious/noArrayIndexKey: separators carry no identity of their own
                       key={`sep-${itemIndex}`}
                       aria-hidden="true"
-                      className="my-1.5 h-px bg-[var(--hm-border)]"
+                      className="my-1.5 h-px bg-[var(--lr-border)]"
                     />
                   );
                 }
@@ -296,17 +296,22 @@ export function Select({
                       // wash even while highlighted (the reference's CSS
                       // declares `.is-selected` after `.is-highlighted`, so
                       // it wins) — highlighted-only gets the plain sunken hover tint.
+                      // REBRAND (Task 1.3): blue-100/700 -> petrol-100/700 —
+                      // DESIGN_SYSTEM.md §1.2 explicitly lists "componentes
+                      // selecionados" as a Petrol application, so this one is
+                      // spec-backed, not an open product question (unlike the
+                      // blue->graphite info/link sites elsewhere in this rebrand).
                       isSelected
-                        ? "bg-[var(--hm-blue-100)] font-bold text-[var(--hm-text)] dark:bg-[var(--hm-blue-700)]/30"
+                        ? "bg-[var(--lr-petrol-100)] font-bold text-[var(--lr-text)] dark:bg-[var(--lr-petrol-700)]/30"
                         : isHighlighted
-                          ? "bg-[var(--hm-surface-sunken)] text-[var(--hm-text)]"
-                          : "text-[var(--hm-text)]",
+                          ? "bg-[var(--lr-surface-sunken)] text-[var(--lr-text)]"
+                          : "text-[var(--lr-text)]",
                     ].join(" ")}
                   >
                     {option.icon ? (
                       <span
                         aria-hidden="true"
-                        className="inline-flex h-[18px] w-[18px] flex-none text-[var(--hm-blue-700)] dark:text-[var(--hm-blue-300)] [&>svg]:h-full [&>svg]:w-full"
+                        className="inline-flex h-[18px] w-[18px] flex-none text-[var(--lr-petrol-700)] dark:text-[var(--lr-petrol-300)] [&>svg]:h-full [&>svg]:w-full"
                       >
                         {option.icon}
                       </span>

@@ -1,4 +1,4 @@
-// Harmon — seed (US-1.3)
+// Lurem — seed (US-1.3)
 // Fonte: ARQUITETURA.md §6.2 (bootstrap do primeiro admin), §6.3 (feature flags),
 // §6.4 (catálogo de instituições), §6.5 (categorias); IMPLEMENTACAO.md §1.2-1.4.
 //
