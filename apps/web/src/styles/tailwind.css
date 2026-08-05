@@ -6,10 +6,9 @@
 @import "tailwindcss";
 
 /* Same token file packages/ui bundles (packages/ui/src/tokens/lurem-tokens.css),
-   reached through the @lurem/ui workspace package rather than a relative
-   ../../../packages/ui path — apps/web never reaches into @lurem/ui's
-   internal file layout anywhere else, so its CSS entrypoint doesn't either. */
-@import "@lurem/ui/src/tokens/lurem-tokens.css";
+   reached through relative path in dev (Vite may not resolve @lurem/ui/src correctly).
+   Path: apps/web/src/styles → 4 levels up to root → packages/ui/src/tokens */
+@import "../../../../packages/ui/src/tokens/lurem-tokens.css";
 
 /* Tailwind v4 auto-detects sources in *this* project but skips node_modules,
    so utility classes used only inside @lurem/ui components (e.g. the Select
